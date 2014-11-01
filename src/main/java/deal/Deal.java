@@ -20,11 +20,29 @@ public class Deal {
         return "Opportunity: " + opportunity + " deal properties (values): " + dealProperties.values();
     }
 
-    public boolean isEqual(Deal t){
-        if (!(t.opportunity.equals(this.opportunity))) return false;
+    public int almostUniqueCode() {
+        int retInt = 0;
 
-        //compare dealProperties
-        if (!(this.dealProperties.entrySet().equals(t.dealProperties.entrySet()))) return false;
-        else return true;
+        char[] oppArr = opportunity.toCharArray();
+        for (char c : oppArr) {
+            retInt += c;
+        }
+
+        StringBuilder sb = new StringBuilder();
+
+        for (Map.Entry<String, String> e : dealProperties.entrySet()) {
+            sb.append(e.getKey() + e.getValue());
+        }
+
+        String dp = sb.toString();
+        char[] dpArr = dp.toCharArray();
+
+        for (char c : dpArr) {
+            retInt += c;
+        }
+
+        return retInt;
     }
+
+
 }

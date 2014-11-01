@@ -11,8 +11,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.collection.IsIterableContainingInAnyOrder.containsInAnyOrder;
@@ -52,17 +51,37 @@ public class DCParserTest {
 
          Deal e1 = new Deal("Project PE - AA1", e1dp), e2 = new Deal("Project PE - AA2", e2dp);
 
-         List<Deal> expected = Lists.newArrayListWithExpectedSize(2);
-
+         List<Deal> expected = Lists.newArrayList();
          expected.add(e1);
          expected.add(e2);
 
          List<Deal> actual = parser.parse();
 
-         boolean firstEqual = e1.isEqual(actual.get(0)), secondEqual = e2.isEqual(actual.get(1));
-
-         //TODO: improve this test so that it works in any order, (probably when we have cache implemented)
-
-         assert(firstEqual == true && secondEqual == true);
+         assert(dealsEqualInAnyOrder(expected, actual));
      }
+
+    public boolean dealsEqualInAnyOrder(List<Deal> a, List<Deal> b) {
+
+        if (a.size() != b.size()) return false;
+
+        Map<Integer, Integer> comparMap = Maps.newHashMap();
+
+        for (int i = 0; i < a.size(); i++) {
+            Deal da = a.get(i), db = b.get(i);
+            int ua = da.almostUniqueCode(), ub = db.almostUniqueCode();
+
+            if (!(comparMap.containsKey(ua))) comparMap.put(ua, 1);
+            else comparMap.put(ua, comparMap.get(ua) + 1);
+
+            if (!(comparMap.containsKey(ub))) comparMap.put(ub, -1);
+            else comparMap.put(ub, comparMap.get(ub) - 1);
+        }
+
+        Set<Integer> res = new HashSet<Integer>(comparMap.values());
+
+        if (res.size() != 1) return false;
+        if (!(res.contains(0))) return false;
+
+        return true;
+    }
 }

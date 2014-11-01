@@ -51,8 +51,6 @@ public class DCParser extends AbstractParser {
 
             Deal currentDeal = new Deal(opportunity, dealProperties);
 
-            System.out.println(currentDeal);
-
             deals.add(currentDeal);
             rCount++;
         }
