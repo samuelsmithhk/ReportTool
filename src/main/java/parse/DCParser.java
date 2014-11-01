@@ -12,14 +12,13 @@ import java.util.Map;
 /**
  * Created by samuelsmith on 28/10/2014.
  */
-public class DCParser implements SheetParser {
+public class DCParser extends AbstractParser {
 
     public final Sheet sheet;
-    private final FormulaEvaluator evaluator;
 
     public DCParser(Workbook workbook) {
+        super(workbook.getCreationHelper().createFormulaEvaluator());
         this.sheet = workbook.getSheetAt(0);
-        this.evaluator = workbook.getCreationHelper().createFormulaEvaluator();
     }
 
     @Override
@@ -47,7 +46,7 @@ public class DCParser implements SheetParser {
                 String currentVal = parseCell(currentCell);
 
                 if (headers.get(cCount - 1).equals("Company")) opportunity = currentVal;
-                else dealProperties.put(headers.get(cCount), currentVal);
+                else dealProperties.put(headers.get(cCount - 1), currentVal);
             }
 
             Deal currentDeal = new Deal(opportunity, dealProperties);
@@ -59,28 +58,6 @@ public class DCParser implements SheetParser {
         }
 
         return deals;
-    }
-
-    public String parseCell(Cell cell) {
-
-        if (cell != null) {
-            switch (cell.getCellType()) {
-                case Cell.CELL_TYPE_BOOLEAN :
-                    return String.valueOf(cell.getBooleanCellValue());
-                case Cell.CELL_TYPE_BLANK :
-                    return "";
-                case Cell.CELL_TYPE_ERROR :
-                    return "ERROR";
-                case Cell.CELL_TYPE_NUMERIC :
-                    return String.valueOf(cell.getNumericCellValue());
-                case Cell.CELL_TYPE_STRING :
-                    return cell.getStringCellValue().trim();
-                case Cell.CELL_TYPE_FORMULA :
-                    return parseCell(evaluator.evaluateInCell(cell));
-            }
-        }
-
-        return null;
     }
 
     public List<String> getHeaders(Row headerRow) {

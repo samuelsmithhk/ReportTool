@@ -21,9 +21,10 @@ public class Deal {
     }
 
     public boolean isEqual(Deal t){
-        if (t.opportunity.equals(this.opportunity)) return true;
-        return false;
+        if (!(t.opportunity.equals(this.opportunity))) return false;
+
+        //compare dealProperties
+        if (!(this.dealProperties.entrySet().equals(t.dealProperties.entrySet()))) return false;
+        else return true;
     }
-
-
 }
