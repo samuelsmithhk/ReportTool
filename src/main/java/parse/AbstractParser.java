@@ -1,8 +1,9 @@
 package parse;
 
-import com.sun.xml.internal.ws.util.pipe.AbstractSchemaValidationTube;
+import deal.DealProperty;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.FormulaEvaluator;
+import org.joda.time.DateTime;
 
 /**
  * Created by samuelsmith on 01/11/2014.
@@ -10,25 +11,40 @@ import org.apache.poi.ss.usermodel.FormulaEvaluator;
 public abstract class AbstractParser implements SheetParser {
 
     private final FormulaEvaluator evaluator;
+    public final DateTime timestamp;
 
-    public AbstractParser(FormulaEvaluator evaluator) {
+    public AbstractParser(FormulaEvaluator evaluator, DateTime timestamp) {
         this.evaluator = evaluator;
+        this.timestamp = timestamp;
     }
 
-    public String parseCell(Cell cell) {
+    public DealProperty parseCell(Cell cell) {
 
         if (cell != null) {
+            DealProperty.DealPropertyBuilder retDPB = new DealProperty.DealPropertyBuilder();
+            DealProperty.Value val;
+
             switch (cell.getCellType()) {
                 case Cell.CELL_TYPE_BOOLEAN:
-                    return String.valueOf(cell.getBooleanCellValue());
+                    val = new DealProperty.Value(cell.getBooleanCellValue(), DealProperty.Value.ValueType.BOOLEAN);
+                    retDPB = retDPB.withValue(timestamp, val);
+                    return retDPB.build();
                 case Cell.CELL_TYPE_BLANK:
-                    return "";
+                    val = new DealProperty.Value(null, DealProperty.Value.ValueType.BLANK);
+                    retDPB = retDPB.withValue(timestamp, val);
+                    return retDPB.build();
                 case Cell.CELL_TYPE_ERROR:
-                    return "ERROR";
+                    val = new DealProperty.Value("ERROR", DealProperty.Value.ValueType.STRING);
+                    retDPB = retDPB.withValue(timestamp, val);
+                    return retDPB.build();
                 case Cell.CELL_TYPE_NUMERIC:
-                    return String.valueOf(cell.getNumericCellValue());
+                    val = new DealProperty.Value(cell.getNumericCellValue(), DealProperty.Value.ValueType.NUMERIC);
+                    retDPB = retDPB.withValue(timestamp, val);
+                    return retDPB.build();
                 case Cell.CELL_TYPE_STRING:
-                    return cell.getStringCellValue().trim();
+                    val = new DealProperty.Value(cell.getStringCellValue(), DealProperty.Value.ValueType.STRING);
+                    retDPB = retDPB.withValue(timestamp, val);
+                    return retDPB.build();
                 case Cell.CELL_TYPE_FORMULA:
                     return parseCell(evaluator.evaluateInCell(cell));
             }

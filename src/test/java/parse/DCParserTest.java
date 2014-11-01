@@ -3,9 +3,11 @@ package parse;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import deal.Deal;
+import deal.DealProperty;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -23,13 +25,15 @@ import static org.hamcrest.collection.IsIterableContainingInAnyOrder.containsInA
 public class DCParserTest {
 
     DCParser parser;
+    DateTime timestamp;
 
     @Before
     public void init() throws IOException, InvalidFormatException {
 
         InputStream input = this.getClass().getResourceAsStream("/testFiles/dcTestSheet.xlsx");
         Workbook wb = new XSSFWorkbook(input);
-        parser = new DCParser(wb);
+        timestamp = new DateTime();
+        parser = new DCParser(wb, timestamp);
     }
 
     @Test
@@ -44,12 +48,22 @@ public class DCParserTest {
      @Test
      public void shouldGenerateActualDeals() {
 
-         Map<String, String> e1dp = Maps.newHashMap(), e2dp = Maps.newHashMap();
+         Map<String, DealProperty> e1dps = Maps.newHashMap(), e2dps = Maps.newHashMap();
 
-         e1dp.put("Deal Code Name", "Deal Code - Project PE - AA1");
-         e2dp.put("Deal Code Name", "Deal Code - Project PE - AA2");
+         DealProperty dp1 = new DealProperty.DealPropertyBuilder()
+                 .withValue(timestamp, new DealProperty.Value
+                         ("Deal Code - Project PE - AA1", DealProperty.Value.ValueType.STRING))
+                 .build();
 
-         Deal e1 = new Deal("Project PE - AA1", e1dp), e2 = new Deal("Project PE - AA2", e2dp);
+         DealProperty dp2 = new DealProperty.DealPropertyBuilder()
+                 .withValue(timestamp, new DealProperty.Value
+                         ("Deal Code - Project PE - AA2", DealProperty.Value.ValueType.STRING))
+                 .build();
+
+         e1dps.put("Deal Code Name", dp1);
+         e2dps.put("Deal Code Name", dp2);
+
+         Deal e1 = new Deal("Project PE - AA1", e1dps), e2 = new Deal("Project PE - AA2", e2dps);
 
          List<Deal> expected = Lists.newArrayList();
          expected.add(e1);
@@ -69,6 +83,8 @@ public class DCParserTest {
         for (int i = 0; i < a.size(); i++) {
             Deal da = a.get(i), db = b.get(i);
             int ua = da.almostUniqueCode(), ub = db.almostUniqueCode();
+
+            System.out.println("ua = " + ua + " ub = " + ub);
 
             if (!(comparMap.containsKey(ua))) comparMap.put(ua, 1);
             else comparMap.put(ua, comparMap.get(ua) + 1);

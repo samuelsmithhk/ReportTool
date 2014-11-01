@@ -8,9 +8,9 @@ import java.util.Map;
 public class Deal {
 
     public final String opportunity;
-    public final Map<String, String> dealProperties;
+    public final Map<String, DealProperty> dealProperties;
 
-    public Deal (String opportunity, Map<String, String> dealProperties) {
+    public Deal (String opportunity, Map<String, DealProperty> dealProperties) {
         this.opportunity = opportunity;
         this.dealProperties = dealProperties;
     }
@@ -30,8 +30,8 @@ public class Deal {
 
         StringBuilder sb = new StringBuilder();
 
-        for (Map.Entry<String, String> e : dealProperties.entrySet()) {
-            sb.append(e.getKey() + e.getValue());
+        for (Map.Entry<String, DealProperty> e : dealProperties.entrySet()) {
+            sb.append(e.getKey() + e.getValue().getLatestValue().innerValue);
         }
 
         String dp = sb.toString();

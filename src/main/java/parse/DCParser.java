@@ -3,7 +3,9 @@ package parse;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import deal.Deal;
+import deal.DealProperty;
 import org.apache.poi.ss.usermodel.*;
+import org.joda.time.DateTime;
 
 import java.awt.*;
 import java.util.List;
@@ -16,8 +18,8 @@ public class DCParser extends AbstractParser {
 
     public final Sheet sheet;
 
-    public DCParser(Workbook workbook) {
-        super(workbook.getCreationHelper().createFormulaEvaluator());
+    public DCParser(Workbook workbook, DateTime timestamp) {
+        super(workbook.getCreationHelper().createFormulaEvaluator(), timestamp);
         this.sheet = workbook.getSheetAt(0);
     }
 
@@ -35,17 +37,18 @@ public class DCParser extends AbstractParser {
         while (rCount < 99) {
             currentRow = sheet.getRow(rCount);
 
-            String firstValue = parseCell(currentRow.getCell(0));
-            if (firstValue.equals("")) break;
+            DealProperty firstDP = parseCell(currentRow.getCell(0));
+            if (firstDP.getLatestValue().type == DealProperty.Value.ValueType.BLANK) break;
 
-            Map<String, String> dealProperties = Maps.newHashMap();
+            Map<String, DealProperty> dealProperties = Maps.newHashMap();
             String opportunity = null;
 
             for (int cCount = 1; cCount <= headers.size(); cCount++) {
                 Cell currentCell = currentRow.getCell(cCount);
-                String currentVal = parseCell(currentCell);
+                DealProperty currentVal = parseCell(currentCell);
 
-                if (headers.get(cCount - 1).equals("Company")) opportunity = currentVal;
+                if (headers.get(cCount - 1).equals("Company"))
+                    opportunity = (String) currentVal.getLatestValue().innerValue;
                 else dealProperties.put(headers.get(cCount - 1), currentVal);
             }
 
@@ -65,9 +68,10 @@ public class DCParser extends AbstractParser {
         int count = 1; //ignore 0 as first col is just a count
         while (count < 99) {
             Cell currentCell = headerRow.getCell(count);
-            String currentValue = parseCell(currentCell);
+            DealProperty currentValue = parseCell(currentCell);
 
-            if (!currentValue.equals("")) retList.add(currentValue);
+            if (currentValue.getLatestValue().type != DealProperty.Value.ValueType.BLANK)
+                retList.add((String) currentValue.getLatestValue().innerValue);
             else break;
 
             count++;
