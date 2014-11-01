@@ -20,5 +20,10 @@ public class Deal {
         return "Opportunity: " + opportunity + " deal properties (values): " + dealProperties.values();
     }
 
+    public boolean isEqual(Deal t){
+        if (t.opportunity.equals(this.opportunity)) return true;
+        return false;
+    }
+
 
 }
