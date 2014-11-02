@@ -11,10 +11,23 @@ import java.util.Map;
  */
 public class Cache {
 
+    public static Cache createEmptyCache() {
+        return new Cache();
+    }
+
+    public static Cache createLoadedCache(String cacheFile) {
+        return new Cache(deserializeCache(cacheFile));
+    }
+
+
     private final Map<String, Deal> deals;
 
-    public Cache(){
+    private Cache(){
         deals = Maps.newHashMap();
+    }
+
+    private Cache(Map<String, Deal> deals) {
+        this.deals = deals;
     }
 
     public void processDealUpdate(DateTime timestamp, Map<String, Deal> newDeals) {
@@ -28,5 +41,15 @@ public class Cache {
                 deals.put(entry.getKey(), entry.getValue());
             }
         }
+    }
+
+    private static String serializeCache(Map<String, Deal> file) {
+        //TODO: parse map to json
+        return null;
+    }
+
+    private static Map<String, Deal> deserializeCache(String json) {
+        //TODO: Parse json into map
+        return null;
     }
 }

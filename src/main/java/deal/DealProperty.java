@@ -20,6 +20,11 @@ public class DealProperty {
         return values.lastEntry().getValue();
     }
 
+    public Value getValueAtTimestamp(DateTime timestamp) {
+        if (values.containsKey(timestamp)) return values.get(timestamp);
+        throw new IllegalArgumentException("No value for given timestamp");
+    }
+
     public void addValue(DateTime timestamp, Value value) {
         if (!values.containsKey(timestamp)) values.put(timestamp, value);
         else throw new IllegalArgumentException("Value already exists for timestamp");
@@ -32,6 +37,8 @@ public class DealProperty {
 
 
         public DealPropertyBuilder withValue(DateTime timestamp, Value value) {
+            if (values.containsKey(timestamp))
+                throw new IllegalArgumentException("Value already exists for timestamp");
             this.values.put(timestamp, value);
             return this;
         }
