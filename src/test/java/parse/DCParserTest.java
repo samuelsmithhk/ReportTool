@@ -63,28 +63,37 @@ public class DCParserTest {
          e1dps.put("Deal Code Name", dp1);
          e2dps.put("Deal Code Name", dp2);
 
-         Deal e1 = new Deal("Project PE - AA1", e1dps), e2 = new Deal("Project PE - AA2", e2dps);
+         Deal e1 = new Deal(e1dps), e2 = new Deal(e2dps);
 
-         List<Deal> expected = Lists.newArrayList();
-         expected.add(e1);
-         expected.add(e2);
+         Map<String, Deal> expected = Maps.newHashMap();
+         expected.put("Project PE - AA1", e1);
+         expected.put("Project PE - AA2", e2);
 
-         List<Deal> actual = parser.parse();
+         Map<String, Deal> actual = parser.parse();
 
          assert(dealsEqualInAnyOrder(expected, actual));
      }
 
-    public boolean dealsEqualInAnyOrder(List<Deal> a, List<Deal> b) {
+    public boolean dealsEqualInAnyOrder(Map<String, Deal> ma, Map<String, Deal> mb) {
 
-        if (a.size() != b.size()) return false;
+        if (ma.size() != mb.size()) return false;
+
+        for (Map.Entry<String, Deal> entry : ma.entrySet()) {
+            if (!(mb.containsKey(entry.getKey()))) return false;
+        }
+
+        for (Map.Entry<String, Deal> entry : mb.entrySet()) {
+            if (!(ma.containsKey(entry.getKey()))) return false;
+        }
+
+        List<Deal> a = Lists.newArrayList(ma.values());
+        List<Deal> b = Lists.newArrayList(mb.values());
 
         Map<Integer, Integer> comparMap = Maps.newHashMap();
 
         for (int i = 0; i < a.size(); i++) {
             Deal da = a.get(i), db = b.get(i);
             int ua = da.almostUniqueCode(), ub = db.almostUniqueCode();
-
-            System.out.println("ua = " + ua + " ub = " + ub);
 
             if (!(comparMap.containsKey(ua))) comparMap.put(ua, 1);
             else comparMap.put(ua, comparMap.get(ua) + 1);

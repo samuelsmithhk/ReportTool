@@ -7,7 +7,6 @@ import deal.DealProperty;
 import org.apache.poi.ss.usermodel.*;
 import org.joda.time.DateTime;
 
-import java.awt.*;
 import java.util.List;
 import java.util.Map;
 
@@ -24,8 +23,8 @@ public class DCParser extends AbstractParser {
     }
 
     @Override
-    public List<Deal> parse() {
-        List<Deal> deals = Lists.newArrayList();
+    public Map<String, Deal> parse() {
+        Map<String, Deal> parsedDeals = Maps.newHashMap();
 
         Row headerRow = sheet.getRow(4);
 
@@ -52,18 +51,17 @@ public class DCParser extends AbstractParser {
                 else dealProperties.put(headers.get(cCount - 1), currentVal);
             }
 
-            Deal currentDeal = new Deal(opportunity, dealProperties);
+            Deal currentDeal = new Deal(dealProperties);
 
-            deals.add(currentDeal);
+            parsedDeals.put(opportunity, currentDeal);
             rCount++;
         }
 
-        return deals;
+        return parsedDeals;
     }
 
     public List<String> getHeaders(Row headerRow) {
         List<String> retList = Lists.newArrayList();
-        boolean end = false;
 
         int count = 1; //ignore 0 as first col is just a count
         while (count < 99) {

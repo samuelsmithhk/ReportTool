@@ -2,11 +2,11 @@ package parse;
 
 import deal.Deal;
 
-import java.util.List;
+import java.util.Map;
 
 /**
  * Created by samuelsmith on 28/10/2014.
  */
 public interface SheetParser {
-    public List<Deal> parse();
+    public Map<String, Deal> parse();
 }

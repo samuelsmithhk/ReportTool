@@ -20,9 +20,16 @@ public class DealProperty {
         return values.lastEntry().getValue();
     }
 
+    public void addValue(DateTime timestamp, Value value) {
+        if (!values.containsKey(timestamp)) values.put(timestamp, value);
+        else throw new IllegalArgumentException("Value already exists for timestamp");
+    }
+
+
     public static class DealPropertyBuilder<T> {
 
         private TreeMap<DateTime, Value> values = Maps.newTreeMap();
+
 
         public DealPropertyBuilder withValue(DateTime timestamp, Value value) {
             this.values.put(timestamp, value);
