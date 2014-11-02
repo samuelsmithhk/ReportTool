@@ -1,6 +1,10 @@
 package cache;
 
 import com.google.common.collect.Maps;
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import deal.Deal;
 import org.joda.time.DateTime;
 
@@ -43,12 +47,22 @@ public class Cache {
         }
     }
 
-    private static String serializeCache(Map<String, Deal> file) {
-        //TODO: parse map to json
-        return null;
+    public static String serializeCache(Map<String, Deal> file) {
+        Gson gson = new Gson();
+        return gson.toJson(file);
+
     }
 
-    private static Map<String, Deal> deserializeCache(String json) {
+    public static Map<String, Deal> deserializeCache(String json) {
+        //{"Project PE - AA2":{"dealProperties":{"Deal Code Name":
+        // {"values":{"2014-10-10T10:10:00.000+08:00":
+        // {"innerValue":"Deal Code - Project PE - AA2","type":"STRING"}}}}},"Project PE - AA1":
+        // {"dealProperties":{"Deal Code Name":{"values":{"2014-10-10T10:10:00.000+08:00":
+        // {"innerValue":"Deal Code - Project PE - AA1","type":"STRING"}}}}}}
+
+        JsonParser parser = new JsonParser();
+        JsonObject o = (JsonObject) parser.parse(json);
+
         //TODO: Parse json into map
         return null;
     }

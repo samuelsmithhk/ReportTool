@@ -9,6 +9,8 @@
     <version>1.0</version>
 
     <dependencies>
+
+        <!-- Apache POI - for parsing excel files -->
         <dependency>
             <groupId>org.apache.poi</groupId>
             <artifactId>poi</artifactId>
@@ -21,12 +23,22 @@
             <version>3.10.1</version>
         </dependency>
 
+        <!-- Google Collections - useful collection functionality -->
         <dependency>
             <groupId>com.google.collections</groupId>
             <artifactId>google-collections</artifactId>
             <version>1.0</version>
         </dependency>
 
+
+        <!-- Google GSON - for parsing to and from json -->
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.3</version>
+        </dependency>
+
+        <!-- Joda Time - for easier handling of time -->
         <dependency>
             <groupId>joda-time</groupId>
             <artifactId>joda-time</artifactId>
