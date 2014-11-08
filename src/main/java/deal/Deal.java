@@ -31,7 +31,7 @@ public class Deal {
 
     @Override
     public String toString() {
-        return "Deal properties (values): " + dealProperties.values();
+        return " Deal properties : " + dealProperties;
     }
 
     public int almostUniqueCode() {

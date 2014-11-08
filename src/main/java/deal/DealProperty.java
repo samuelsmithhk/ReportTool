@@ -3,6 +3,7 @@ package deal;
 import com.google.common.collect.Maps;
 import org.joda.time.DateTime;
 
+import java.util.Map;
 import java.util.TreeMap;
 
 /**
@@ -30,6 +31,11 @@ public class DealProperty {
         else throw new IllegalArgumentException("Value already exists for timestamp");
     }
 
+    @Override
+    public String toString() {
+        return String.valueOf(values);
+    }
+
 
     public static class DealPropertyBuilder<T> {
 
@@ -41,6 +47,16 @@ public class DealProperty {
                 throw new IllegalArgumentException("Value already exists for timestamp");
             this.values.put(timestamp, value);
             return this;
+        }
+
+        public DealPropertyBuilder withValues(Map<DateTime, Value> values) {
+            DealPropertyBuilder retDPB = new DealPropertyBuilder();
+
+            for (Map.Entry<DateTime, Value> value : values.entrySet()) {
+                retDPB = retDPB.withValue(value.getKey(), value.getValue());
+            }
+
+            return retDPB;
         }
 
         public DealProperty build() {
@@ -60,6 +76,11 @@ public class DealProperty {
         public Value(T innerValue, ValueType type){
             this.innerValue = innerValue;
             this.type = type;
+        }
+
+        @Override
+        public String toString() {
+            return (String.valueOf(innerValue) + " (type: " + type + ")");
         }
 
     }
