@@ -4,11 +4,15 @@ import deal.DealProperty;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.FormulaEvaluator;
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Created by samuelsmith on 01/11/2014.
  */
 public abstract class AbstractParser implements SheetParser {
+
+    private final Logger logger = LoggerFactory.getLogger(AbstractParser.class);
 
     private final FormulaEvaluator evaluator;
     public final DateTime timestamp;
@@ -19,6 +23,8 @@ public abstract class AbstractParser implements SheetParser {
     }
 
     public DealProperty parseCell(Cell cell) {
+
+        logger.info("Parsing cell: " + cell);
 
         if (cell != null) {
             DealProperty.DealPropertyBuilder retDPB = new DealProperty.DealPropertyBuilder();

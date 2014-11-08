@@ -2,6 +2,8 @@ package deal;
 
 import com.google.common.collect.Maps;
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 import java.util.TreeMap;
@@ -10,6 +12,8 @@ import java.util.TreeMap;
  * Created by samuelsmith on 01/11/2014.
  */
 public class DealProperty {
+
+    private final Logger logger = LoggerFactory.getLogger(DealProperty.class);
 
     private final TreeMap<DateTime, Value> values; //contains all versions of the value
 
@@ -22,11 +26,14 @@ public class DealProperty {
     }
 
     public Value getValueAtTimestamp(DateTime timestamp) {
+        logger.info("Getting value at timestamp: " + timestamp);
+
         if (values.containsKey(timestamp)) return values.get(timestamp);
         throw new IllegalArgumentException("No value for given timestamp");
     }
 
     public void addValue(DateTime timestamp, Value value) {
+        logger.info("Adding value: " + value + " to DealProperty " + this);
         if (!values.containsKey(timestamp)) values.put(timestamp, value);
         else throw new IllegalArgumentException("Value already exists for timestamp");
     }

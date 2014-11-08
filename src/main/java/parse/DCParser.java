@@ -6,6 +6,8 @@ import deal.Deal;
 import deal.DealProperty;
 import org.apache.poi.ss.usermodel.*;
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
@@ -15,15 +17,22 @@ import java.util.Map;
  */
 public class DCParser extends AbstractParser {
 
+    private final Logger logger = LoggerFactory.getLogger(DCParser.class);
+
     public final Sheet sheet;
 
     public DCParser(Workbook workbook, DateTime timestamp) {
         super(workbook.getCreationHelper().createFormulaEvaluator(), timestamp);
+
+        logger.info("Creating Deal Central Parser for workbook: " + workbook);
+
         this.sheet = workbook.getSheetAt(0);
     }
 
     @Override
     public Map<String, Deal> parse() {
+        logger.info("Parsing workbook");
+
         Map<String, Deal> parsedDeals = Maps.newHashMap();
 
         Row headerRow = sheet.getRow(4);
@@ -34,9 +43,12 @@ public class DCParser extends AbstractParser {
         Row currentRow = null;
 
         while (rCount < 99) {
+            logger.info("Parsing row " + rCount);
+
             currentRow = sheet.getRow(rCount);
 
             DealProperty firstDP = parseCell(currentRow.getCell(0));
+            if (firstDP == null) break;
             if (firstDP.getLatestValue().type == DealProperty.Value.ValueType.BLANK) break;
 
             Map<String, DealProperty> dealProperties = Maps.newHashMap();
@@ -57,15 +69,20 @@ public class DCParser extends AbstractParser {
             rCount++;
         }
 
+        logger.info("Parsed from workbook: " + parsedDeals);
         return parsedDeals;
     }
 
     public List<String> getHeaders(Row headerRow) {
+        logger.info("Getting header row");
         List<String> retList = Lists.newArrayList();
 
         int count = 1; //ignore 0 as first col is just a count
         while (count < 99) {
             Cell currentCell = headerRow.getCell(count);
+
+            if (currentCell == null) break;
+
             DealProperty currentValue = parseCell(currentCell);
 
             if (currentValue.getLatestValue().type != DealProperty.Value.ValueType.BLANK)

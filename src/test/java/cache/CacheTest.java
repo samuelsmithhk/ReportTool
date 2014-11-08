@@ -50,7 +50,7 @@ public class CacheTest {
         String json =
                 "{\"Project PE - AA2\":{\"dealProperties\":{\"Deal Code Name\":{\"values\":{\"2014-10-10T10:10:00.000+08:00\":{\"innerValue\":\"Deal Code - Project PE - AA2\",\"type\":\"STRING\"}}}}},\"Project PE - AA1\":{\"dealProperties\":{\"Deal Code Name\":{\"values\":{\"2014-10-10T10:10:00.000+08:00\":{\"innerValue\":\"Deal Code - Project PE - AA1\",\"type\":\"STRING\"}}}}}}";
 
-        String actual = String.valueOf(Cache.deserializeCache(json));
+        String actual = String.valueOf(Cache.deserializeCacheContents(json));
         String expected =
                 "{Project PE - AA2= Deal properties : {Deal Code Name={2014-10-10T10:10:00.000+08:00=Deal Code - Project PE - AA2 (type: STRING)}}, Project PE - AA1= Deal properties : {Deal Code Name={2014-10-10T10:10:00.000+08:00=Deal Code - Project PE - AA1 (type: STRING)}}}";
 

@@ -1,6 +1,8 @@
 package deal;
 
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
@@ -9,6 +11,8 @@ import java.util.Map;
  */
 public class Deal {
 
+    private final Logger logger = LoggerFactory.getLogger(Deal.class);
+
     public final Map<String, DealProperty> dealProperties;
 
     public Deal (Map<String, DealProperty> dealProperties) {
@@ -16,6 +20,8 @@ public class Deal {
     }
 
     public void updateDeal(DateTime timestamp, Deal deal) {
+        logger.info("Updating deal " + this);
+
         Map<String, DealProperty> updated = deal.dealProperties;
 
         for (Map.Entry<String, DealProperty> dp : updated.entrySet()) {
@@ -35,6 +41,8 @@ public class Deal {
     }
 
     public int almostUniqueCode() {
+        logger.info("Generating almost unique code for" + this);
+
         int retInt = 0;
 
         StringBuilder sb = new StringBuilder();

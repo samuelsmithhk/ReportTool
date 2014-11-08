@@ -7,6 +7,8 @@ import deal.DealProperty;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
@@ -15,26 +17,34 @@ import java.util.Map;
  */
 public class Cache {
 
+    private final Logger logger = LoggerFactory.getLogger(Cache.class);
+
     public static Cache createEmptyCache() {
         return new Cache();
     }
 
-    public static Cache createLoadedCache(String cacheFile) {
-        return new Cache(deserializeCache(cacheFile));
+    public static Cache createLoadedCache(String cacheContents, DateTime cacheTimestamp) {
+        return new Cache(deserializeCacheContents(cacheContents), cacheTimestamp);
     }
 
 
     private final Map<String, Deal> deals;
+    private DateTime lastUpdated;
 
     private Cache(){
-        deals = Maps.newHashMap();
+        logger.info("Creating empty cache");
+        this.deals = Maps.newHashMap();
+        this.lastUpdated = null;
     }
 
-    private Cache(Map<String, Deal> deals) {
+    private Cache(Map<String, Deal> deals, DateTime lastUpdated) {
+        logger.info("Creating loaded cache with deals: " + deals);
         this.deals = deals;
+        this.lastUpdated = lastUpdated;
     }
 
     public void processDealUpdate(DateTime timestamp, Map<String, Deal> newDeals) {
+        logger.info("Processing deal update with newDeals: " + newDeals);
 
         for (Map.Entry<String, Deal> entry : newDeals.entrySet()) {
             if (deals.containsKey(entry.getKey())) {
@@ -45,15 +55,23 @@ public class Cache {
                 deals.put(entry.getKey(), entry.getValue());
             }
         }
+
+        if (lastUpdated == null) lastUpdated = timestamp;
+        else if (lastUpdated.isBefore(timestamp)) lastUpdated = timestamp;
     }
 
-    public static String serializeCache(Map<String, Deal> file) {
+    public DateTime getLastUpdated() {
+        return lastUpdated;
+    }
+
+    public static String serializeCache(Map<String, Deal> json) {
+
         Gson gson = new Gson();
-        return gson.toJson(file);
+        return gson.toJson(json);
 
     }
 
-    public static Map<String, Deal> deserializeCache(String json) {
+    public static Map<String, Deal> deserializeCacheContents(String json) {
         //{"Project PE - AA2":{"dealProperties":{"Deal Code Name":
         // {"values":{"2014-10-10T10:10:00.000+08:00":
         // {"innerValue":"Deal Code - Project PE - AA2","type":"STRING"}}}}},"Project PE - AA1":

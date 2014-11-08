@@ -87,6 +87,4 @@ public class DealPropertyTest {
         dp.addValue(time1, expected2);
 
     }
-
-
 }
