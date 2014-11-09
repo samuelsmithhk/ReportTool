@@ -64,7 +64,7 @@ public class Cache {
         return lastUpdated;
     }
 
-    public Map<String, Deal> getDeal() {
+    public Map<String, Deal> getDeals() {
         return deals;
     }
 
