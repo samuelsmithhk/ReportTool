@@ -60,6 +60,10 @@ public class Query {
             this.filterValue = filterValue;
             return this;
         }
+
+        public Query build() {
+            return new Query(this);
+        }
     }
 
 }
