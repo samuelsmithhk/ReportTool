@@ -11,7 +11,7 @@ import java.util.Map;
  */
 public class Deal {
 
-    private final Logger logger = LoggerFactory.getLogger(Deal.class);
+    private transient Logger logger = LoggerFactory.getLogger(Deal.class);
 
     public final Map<String, DealProperty> dealProperties;
 

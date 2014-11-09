@@ -59,6 +59,8 @@ public class ReportToolRunner {
                 logger.info("Processing update: " + input);
                 cache.processDealUpdate(input.timestamp, input.dealMap);
             }
+
+            if (newInputs.size() > 0) cfm.saveCache(cache);
         }
     }
 

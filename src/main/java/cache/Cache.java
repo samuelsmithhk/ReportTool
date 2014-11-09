@@ -64,6 +64,10 @@ public class Cache {
         return lastUpdated;
     }
 
+    public Map<String, Deal> getDeal() {
+        return deals;
+    }
+
     public static String serializeCache(Map<String, Deal> json) {
 
         Gson gson = new Gson();
@@ -109,7 +113,7 @@ public class Cache {
                         timestampStr = val.getKey();
                         JsonObject v = val.getValue().getAsJsonObject();
 
-                        DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy-MM-dd'T'hh:mm:ss.SSSZZ");
+                        DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZZ");
                         DateTime timestamp = formatter.parseDateTime(timestampStr);
 
                         type = parseType(v.get("type").getAsString());

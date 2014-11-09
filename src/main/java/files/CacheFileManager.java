@@ -1,18 +1,18 @@
 package files;
 
 import cache.Cache;
+import deal.Deal;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.FilenameFilter;
-import java.io.IOException;
+import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Map;
 
 /**
  * Created by samuelsmith on 08/11/2014.
@@ -53,13 +53,63 @@ public class CacheFileManager {
         }
     }
 
-    public void saveCache() {
-        //TODO: Implement this
+    public void saveCache(Cache cache)  {
         logger.info("Saving cache");
+
+        String toSave = Cache.serializeCache(cache.getDeal());
+
+        String filename = cache.getLastUpdated().toString(DateTimeFormat.forPattern("yyyyMMddHHmmss"));
+
+        PrintWriter out = null;
+        try {
+            out = new PrintWriter(cacheDirectory + filename  + ".cache");
+            out.print(toSave);
+            out.close();
+        } catch (FileNotFoundException e) {
+            logger.error("Error saving cache file: " + e.getLocalizedMessage());
+            if (out != null) out.close();
+        }
+
+        historicCleanUp();
+
     }
 
-    private String getLatestCache() {
-        logger.info("Trying to find last saved cache");
+    public void historicCleanUp() {
+        logger.info("Running historic cleanup of old cache files");
+
+        File[] caches = getAllCaches();
+
+        logger.info("There are " + caches.length + " cache files stored");
+
+        if (caches.length > numberOfHistoricFiles) {
+            logger.info("The number of cache files exceeds the limit, reducing cache files (limit is " +
+                    numberOfHistoricFiles + ")");
+
+            File earliestCache = caches[0];
+            DateTime earliestTimestamp = getFileTimestamp(earliestCache);
+
+            for (int i = 1; i < caches.length; i++) {
+                File currentCache = caches[i];
+                DateTime currentTimestamp = getFileTimestamp(currentCache);
+
+                if (currentTimestamp.isBefore(earliestTimestamp)) {
+                    earliestCache = currentCache;
+                    earliestTimestamp = currentTimestamp;
+                }
+            }
+
+            if (earliestCache.delete()) logger.info("Cache with timestamp " + earliestTimestamp + " removed.");
+            else logger.error("Error deleted cache with timestamp " + earliestTimestamp);
+
+            historicCleanUp();
+        }
+        else logger.info("Number of caches do not exceed limit (limit is " + numberOfHistoricFiles + ")");
+
+    }
+
+    public File[] getAllCaches() {
+        logger.info("Getting all cache files");
+
         File dir = new File(cacheDirectory);
         File[] files = dir.listFiles(new FilenameFilter() {
             @Override
@@ -67,6 +117,14 @@ public class CacheFileManager {
                 return name.endsWith(".cache");
             }
         });
+
+        return files;
+    }
+
+    private String getLatestCache() {
+        logger.info("Trying to find last saved cache");
+
+        File[] files = getAllCaches();
 
         if (files.length == 0) return null;
 
@@ -96,7 +154,7 @@ public class CacheFileManager {
 
     public DateTime getFileTimestamp(String file) {
         logger.info("Parsing timestamp for string:" + file);
-        DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyyMMdd");
-        return formatter.parseDateTime(file.substring((file.length() - 14), (file.length() - 6)));
+        DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyyMMddHHmmss");
+        return formatter.parseDateTime(file.substring((file.length() - 20), (file.length() - 6)));
     }
 }

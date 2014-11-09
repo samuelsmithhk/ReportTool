@@ -13,7 +13,7 @@ import java.util.TreeMap;
  */
 public class DealProperty {
 
-    private final Logger logger = LoggerFactory.getLogger(DealProperty.class);
+    private transient Logger logger = LoggerFactory.getLogger(DealProperty.class);
 
     private final TreeMap<DateTime, Value> values; //contains all versions of the value
 

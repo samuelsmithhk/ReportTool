@@ -15,6 +15,7 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
 
@@ -37,9 +38,21 @@ public class InputFileManager {
 
     public boolean newInputs() throws IOException {
         logger.info("Checking to see if there's any new input files");
-        if (newestTimestamp() == null) return false;
-        if (cache.getLastUpdated() == null) return true;
-        if (cache.getLastUpdated().isAfter(newestTimestamp())) return true;
+        if (newestTimestamp() == null) {
+            logger.info("No new input files");
+            return false;
+        }
+        if (cache.getLastUpdated() == null) {
+            logger.info("New input files");
+            return true;
+        }
+        if (cache.getLastUpdated().isBefore(newestTimestamp())) {
+            logger.info("New input files");
+            return true;
+        }
+
+        logger.info("No new input files newestTimestamp: " + newestTimestamp() +
+                " cacheLastUpdated: " + cache.getLastUpdated());
         return false;
     }
 
@@ -62,7 +75,7 @@ public class InputFileManager {
         for (int i = 1; i < files.length; i++) {
             Path currentFile = files[i].toPath();
             BasicFileAttributes currentAttr = Files.readAttributes(currentFile, BasicFileAttributes.class);
-            DateTime currentTimestamp = new DateTime(currentAttr.creationTime());
+            DateTime currentTimestamp = new DateTime(currentAttr.creationTime().toMillis());
 
             if (currentTimestamp.isAfter(latestTimestamp)) latestTimestamp = currentTimestamp;
         }
@@ -105,14 +118,18 @@ public class InputFileManager {
             public boolean accept(File dir, String name) {
 
                 try {
+                    logger.info("name: " + name);
 
-                    BasicFileAttributes attr  = Files.readAttributes(dir.toPath(), BasicFileAttributes.class);
+                    BasicFileAttributes attr  = Files.readAttributes(Paths.get(dir.getAbsolutePath() + "/" + name),
+                            BasicFileAttributes.class);
 
                     DateTime fileTimestamp = new DateTime(attr.creationTime().toMillis());
 
                     logger.info("Checking if " + name + " is a new input file");
 
                     if (cacheTimestamp == null) return name.endsWith(".xlsx");
+                    logger.info("cacheTimestamp: " + cacheTimestamp);
+                    logger.info("fileTimestamp: " + fileTimestamp);
                     if (fileTimestamp.isAfter(cacheTimestamp)) return name.endsWith(".xlsx");
                     return false;
 
