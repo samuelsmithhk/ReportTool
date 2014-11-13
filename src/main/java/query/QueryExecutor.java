@@ -6,6 +6,8 @@ import com.google.common.collect.Maps;
 import com.google.gson.Gson;
 import deal.Deal;
 import deal.DealProperty;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
@@ -14,6 +16,8 @@ import java.util.Map;
  * Created by samuelsmith on 09/11/2014.
  */
 public class QueryExecutor {
+
+    private transient Logger logger = LoggerFactory.getLogger(QueryExecutor.class);
 
     public static String executeQuery(Cache cache, Query query) {
         QueryExecutor qe = new QueryExecutor(cache);
@@ -34,6 +38,7 @@ public class QueryExecutor {
     }
 
     public Map<String, Deal> filterDeals(String filterColumn, String filterValue) {
+        logger.info("Filtering deals");
         Map<String, Deal> dealMap = cache.getDeals();
         Map<String, Deal> retMap = Maps.newHashMap();
 
@@ -52,6 +57,7 @@ public class QueryExecutor {
     }
 
     public List<QueryResultDeal> selectColumns(List<String> columns, Map<String, Deal> filteredDeals) {
+        logger.info("Selecting columns");
         List<QueryResultDeal> retList = Lists.newArrayList();
 
         for (Map.Entry<String, Deal> toBeConverted : filteredDeals.entrySet()) {
@@ -64,6 +70,7 @@ public class QueryExecutor {
     }
 
     public List<Group> groupValues(String groupBy, List<QueryResultDeal> selected) {
+        logger.info("Grouping values");
         Map<String, Group> retList = Maps.newHashMap();
 
         for (QueryResultDeal deal : selected) {

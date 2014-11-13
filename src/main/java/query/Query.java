@@ -1,6 +1,8 @@
 package query;
 
 import com.google.common.collect.Lists;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -9,21 +11,27 @@ import java.util.List;
  */
 public class Query {
 
+    private transient Logger logger = LoggerFactory.getLogger(Query.class);
+
     public final List<String> columns;
-    public final String groupBy, filterColumn, filterValue;
+    public final String name, groupBy, filterColumn, filterValue;
 
     private Query(QueryBuilder qb) {
+        logger.info("Creating query");
+
+        this.name = qb.name;
         this.columns = qb.columns;
         this.groupBy = qb.groupBy;
         this.filterColumn = qb.filterColumn;
         this.filterValue = qb.filterValue;
     }
 
-    public class QueryBuilder {
+    public static class QueryBuilder {
          List<String> columns;
-         String groupBy, filterColumn, filterValue;
+         String name, groupBy, filterColumn, filterValue;
 
-        public QueryBuilder() {
+        public QueryBuilder(String name) {
+            this.name = name;
             columns = null;
             groupBy = null;
             filterColumn = null;

@@ -2,7 +2,6 @@ package files;
 
 import cache.Cache;
 import com.google.common.collect.Lists;
-import deal.Deal;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;

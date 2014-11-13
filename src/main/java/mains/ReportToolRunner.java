@@ -5,6 +5,7 @@ import com.google.common.collect.Maps;
 import files.CacheFileManager;
 import files.InputFileManager;
 import files.InputPair;
+import files.QueryFileManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,6 +35,7 @@ public class ReportToolRunner {
     private final Map<String, String> properties;
     private final CacheFileManager cfm;
     private final InputFileManager ifm;
+    private final QueryFileManager qfm;
     private final Cache cache;
 
     private ReportToolRunner() {
@@ -44,7 +46,9 @@ public class ReportToolRunner {
                 Integer.valueOf(properties.get("numberOfHistoricFiles")));
 
         cache = cfm.getCache();
+
         ifm = new InputFileManager(cache, properties.get("inputDirectory"));
+        qfm = new QueryFileManager(cache, properties.get("queryDirectory"), properties.get("outputDirectory"));
 
     }
 
@@ -61,7 +65,11 @@ public class ReportToolRunner {
             }
 
             if (newInputs.size() > 0) cfm.saveCache(cache);
+
+            if (qfm.loadQueries()) qfm.executeQueries();
         }
+
+
     }
 
     private Map<String, String> loadProperties() {
