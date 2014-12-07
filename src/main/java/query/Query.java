@@ -13,47 +13,39 @@ public class Query {
 
     private transient Logger logger = LoggerFactory.getLogger(Query.class);
 
-    public final List<String> columns;
+    public final List<Header> headers;
     public final String name, groupBy, filterColumn, filterValue;
 
     private Query(QueryBuilder qb) {
         logger.info("Creating query");
 
         this.name = qb.name;
-        this.columns = qb.columns;
+        this.headers = qb.headers;
         this.groupBy = qb.groupBy;
         this.filterColumn = qb.filterColumn;
         this.filterValue = qb.filterValue;
     }
 
     public static class QueryBuilder {
-         List<String> columns;
-         String name, groupBy, filterColumn, filterValue;
+        List<Header> headers;
+        String name, groupBy, filterColumn, filterValue;
 
         public QueryBuilder(String name) {
             this.name = name;
-            columns = null;
+            headers = null;
             groupBy = null;
             filterColumn = null;
             filterValue = null;
         }
 
-        public QueryBuilder withColumn(String column) {
-            if (this.columns == null) {
-                this.columns = Lists.newArrayList();
+        public QueryBuilder withColumns(String header, String[] columns) {
+            if (this.headers == null) {
+                this.headers = Lists.newLinkedList();
             }
 
-            this.columns.add(column);
+            Header _header = new Header(header, columns);
 
-            return this;
-        }
-
-        public QueryBuilder withColumns(List<String> columns) {
-            QueryBuilder qb = this;
-
-            for (String c : columns) {
-                qb = qb.withColumn(c);
-            }
+            this.headers.add(_header);
 
             return this;
         }
@@ -71,6 +63,16 @@ public class Query {
 
         public Query build() {
             return new Query(this);
+        }
+    }
+
+    public static class Header {
+        public final String header;
+        public final String[] subs;
+
+        public Header(String header, String[] subs) {
+            this.header = header;
+            this.subs = subs;
         }
     }
 

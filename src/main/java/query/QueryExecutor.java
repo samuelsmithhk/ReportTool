@@ -3,7 +3,6 @@ package query;
 import cache.Cache;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.gson.Gson;
 import deal.Deal;
 import deal.DealProperty;
 import org.slf4j.Logger;
@@ -11,6 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by samuelsmith on 09/11/2014.
@@ -19,16 +19,15 @@ public class QueryExecutor {
 
     private transient Logger logger = LoggerFactory.getLogger(QueryExecutor.class);
 
-    public static String executeQuery(Cache cache, Query query) {
+    public static QueryResult executeQuery(Cache cache, Query query) {
         QueryExecutor qe = new QueryExecutor(cache);
 
         Map<String, Deal> filteredDeals = qe.filterDeals(query.filterColumn, query.filterValue);
-        List<QueryResultDeal> selectedColumns = qe.selectColumns(query.columns, filteredDeals);
+        List<QueryResultDeal> selectedColumns = qe.selectColumns(query.headers, filteredDeals);
         List<Group> groupedValues = qe.groupValues(query.groupBy, selectedColumns);
-        QueryResult result = new QueryResult(groupedValues);
+        QueryResult result = new QueryResult(query, query.name, groupedValues, query.headers);
 
-        Gson gson = new Gson();
-        return gson.toJson(result);
+        return result;
     }
 
     private final Cache cache;
@@ -56,13 +55,13 @@ public class QueryExecutor {
         return retMap;
     }
 
-    public List<QueryResultDeal> selectColumns(List<String> columns, Map<String, Deal> filteredDeals) {
+    public List<QueryResultDeal> selectColumns(List<Query.Header> headers, Map<String, Deal> filteredDeals) {
         logger.info("Selecting columns");
         List<QueryResultDeal> retList = Lists.newArrayList();
 
         for (Map.Entry<String, Deal> toBeConverted : filteredDeals.entrySet()) {
             retList.add(new QueryResultDeal(toBeConverted.getKey(),
-                    toBeConverted.getValue().dealProperties, columns));
+                    toBeConverted.getValue().dealProperties, headers));
         }
 
 
@@ -74,8 +73,8 @@ public class QueryExecutor {
         Map<String, Group> retList = Maps.newHashMap();
 
         for (QueryResultDeal deal : selected) {
-            if (deal.dealProperties.containsKey(groupBy)) {
-                String val = deal.dealProperties.get(groupBy);
+            if (deal.hasDealProperty(groupBy)) {
+                String val = deal.getDPValue(groupBy);
 
                 if (retList.containsKey(val)){
                     Group g = retList.get(val);
@@ -87,6 +86,8 @@ public class QueryExecutor {
                 }
             }
         }
+
+
 
         return Lists.newArrayList(retList.values());
     }

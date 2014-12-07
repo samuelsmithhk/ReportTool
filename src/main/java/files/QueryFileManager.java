@@ -11,10 +11,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import query.Query;
 import query.QueryExecutor;
+import query.QueryResult;
 
 import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -26,15 +28,13 @@ public class QueryFileManager {
 
     private final Cache cache;
 
-    private final String queryDirectory, outputDirectory;
+    private final String queryDirectory;
     private final List<Query> queries;
 
-    public QueryFileManager(Cache cache, String queryDirectory, String outputDirectory) {
+    public QueryFileManager(Cache cache, String queryDirectory) {
         logger.info("Creating Query File Manager");
 
         this.queryDirectory = queryDirectory;
-        this.outputDirectory = outputDirectory;
-
         this.queries = Lists.newArrayList();
         this.cache = cache;
     }
@@ -77,10 +77,19 @@ public class QueryFileManager {
 
         Query.QueryBuilder qb = new Query.QueryBuilder(name);
 
-        JsonArray columnsJSON = o.getAsJsonArray("columns");
+        JsonArray headersJSON = o.getAsJsonArray("headers"), headerGroupsJSON = o.getAsJsonArray("headerGroups");
 
-        for (JsonElement c : columnsJSON) {
-            qb = qb.withColumn(c.getAsString());
+        for (int i = 0; i < headersJSON.size(); i++) {
+            String header = headersJSON.get(i).getAsString();
+            JsonArray headerGroupJSON = headerGroupsJSON.get(i).getAsJsonArray();
+
+            String[] headerGroup = new String[headerGroupJSON.size()];
+
+            for (int x = 0; x < headerGroupJSON.size(); x++) {
+                headerGroup[x] = headerGroupJSON.get(x).getAsString();
+            }
+
+            qb = qb.withColumns(header, headerGroup);
         }
 
         String filterColumn = o.get("filterColumn").getAsString(), filterValue = o.get("filterValue").getAsString();
@@ -91,27 +100,17 @@ public class QueryFileManager {
         return qb.build();
     }
 
-    public void executeQueries() {
+    public List<QueryResult> executeQueries() {
         logger.info("Executing queries");
+
+        List<QueryResult> retList = Lists.newArrayList();
+
         for (Query q : queries) {
             logger.info("Executing query: " + q);
-            writeQueryResult(q.name, QueryExecutor.executeQuery(cache, q));
-        }
-    }
-
-    private void writeQueryResult(String filename, String result) {
-        logger.info("Writing query result");
-
-        PrintWriter out = null;
-        try {
-            out = new PrintWriter(outputDirectory + filename + ".json");
-            out.print(result);
-            out.close();
-        } catch (FileNotFoundException e) {
-            logger.error("Error saving query result file: " + e.getLocalizedMessage());
-            if (out != null) out.close();
+            retList.add(QueryExecutor.executeQuery(cache, q));
         }
 
+        return retList;
     }
 
 }

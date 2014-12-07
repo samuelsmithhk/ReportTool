@@ -58,9 +58,12 @@ public class DCParser extends AbstractParser {
                 Cell currentCell = currentRow.getCell(cCount);
                 DealProperty currentVal = parseCell(currentCell);
 
-                if (headers.get(cCount - 1).equals("Company"))
+                String header = headers.get(cCount - 1);
+
+                if (header.equals("Company"))
                     opportunity = (String) currentVal.getLatestValue().innerValue;
-                else dealProperties.put(headers.get(cCount - 1), currentVal);
+
+                dealProperties.put(header, currentVal);
             }
 
             Deal currentDeal = new Deal(dealProperties);

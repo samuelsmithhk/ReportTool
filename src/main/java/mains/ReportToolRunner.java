@@ -1,13 +1,14 @@
 package mains;
 
 import cache.Cache;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import files.CacheFileManager;
-import files.InputFileManager;
-import files.InputPair;
-import files.QueryFileManager;
+import export.SheetGenerator;
+import files.*;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import query.QueryResult;
 
 import java.io.IOException;
 import java.util.List;
@@ -36,6 +37,7 @@ public class ReportToolRunner {
     private final CacheFileManager cfm;
     private final InputFileManager ifm;
     private final QueryFileManager qfm;
+    private final ExportFileManager efm;
     private final Cache cache;
 
     private ReportToolRunner() {
@@ -48,7 +50,8 @@ public class ReportToolRunner {
         cache = cfm.getCache();
 
         ifm = new InputFileManager(cache, properties.get("inputDirectory"));
-        qfm = new QueryFileManager(cache, properties.get("queryDirectory"), properties.get("outputDirectory"));
+        qfm = new QueryFileManager(cache, properties.get("queryDirectory"));
+        efm = new ExportFileManager(properties.get("exportDirectory"));
 
     }
 
@@ -66,7 +69,12 @@ public class ReportToolRunner {
 
             if (newInputs.size() > 0) cfm.saveCache(cache);
 
-            if (qfm.loadQueries()) qfm.executeQueries();
+            List<QueryResult> results = null;
+            if (qfm.loadQueries()) results = qfm.executeQueries();
+
+            if (results == null) logger.info("No queries executed");
+            else for (QueryResult r : results) efm.writeExport(r.queryName, SheetGenerator.generateBasicSheet(r));
+
         }
 
 
