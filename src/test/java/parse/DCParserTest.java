@@ -39,7 +39,7 @@ public class DCParserTest {
     @Test
     public void shouldReturnCorrectHeaders() {
        String h1 = "Deal Code Name", h2 = "Company";
-       List<String> actual = parser.getHeaders(parser.sheet.getRow(4));
+       List<String> actual = parser.getHeaders(parser.sheet.getRow(4), false);
 
        assertThat(actual, containsInAnyOrder(h1, h2));
     }

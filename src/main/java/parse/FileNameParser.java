@@ -21,6 +21,8 @@ public class FileNameParser {
 
         if (file.getName().contains("Deal_Pipeline_Report")) {
             return new DCParser(wb, ifm.getTimestamp(file));
+        } else if (file.getName().contains("Everest Deal Pipeline")) {
+            return new EverestParser(wb, ifm.getTimestamp(file));
         }
 
         throw new IOException("Not a valid input spreadsheet: " + file.getAbsolutePath());

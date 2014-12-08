@@ -37,7 +37,7 @@ public class DCParser extends AbstractParser {
 
         Row headerRow = sheet.getRow(4);
 
-        List<String> headers = getHeaders(headerRow);
+        List<String> headers = getHeaders(headerRow, false);
 
         int rCount = 5;
         Row currentRow = null;
@@ -74,27 +74,5 @@ public class DCParser extends AbstractParser {
 
         logger.info("Parsed from workbook: " + parsedDeals);
         return parsedDeals;
-    }
-
-    public List<String> getHeaders(Row headerRow) {
-        logger.info("Getting header row");
-        List<String> retList = Lists.newArrayList();
-
-        int count = 1; //ignore 0 as first col is just a count
-        while (count < 99) {
-            Cell currentCell = headerRow.getCell(count);
-
-            if (currentCell == null) break;
-
-            DealProperty currentValue = parseCell(currentCell);
-
-            if (currentValue.getLatestValue().type != DealProperty.Value.ValueType.BLANK)
-                retList.add((String) currentValue.getLatestValue().innerValue);
-            else break;
-
-            count++;
-        }
-
-        return retList;
     }
 }
