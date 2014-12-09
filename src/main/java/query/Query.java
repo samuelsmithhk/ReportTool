@@ -14,7 +14,7 @@ public class Query {
     private transient Logger logger = LoggerFactory.getLogger(Query.class);
 
     public final List<Header> headers;
-    public final String name, groupBy, filterColumn, filterValue;
+    public final String name, groupBy, filterColumn, filterValue, sortBy;
 
     private Query(QueryBuilder qb) {
         logger.info("Creating query");
@@ -24,11 +24,12 @@ public class Query {
         this.groupBy = qb.groupBy;
         this.filterColumn = qb.filterColumn;
         this.filterValue = qb.filterValue;
+        this.sortBy = qb.sortBy;
     }
 
     public static class QueryBuilder {
         List<Header> headers;
-        String name, groupBy, filterColumn, filterValue;
+        String name, groupBy, filterColumn, filterValue, sortBy;
 
         public QueryBuilder(String name) {
             this.name = name;
@@ -36,6 +37,7 @@ public class Query {
             groupBy = null;
             filterColumn = null;
             filterValue = null;
+            sortBy = null;
         }
 
         public QueryBuilder withColumns(String header, String[] columns) {
@@ -52,6 +54,11 @@ public class Query {
 
         public QueryBuilder setGroupBy(String groupBy) {
             this.groupBy = groupBy;
+            return this;
+        }
+
+        public QueryBuilder setSortBy(String sortBy) {
+            this.sortBy = sortBy;
             return this;
         }
 

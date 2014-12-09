@@ -24,7 +24,7 @@ public class QueryExecutor {
 
         Map<String, Deal> filteredDeals = qe.filterDeals(query.filterColumn, query.filterValue);
         List<QueryResultDeal> selectedColumns = qe.selectColumns(query.headers, filteredDeals);
-        List<Group> groupedValues = qe.groupValues(query.groupBy, selectedColumns);
+        List<Group> groupedValues = qe.groupValues(query.groupBy, selectedColumns, query.sortBy);
         QueryResult result = new QueryResult(query, query.name, groupedValues, query.headers);
 
         return result;
@@ -68,28 +68,35 @@ public class QueryExecutor {
         return retList;
     }
 
-    public List<Group> groupValues(String groupBy, List<QueryResultDeal> selected) {
+    public List<Group> groupValues(String groupBy, List<QueryResultDeal> selected, String sortBy) {
         logger.info("Grouping values");
-        Map<String, Group> retList = Maps.newHashMap();
+        Map<String, Group> retMap = Maps.newTreeMap();
+
+        if (groupBy == null) {
+            Group g = new Group("Deals", sortBy);
+
+            for (QueryResultDeal deal : selected) { g.addDeal(deal); }
+            retMap.put("Deals", g);
+
+            return Lists.newArrayList(retMap.values());
+        }
 
         for (QueryResultDeal deal : selected) {
             if (deal.hasDealProperty(groupBy)) {
                 String val = deal.getDPValue(groupBy);
 
-                if (retList.containsKey(val)){
-                    Group g = retList.get(val);
+                if (retMap.containsKey(val)){
+                    Group g = retMap.get(val);
                     g.addDeal(deal);
                 } else {
-                    Group g = new Group(val);
+                    Group g = new Group(val, sortBy);
                     g.addDeal(deal);
-                    retList.put(val, g);
+                    retMap.put(val, g);
                 }
             }
         }
 
-
-
-        return Lists.newArrayList(retList.values());
+        return Lists.newLinkedList(retMap.values());
     }
 
 }

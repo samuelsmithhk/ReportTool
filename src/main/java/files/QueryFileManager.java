@@ -95,7 +95,11 @@ public class QueryFileManager {
         String filterColumn = o.get("filterColumn").getAsString(), filterValue = o.get("filterValue").getAsString();
 
         qb = qb.setFilter(filterColumn, filterValue);
-        qb = qb.setGroupBy(o.get("groupBy").getAsString());
+
+        JsonElement groupByJSON = o.get("groupBy");
+        if (groupByJSON != null) qb = qb.setGroupBy(groupByJSON.getAsString());
+
+        qb = qb.setSortBy(o.get("sortBy").getAsString());
 
         return qb.build();
     }
