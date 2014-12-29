@@ -3,7 +3,7 @@ package export;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import org.apache.poi.hssf.util.HSSFColor;
+import files.TemplateFileManager;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.util.CellRangeAddress;
@@ -15,7 +15,6 @@ import query.Query;
 import query.QueryResult;
 import query.QueryResultDeal;
 
-import java.awt.*;
 import java.awt.Color;
 import java.util.List;
 import java.util.Map;
@@ -26,11 +25,31 @@ import java.util.Set;
  */
 public class SheetGenerator {
 
-    public static Workbook generateBasicSheet(QueryResult deals) {
-        Workbook retWB = new XSSFWorkbook();
-        Map<String, CellStyle> styles = GeneratorUtils.createStyles(retWB);
+    public static Workbook generateSheet(QueryResult deals, TemplateFileManager tfm) {
+        SheetGenerator generator = new SheetGenerator();
 
-        Sheet sheet = retWB.createSheet("Results");
+        if (deals.query.hasTemplate) {
+            Workbook template = tfm.getTemplate(deals.query.templateName);
+            return generator.generateAdvancedWorkbook(deals, template);
+        } else return generator.generateBasicWorkbook(deals);
+    }
+
+    private Workbook generateBasicWorkbook(QueryResult deals) {
+        Workbook retWB = new XSSFWorkbook();
+        return generateOutputWorkbook(retWB, deals);
+    }
+
+    private Workbook generateAdvancedWorkbook(QueryResult deals, Workbook template) {
+        if (template == null) return generateBasicWorkbook(deals);
+
+        return generateOutputWorkbook(template, deals);
+    }
+
+    private Workbook generateOutputWorkbook(Workbook toWorkOn, QueryResult deals) {
+
+        Map<String, CellStyle> styles = GeneratorUtils.createStyles(toWorkOn);
+
+        Sheet sheet = toWorkOn.createSheet("Results");
         sheet.setAutobreaks(true);
 
         Set<Query.Header> headers = GeneratorUtils.getHeadersFromQueryResult(deals.query, deals);
@@ -59,7 +78,7 @@ public class SheetGenerator {
                 n++;
             }
 
-           sheet.addMergedRegion(new CellRangeAddress(0, 0, hs, n - 1));
+            sheet.addMergedRegion(new CellRangeAddress(0, 0, hs, n - 1));
         }
 
         int r = 2;
@@ -93,11 +112,11 @@ public class SheetGenerator {
                 r++;
             }
 
-            sheet.addMergedRegion(new CellRangeAddress(ghRow, ghRow, 0 , n - 1));
+            sheet.addMergedRegion(new CellRangeAddress(ghRow, ghRow, 0, n - 1));
 
         }
 
-        return retWB;
+        return toWorkOn;
     }
 
     private static class GeneratorUtils {

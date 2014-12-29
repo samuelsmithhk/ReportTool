@@ -14,7 +14,9 @@ public class Query {
     private transient Logger logger = LoggerFactory.getLogger(Query.class);
 
     public final List<Header> headers;
-    public final String name, groupBy, filterColumn, filterValue, sortBy;
+    public final String name, groupBy, filterColumn, filterValue, sortBy, templateName;
+
+    public final boolean hasTemplate;
 
     private Query(QueryBuilder qb) {
         logger.info("Creating query");
@@ -25,11 +27,14 @@ public class Query {
         this.filterColumn = qb.filterColumn;
         this.filterValue = qb.filterValue;
         this.sortBy = qb.sortBy;
+        this.templateName = qb.templateName;
+        this.hasTemplate = qb.hasTemplate;
     }
 
     public static class QueryBuilder {
         List<Header> headers;
-        String name, groupBy, filterColumn, filterValue, sortBy;
+        String name, groupBy, filterColumn, filterValue, sortBy, templateName;
+        boolean hasTemplate;
 
         public QueryBuilder(String name) {
             this.name = name;
@@ -38,6 +43,8 @@ public class Query {
             filterColumn = null;
             filterValue = null;
             sortBy = null;
+            templateName = null;
+            hasTemplate = false;
         }
 
         public QueryBuilder withColumns(String header, String[] columns) {
@@ -65,6 +72,12 @@ public class Query {
         public QueryBuilder setFilter(String filterColumn, String filterValue) {
             this.filterColumn = filterColumn;
             this.filterValue = filterValue;
+            return this;
+        }
+
+        public QueryBuilder setTemplate(String templateName) {
+            this.templateName = templateName;
+            this.hasTemplate = true;
             return this;
         }
 

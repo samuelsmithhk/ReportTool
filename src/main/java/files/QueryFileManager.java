@@ -101,6 +101,15 @@ public class QueryFileManager {
 
         qb = qb.setSortBy(o.get("sortBy").getAsString());
 
+        JsonElement templateJSON = o.get("template");
+        if (templateJSON != null) {
+            String template = templateJSON.getAsString().trim();
+            if (!(template.equals("")) && !(template.equals("false")))
+                qb.setTemplate(template);
+        }
+
+
+
         return qb.build();
     }
 

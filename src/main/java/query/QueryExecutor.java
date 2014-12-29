@@ -5,6 +5,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import deal.Deal;
 import deal.DealProperty;
+import files.TemplateFileManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

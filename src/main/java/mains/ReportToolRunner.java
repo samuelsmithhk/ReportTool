@@ -3,6 +3,7 @@ package mains;
 import cache.Cache;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.sun.javafx.tools.ant.DeployFXTask;
 import export.SheetGenerator;
 import files.*;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -36,6 +37,7 @@ public class ReportToolRunner {
     private final Map<String, String> properties;
     private final CacheFileManager cfm;
     private final InputFileManager ifm;
+    private final TemplateFileManager tfm;
     private final QueryFileManager qfm;
     private final ExportFileManager efm;
     private final Cache cache;
@@ -50,6 +52,7 @@ public class ReportToolRunner {
         cache = cfm.getCache();
 
         ifm = new InputFileManager(cache, properties.get("inputDirectory"));
+        tfm = new TemplateFileManager(properties.get("templateDirectory"));
         qfm = new QueryFileManager(cache, properties.get("queryDirectory"));
         efm = new ExportFileManager(properties.get("exportDirectory"));
 
@@ -73,7 +76,7 @@ public class ReportToolRunner {
             if (qfm.loadQueries()) results = qfm.executeQueries();
 
             if (results == null) logger.info("No queries executed");
-            else for (QueryResult r : results) efm.writeExport(r.queryName, SheetGenerator.generateBasicSheet(r));
+            else for (QueryResult r : results) efm.writeExport(r.queryName, SheetGenerator.generateSheet(r, tfm));
 
         }
 
