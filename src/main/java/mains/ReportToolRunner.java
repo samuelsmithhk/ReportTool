@@ -71,16 +71,13 @@ public class ReportToolRunner {
             }
 
             if (newInputs.size() > 0) cfm.saveCache(cache);
-
-            List<QueryResult> results = null;
-            if (qfm.loadQueries()) results = qfm.executeQueries();
-
-            if (results == null) logger.info("No queries executed");
-            else for (QueryResult r : results) efm.writeExport(r.queryName, SheetGenerator.generateSheet(r, tfm));
-
         }
 
+        List<QueryResult> results = null;
+        if (qfm.loadQueries()) results = qfm.executeQueries();
 
+        if (results == null) logger.info("No queries executed");
+        else for (QueryResult r : results) efm.writeExport(r.queryName, SheetGenerator.generateSheet(r, tfm));
     }
 
     private Map<String, String> loadProperties() {
