@@ -1,12 +1,9 @@
 package mains;
 
 import cache.Cache;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.sun.javafx.tools.ant.DeployFXTask;
 import export.SheetGenerator;
 import files.*;
-import org.apache.poi.ss.usermodel.Workbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import query.QueryResult;
@@ -77,7 +74,8 @@ public class ReportToolRunner {
         if (qfm.loadQueries()) results = qfm.executeQueries();
 
         if (results == null) logger.info("No queries executed");
-        else for (QueryResult r : results) efm.writeExport(r.queryName, SheetGenerator.generateSheet(r, tfm));
+        else for (QueryResult r : results) efm.writeExport(r.queryName, SheetGenerator.generateSheet(r, tfm),
+                r.hasTemplate);
     }
 
     private Map<String, String> loadProperties() {
@@ -95,7 +93,7 @@ public class ReportToolRunner {
             }
 
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("ERROR: Error loading properties file: " + e.getLocalizedMessage());
             System.exit(1);
         }
 

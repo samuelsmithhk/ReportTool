@@ -27,7 +27,7 @@ public class TemplateFileManager {
         logger.info("Loading template: " + template);
 
         try {
-            FileInputStream file = new FileInputStream(new File(templateDirectory + template + ".xlsx"));
+            FileInputStream file = new FileInputStream(new File(templateDirectory + template));
             return WorkbookFactory.create(file);
         } catch (FileNotFoundException e) {
             logger.error("ERROR: Cannot find specified template: " + e.getLocalizedMessage());

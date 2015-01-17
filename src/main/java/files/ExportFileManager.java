@@ -19,12 +19,13 @@ public class ExportFileManager {
         this.exportDirectory = exportDirectory;
     }
 
-    public void writeExport(String filename, Workbook result) {
+    public void writeExport(String filename, Workbook result, boolean hasTemplate) {
         logger.info("Writing exported excel file: " + filename);
 
         FileOutputStream out = null;
         try {
-            out = new FileOutputStream(new File(exportDirectory + filename + ".xlsx"));
+            String extension = hasTemplate ? ".xlsm" : ".xlsx";
+            out = new FileOutputStream(new File(exportDirectory + filename + extension));
             result.write(out);
             out.close();
         } catch (IOException e) {

@@ -26,7 +26,7 @@ public class QueryExecutor {
         Map<String, Deal> filteredDeals = qe.filterDeals(query.filterColumn, query.filterValue);
         List<QueryResultDeal> selectedColumns = qe.selectColumns(query.headers, filteredDeals);
         List<Group> groupedValues = qe.groupValues(query.groupBy, selectedColumns, query.sortBy);
-        QueryResult result = new QueryResult(query, query.name, groupedValues, query.headers);
+        QueryResult result = new QueryResult(query, query.name, groupedValues, query.headers, query.hasTemplate);
 
         return result;
     }
