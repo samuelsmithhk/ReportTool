@@ -2,6 +2,7 @@ package parse;
 
 import com.google.common.collect.Lists;
 import deal.DealProperty;
+import mapping.Mapping;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.FormulaEvaluator;
 import org.apache.poi.ss.usermodel.Row;
@@ -21,12 +22,15 @@ public abstract class AbstractParser implements SheetParser {
     private final FormulaEvaluator evaluator;
     public final DateTime timestamp;
 
-    public AbstractParser(FormulaEvaluator evaluator, DateTime timestamp) {
+    public final Mapping mapping;
+
+    public AbstractParser(FormulaEvaluator evaluator, DateTime timestamp, Mapping mapping) {
         this.evaluator = evaluator;
         this.timestamp = timestamp;
+        this.mapping = mapping;
     }
 
-    public DealProperty parseCell(Cell cell) {
+    public DealProperty parseCell(String header, Cell cell) {
 
         logger.info("Parsing cell: " + cell);
 
@@ -54,11 +58,12 @@ public abstract class AbstractParser implements SheetParser {
                 case Cell.CELL_TYPE_STRING:
                     String tmp = cell.getStringCellValue();
                     tmp = tmp.replaceAll("[\n\r]", "");
+                    if (header != null) tmp = mapping.getMapping(header, tmp).getValue();
                     val = new DealProperty.Value(tmp, DealProperty.Value.ValueType.STRING);
                     retDPB = retDPB.withValue(timestamp, val);
                     return retDPB.build();
                 case Cell.CELL_TYPE_FORMULA:
-                    return parseCell(evaluator.evaluateInCell(cell));
+                    return parseCell(header, evaluator.evaluateInCell(cell));
             }
         }
 
@@ -75,7 +80,7 @@ public abstract class AbstractParser implements SheetParser {
 
             if (currentCell == null) break;
 
-            DealProperty currentValue = parseCell(currentCell);
+            DealProperty currentValue = parseCell(null, currentCell);
 
             if (currentValue.getLatestValue().type != DealProperty.Value.ValueType.BLANK)
                 retList.add((String) currentValue.getLatestValue().innerValue);

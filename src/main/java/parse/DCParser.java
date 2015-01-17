@@ -22,14 +22,10 @@ public class DCParser extends AbstractParser {
 
     public final Sheet sheet;
 
-    private final Mapping headerMapping;
-
-    public DCParser(Workbook workbook, DateTime timestamp, Mapping headerMapping) {
-        super(workbook.getCreationHelper().createFormulaEvaluator(), timestamp);
+    public DCParser(Workbook workbook, DateTime timestamp, Mapping mapping) {
+        super(workbook.getCreationHelper().createFormulaEvaluator(), timestamp, mapping);
 
         logger.info("Creating Deal Central Parser for workbook: " + workbook);
-
-        this.headerMapping = headerMapping;
 
         this.sheet = workbook.getSheetAt(0);
     }
@@ -52,7 +48,7 @@ public class DCParser extends AbstractParser {
 
             currentRow = sheet.getRow(rCount);
 
-            DealProperty firstDP = parseCell(currentRow.getCell(0));
+            DealProperty firstDP = parseCell(null, currentRow.getCell(0));
             if (firstDP == null) break;
             if (firstDP.getLatestValue().type == DealProperty.Value.ValueType.BLANK) break;
 
@@ -60,12 +56,10 @@ public class DCParser extends AbstractParser {
             String opportunity = null;
 
             for (int cCount = 1; cCount <= headers.size(); cCount++) {
-                Cell currentCell = currentRow.getCell(cCount);
-                DealProperty currentVal = parseCell(currentCell);
-
                 String header = headers.get(cCount - 1);
-
-                String mappedHeader = headerMapping.getMapping(header);
+                String mappedHeader = mapping.getHeaderMapping(header);
+                Cell currentCell = currentRow.getCell(cCount);
+                DealProperty currentVal = parseCell(mappedHeader, currentCell);
 
                 if (mappedHeader.equals("Company"))
                     opportunity = (String) currentVal.getLatestValue().innerValue;

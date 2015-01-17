@@ -24,15 +24,12 @@ public class EverestParser extends AbstractParser {
 
     public final Sheet sheet;
 
-    Mapping headerMap;
-
-    public EverestParser(Workbook workbook, DateTime timestamp, Mapping headerMap) {
-        super(workbook.getCreationHelper().createFormulaEvaluator(), timestamp);
+    public EverestParser(Workbook workbook, DateTime timestamp, Mapping mapping) {
+        super(workbook.getCreationHelper().createFormulaEvaluator(), timestamp, mapping);
 
         logger.info("Creating Everest parser for workbook: " + workbook);
 
         this.sheet = workbook.getSheetAt(0);
-        this.headerMap = headerMap;
     }
 
     @Override
@@ -51,7 +48,7 @@ public class EverestParser extends AbstractParser {
 
             Row currentRow = sheet.getRow(rCount);
 
-            DealProperty firstDP = parseCell(currentRow.getCell(0));
+            DealProperty firstDP = parseCell(null, currentRow.getCell(0));
             if (firstDP == null) break;
             if (firstDP.getLatestValue().type == DealProperty.Value.ValueType.BLANK) break;
 
@@ -61,15 +58,13 @@ public class EverestParser extends AbstractParser {
                 String opportunity = null;
 
                 for (int cCount = 0; cCount < headers.size(); cCount++) {
-                    Cell currentCell = currentRow.getCell(cCount);
-                    DealProperty currentVal = parseCell(currentCell);
-
                     String header = headers.get(cCount);
+                    String mappedHeader = mapping.getHeaderMapping(header);
+                    Cell currentCell = currentRow.getCell(cCount);
+                    DealProperty currentVal = parseCell(header, currentCell);
 
                     if (header.equals("Opportunity"))
                         opportunity = (String) currentVal.getLatestValue().innerValue;
-
-                    String mappedHeader = headerMap.getMapping(header);
 
                     if (mappedHeader.equals("Country"))
                         currentVal = mappedCountry(currentVal);
@@ -111,7 +106,7 @@ public class EverestParser extends AbstractParser {
     public boolean isGroupHeaderRow(Row row) {
 
         Cell testCell = row.getCell(1);
-        DealProperty testDP = parseCell(testCell);
+        DealProperty testDP = parseCell(null, testCell);
 
         if (testDP.getLatestValue().type == DealProperty.Value.ValueType.BLANK) {
             return true;
