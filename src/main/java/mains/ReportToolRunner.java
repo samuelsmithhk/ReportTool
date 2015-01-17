@@ -34,6 +34,7 @@ public class ReportToolRunner {
     private final Map<String, String> properties;
     private final CacheFileManager cfm;
     private final InputFileManager ifm;
+    private final MappingFileManager mfm;
     private final TemplateFileManager tfm;
     private final QueryFileManager qfm;
     private final ExportFileManager efm;
@@ -49,6 +50,7 @@ public class ReportToolRunner {
         cache = cfm.getCache();
 
         ifm = new InputFileManager(cache, properties.get("inputDirectory"));
+        mfm = new MappingFileManager(properties.get("mappingDirectory"));
         tfm = new TemplateFileManager(properties.get("templateDirectory"));
         qfm = new QueryFileManager(cache, properties.get("queryDirectory"));
         efm = new ExportFileManager(properties.get("exportDirectory"));
@@ -60,7 +62,7 @@ public class ReportToolRunner {
 
         if (ifm.newInputs()) {
 
-            List<InputPair> newInputs = ifm.parseNewInputs();
+            List<InputPair> newInputs = ifm.parseNewInputs(mfm);
 
             for (InputPair input : newInputs) {
                 logger.info("Processing update: " + input);

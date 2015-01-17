@@ -3,6 +3,7 @@ package parse;
 import com.google.common.collect.Maps;
 import deal.Deal;
 import deal.DealProperty;
+import mapping.Mapping;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -23,15 +24,15 @@ public class EverestParser extends AbstractParser {
 
     public final Sheet sheet;
 
-    public final Map<String, String> headerMap;
+    Mapping headerMap;
 
-    public EverestParser(Workbook workbook, DateTime timestamp) {
+    public EverestParser(Workbook workbook, DateTime timestamp, Mapping headerMap) {
         super(workbook.getCreationHelper().createFormulaEvaluator(), timestamp);
 
         logger.info("Creating Everest parser for workbook: " + workbook);
 
         this.sheet = workbook.getSheetAt(0);
-        this.headerMap = buildHeaderMap();
+        this.headerMap = headerMap;
     }
 
     @Override
@@ -68,7 +69,7 @@ public class EverestParser extends AbstractParser {
                     if (header.equals("Opportunity"))
                         opportunity = (String) currentVal.getLatestValue().innerValue;
 
-                    String mappedHeader = mapHeader(header);
+                    String mappedHeader = headerMap.getMapping(header);
 
                     if (mappedHeader.equals("Country"))
                         currentVal = mappedCountry(currentVal);
@@ -87,10 +88,6 @@ public class EverestParser extends AbstractParser {
         return parsedDeals;
     }
 
-    public String mapHeader(String toMap) {
-        if (headerMap.containsKey(toMap)) return headerMap.get(toMap);
-        return toMap;
-    }
 
     public DealProperty mappedCountry(DealProperty toMap) {
         String preMap = (String) toMap.getLatestValue().innerValue;
@@ -121,22 +118,5 @@ public class EverestParser extends AbstractParser {
         }
 
         return false;
-    }
-
-    public Map<String, String> buildHeaderMap() {
-        Map retMap = Maps.newHashMap();
-
-        retMap.put("Opportunity", "Company");
-        retMap.put("Deal Status", "Company Status");
-        retMap.put("Analyst 1", "Deal Team");
-        retMap.put("Analyst 2", "Secondary Deal Team");
-        retMap.put("Country of Incorporation", "Country");
-        retMap.put("Deal Description", "Business Description");
-        retMap.put("Target Funding", "Target Closed");
-        retMap.put("Est. KAM Size 'MM", "KKR Equity Size ($m) Expected");
-        retMap.put("Total Trans Size 'MM", "Total  Transaction Size");
-        retMap.put("Update Date", "Last Update Date");
-
-        return retMap;
     }
 }

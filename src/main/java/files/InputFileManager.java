@@ -83,7 +83,7 @@ public class InputFileManager {
         return latestTimestamp;
     }
 
-    public List<InputPair> parseNewInputs() throws IOException, InvalidFormatException {
+    public List<InputPair> parseNewInputs(MappingFileManager mfm) throws Exception {
         logger.info("Parsing the new input files");
         List<InputPair> retList = Lists.newArrayList();
 
@@ -91,7 +91,7 @@ public class InputFileManager {
 
         for (File f : allNewFiles) {
             logger.info("Parsing file: " + f);
-            SheetParser parser = FileNameParser.getParser(f, this);
+            SheetParser parser = FileNameParser.getParser(f, this, mfm);
             retList.add(new InputPair(getTimestamp(f), parser.parse()));
         }
 

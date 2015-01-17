@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import deal.Deal;
 import deal.DealProperty;
+import mapping.Mapping;
 import org.apache.poi.ss.usermodel.*;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -21,10 +22,14 @@ public class DCParser extends AbstractParser {
 
     public final Sheet sheet;
 
-    public DCParser(Workbook workbook, DateTime timestamp) {
+    private final Mapping headerMapping;
+
+    public DCParser(Workbook workbook, DateTime timestamp, Mapping headerMapping) {
         super(workbook.getCreationHelper().createFormulaEvaluator(), timestamp);
 
         logger.info("Creating Deal Central Parser for workbook: " + workbook);
+
+        this.headerMapping = headerMapping;
 
         this.sheet = workbook.getSheetAt(0);
     }
@@ -60,10 +65,12 @@ public class DCParser extends AbstractParser {
 
                 String header = headers.get(cCount - 1);
 
-                if (header.equals("Company"))
+                String mappedHeader = headerMapping.getMapping(header);
+
+                if (mappedHeader.equals("Company"))
                     opportunity = (String) currentVal.getLatestValue().innerValue;
 
-                dealProperties.put(header, currentVal);
+                dealProperties.put(mappedHeader, currentVal);
             }
 
             Deal currentDeal = new Deal(dealProperties);

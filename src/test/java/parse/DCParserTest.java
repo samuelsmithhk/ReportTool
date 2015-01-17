@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import deal.Deal;
 import deal.DealProperty;
+import files.MappingFileManager;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -28,12 +29,13 @@ public class DCParserTest {
     DateTime timestamp;
 
     @Before
-    public void init() throws IOException, InvalidFormatException {
+    public void init() throws Exception {
 
         InputStream input = this.getClass().getResourceAsStream("/testFiles/dcTestSheet.xlsx");
         Workbook wb = new XSSFWorkbook(input);
         timestamp = new DateTime();
-        parser = new DCParser(wb, timestamp);
+        MappingFileManager mfm = new MappingFileManager("/testFiles/mappings");
+        parser = new DCParser(wb, timestamp, mfm.loadColumnMap("dc"));
     }
 
     @Test
