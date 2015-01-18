@@ -68,6 +68,11 @@ public class Cache {
         return deals;
     }
 
+    public Deal getDeal(String dealName) throws Exception {
+        if (deals.containsKey(dealName)) return deals.get(dealName);
+        else throw new Exception("Deal does not exist in cache: " + dealName);
+    }
+
     public static String serializeCache(Map<String, Deal> json) {
 
         Gson gson = new Gson();

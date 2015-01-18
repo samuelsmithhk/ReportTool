@@ -9,6 +9,7 @@ import com.google.gson.JsonParser;
 import org.joda.time.format.DateTimeFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import query.CalculatedColumn;
 import query.Query;
 import query.QueryExecutor;
 import query.QueryResult;
@@ -121,6 +122,31 @@ public class QueryFileManager {
 
             qb.addSheet(qsb.build());
         }
+
+        JsonElement calculatedColumnsJSON = o.get("calculatedColumns");
+        if (calculatedColumnsJSON != null) {
+            JsonArray calculatedColumnsArray = calculatedColumnsJSON.getAsJsonArray();
+            for (JsonElement ccJSON : calculatedColumnsArray) {
+                try {
+                    JsonObject ccO = ccJSON.getAsJsonObject();
+
+                    String reference = ccO.get("reference").getAsString();
+
+                    String header = ccO.get("header").getAsString();
+
+                    JsonObject condition = ccO.get("condition").getAsJsonObject();
+                    String firstHalf = condition.get("firstHalf").getAsString();
+                    String operator = condition.get("operator").getAsString();
+                    String secondHalf = condition.get("secondHalf").getAsString();
+                    CalculatedColumn cc = new CalculatedColumn(header, firstHalf, operator, secondHalf);
+
+                    qb.addCalculatedColumn(reference, cc);
+                } catch (Exception e) {
+                    logger.error("Unable to construct calculated column: " + e.getMessage(), e);
+                }
+            }
+        }
+
 
         return qb.build();
     }

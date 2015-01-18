@@ -32,6 +32,20 @@ public class DealProperty {
         throw new IllegalArgumentException("No value for given timestamp");
     }
 
+    public Value getValueMinusXDays(int days) {
+        DateTime timestamp = values.lastKey().minusDays(days);
+
+        if (values.firstKey().isAfter(timestamp)) return values.get(values.firstKey());
+
+        for (DateTime compare : values.keySet()) {
+            if (!(compare.isBefore(timestamp))) return values.get(compare);
+        }
+
+        logger.warn("No value found at minus x days, returning latest value");
+        return values.lastEntry().getValue();
+
+    }
+
     public void addValue(DateTime timestamp, Value value) {
         logger.info("Adding value: " + value + " to DealProperty " + this);
         if (!values.containsKey(timestamp)) values.put(timestamp, value);

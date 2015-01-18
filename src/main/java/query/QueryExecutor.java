@@ -3,6 +3,7 @@ package query;
 import cache.Cache;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import deal.Deal;
 import deal.DealProperty;
 import org.slf4j.Logger;
@@ -25,11 +26,15 @@ public class QueryExecutor {
 
         for (Query.QuerySheet sheet : query.sheets) {
             Map<String, Deal> filteredDeals = qe.filterDeals(sheet.filterColumn, sheet.filterValue);
-            List<QueryResultDeal> selectedColumns = qe.selectColumns(sheet.headers, filteredDeals);
+            List<QueryResultDeal> selectedColumns = qe.selectColumns(query, sheet.headers, filteredDeals);
             List<Group> groupedValues = qe.groupValues(sheet.groupBy, selectedColumns, sheet.sortBy);
+
+            qe.overwriteCCHeaders(query, sheet.headers);
 
             qrb.addSheet(new QueryResult.QueryResultSheet(sheet.sheetName, groupedValues, sheet.headers));
         }
+        
+
 
         QueryResult result = qrb.build();
 
@@ -61,12 +66,12 @@ public class QueryExecutor {
         return retMap;
     }
 
-    public List<QueryResultDeal> selectColumns(List<Query.QuerySheet.Header> headers, Map<String, Deal> filteredDeals) {
+    public List<QueryResultDeal> selectColumns(Query query, List<Query.QuerySheet.Header> headers, Map<String, Deal> filteredDeals) {
         logger.info("Selecting columns");
         List<QueryResultDeal> retList = Lists.newArrayList();
 
         for (Map.Entry<String, Deal> toBeConverted : filteredDeals.entrySet()) {
-            retList.add(new QueryResultDeal(toBeConverted.getKey(),
+            retList.add(new QueryResultDeal(cache, query, toBeConverted.getKey(),
                     toBeConverted.getValue().dealProperties, headers));
         }
 
@@ -103,6 +108,19 @@ public class QueryExecutor {
         }
 
         return Lists.newLinkedList(retMap.values());
+    }
+
+    private void  overwriteCCHeaders(Query query, List<Query.QuerySheet.Header> headers) {
+        for (Query.QuerySheet.Header header : headers) {
+            for (String sub : header.subs) {
+                if (sub.startsWith("=")) {
+                    String reference = sub.substring(1);
+                    if (query.calculatedColumns.containsKey(reference)) {
+                        header.overwriteSub(sub, query.calculatedColumns.get(reference).header);
+                    }
+                }
+            }
+        }
     }
 
 }

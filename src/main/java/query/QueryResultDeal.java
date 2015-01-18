@@ -1,7 +1,11 @@
 package query;
 
+import cache.Cache;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import deal.DealProperty;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
@@ -12,21 +16,57 @@ import java.util.Set;
  */
 public class QueryResultDeal {
 
+    Logger logger = LoggerFactory.getLogger(QueryResultDeal.class);
+
     public final String dealName;
     public final Map<Header, String> dealProperties;
 
-    public QueryResultDeal(String dealName, Map<String, DealProperty> dpToConvert, List<Query.QuerySheet.Header> selectedColumns) {
+    private final Query query;
+    private final Cache cache;
+
+    public QueryResultDeal(Cache cache, Query query, String dealName, Map<String, DealProperty> dpToConvert,
+                           List<Query.QuerySheet.Header> selectedColumns) {
+        logger.info("Constructing a query result deal");
+
         this.dealName = dealName;
+        this.query = query;
+        this.cache = cache;
+
         this.dealProperties = convertDealProperties(dpToConvert, selectedColumns);
     }
 
-    public Map<Header, String> convertDealProperties(Map<String, DealProperty> toConvert, List<Query.QuerySheet.Header> cols) {
-        Map<Header, String> retMap = Maps.newHashMap();
+    public Map<Header, String> convertDealProperties(Map<String, DealProperty> toConvert,
+                                                     List<Query.QuerySheet.Header> cols) {
+
+        Map<Header, String> retMap = Maps.newLinkedHashMap();
+
+        logger.info("Converting deal properties");
 
         for (Query.QuerySheet.Header col : cols) {
             for (String sub : col.subs) {
                 if (toConvert.containsKey(sub))
                     retMap.put(new Header(col.header, sub), QueryUtils.parseValue(toConvert.get(sub).getLatestValue()));
+                else if (sub.startsWith("=")) {
+                    logger.info("Detected calculated column: " + sub);
+                    String reference = sub.substring(1);
+                    if (query.calculatedColumns.containsKey(reference)) {
+                        logger.info("Executing calculated column: " + reference);
+
+                        CalculatedColumn cc = query.calculatedColumns.get(reference);
+                        try {
+                            retMap.put(new Header(col.header, cc.header), QueryUtils.parseValue(cc.evaluate(cache,
+                                    dealName)));
+                        } catch (Exception e) {
+                            logger.error("Error evaluating calculated column: " + e, e);
+                        }
+
+                    } else {
+                        logger.warn("Calculated column ( " + reference
+                                + ") not found in query, using filler for output" );
+
+                        retMap.put(new Header(col.header, sub), "");
+                    }
+                }
                 else
                     retMap.put(new Header(col.header, sub), "");
             }
@@ -55,9 +95,7 @@ public class QueryResultDeal {
         for (Map.Entry<QueryResultDeal.Header, String> entry : entrySet) {
             String sub = entry.getKey().sub;
 
-            if (sub.equals(subHeader)) {
-                return entry.getValue();
-            }
+            if (sub.equals(subHeader)) return entry.getValue();
         }
 
         return null;

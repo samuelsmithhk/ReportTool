@@ -1,10 +1,12 @@
 package query;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by samuelsmith on 09/11/2014.
@@ -14,12 +16,14 @@ public class Query {
     private static transient Logger logger = LoggerFactory.getLogger(Query.class);
 
     public final List<QuerySheet> sheets;
+    public final Map<String, CalculatedColumn> calculatedColumns;
     public final String name, templateName;
     public final boolean hasTemplate;
 
     private Query(QueryBuilder qb) {
         logger.info("Creating query");
         this.sheets = qb.sheets;
+        this.calculatedColumns = qb.calculatedColumns;
         this.name = qb.name;
         this.templateName = qb.templateName;
         this.hasTemplate = qb.hasTemplate;
@@ -27,18 +31,25 @@ public class Query {
 
     public static class QueryBuilder {
         List<QuerySheet> sheets;
+        Map<String, CalculatedColumn> calculatedColumns;
         String name, templateName;
         boolean hasTemplate;
 
         public QueryBuilder(String name) {
             this.name = name;
             this.sheets = Lists.newLinkedList();
+            this.calculatedColumns = Maps.newHashMap();
             this.templateName = null;
             this.hasTemplate = false;
         }
 
         public QueryBuilder addSheet(QuerySheet sheet) {
             this.sheets.add((sheet));
+            return this;
+        }
+
+        public QueryBuilder addCalculatedColumn(String columnName, CalculatedColumn column) {
+            this.calculatedColumns.put(columnName, column);
             return this;
         }
 
@@ -123,6 +134,12 @@ public class Query {
             public Header(String header, String[] subs) {
                 this.header = header;
                 this.subs = subs;
+            }
+
+            public void overwriteSub(String subToOverwrite, String newValue) {
+                for (int i = 0; i < subs.length; i++) {
+                    if (subs[i].equals(subToOverwrite)) subs[i] = newValue;
+                }
             }
         }
     }

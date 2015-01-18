@@ -78,6 +78,8 @@ public class ReportToolRunner {
         if (results == null) logger.info("No queries executed");
         else for (QueryResult r : results) efm.writeExport(r.queryName, SheetGenerator.generateSheet(r, tfm),
                 r.hasTemplate);
+
+        logger.info("Run completed");
     }
 
     private Map<String, String> loadProperties() {
