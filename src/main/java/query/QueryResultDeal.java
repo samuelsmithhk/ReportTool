@@ -15,15 +15,15 @@ public class QueryResultDeal {
     public final String dealName;
     public final Map<Header, String> dealProperties;
 
-    public QueryResultDeal(String dealName, Map<String, DealProperty> dpToConvert, List<Query.Header> selectedColumns) {
+    public QueryResultDeal(String dealName, Map<String, DealProperty> dpToConvert, List<Query.QuerySheet.Header> selectedColumns) {
         this.dealName = dealName;
         this.dealProperties = convertDealProperties(dpToConvert, selectedColumns);
     }
 
-    public Map<Header, String> convertDealProperties(Map<String, DealProperty> toConvert, List<Query.Header> cols) {
+    public Map<Header, String> convertDealProperties(Map<String, DealProperty> toConvert, List<Query.QuerySheet.Header> cols) {
         Map<Header, String> retMap = Maps.newHashMap();
 
-        for (Query.Header col : cols) {
+        for (Query.QuerySheet.Header col : cols) {
             for (String sub : col.subs) {
                 if (toConvert.containsKey(sub))
                     retMap.put(new Header(col.header, sub), QueryUtils.parseValue(toConvert.get(sub).getLatestValue()));

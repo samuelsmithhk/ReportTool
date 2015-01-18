@@ -25,39 +25,35 @@ import java.util.Set;
  */
 public class SheetGenerator {
 
-    public static Workbook generateSheet(QueryResult deals, TemplateFileManager tfm) {
+    public static Workbook generateSheet(QueryResult results, TemplateFileManager tfm) {
         SheetGenerator generator = new SheetGenerator();
 
-        if (deals.query.hasTemplate) {
-            Workbook template = tfm.getTemplate(deals.query.templateName);
-            return generator.generateAdvancedWorkbook(deals, template);
-        } else return generator.generateBasicWorkbook(deals);
+        Workbook workbook = results.hasTemplate ? tfm.getTemplate(results.query.templateName) : new XSSFWorkbook();
+        return generator.generateWorkbook(workbook, results);
     }
 
-    private Workbook generateBasicWorkbook(QueryResult deals) {
-        Workbook retWB = new XSSFWorkbook();
-        return generateOutputWorkbook(retWB, deals);
+    private Workbook generateWorkbook(Workbook workbook, QueryResult results) {
+        Map<String, CellStyle> styles = GeneratorUtils.createStyles(workbook);
+
+        for (QueryResult.QueryResultSheet resultSheet : results.sheets) {
+            workbook = generateOutputSheet(workbook, resultSheet, styles);
+        }
+
+        return workbook;
     }
 
-    private Workbook generateAdvancedWorkbook(QueryResult deals, Workbook template) {
-        if (template == null) return generateBasicWorkbook(deals);
+    private Workbook generateOutputSheet(Workbook toWorkOn,
+                                         QueryResult.QueryResultSheet deals, Map<String, CellStyle> styles) {
 
-        return generateOutputWorkbook(template, deals);
-    }
-
-    private Workbook generateOutputWorkbook(Workbook toWorkOn, QueryResult deals) {
-
-        Map<String, CellStyle> styles = GeneratorUtils.createStyles(toWorkOn);
-
-        Sheet sheet = toWorkOn.createSheet("Results");
+        Sheet sheet = toWorkOn.createSheet(deals.sheetName);
         sheet.setAutobreaks(true);
 
-        Set<Query.Header> headers = GeneratorUtils.getHeadersFromQueryResult(deals.query, deals);
+        Set<Query.QuerySheet.Header> headers = GeneratorUtils.getHeadersFromQueryResultSheet(deals);
 
         Row headerRow = sheet.createRow(0), subRow = sheet.createRow(1);
         int n = 0;
 
-        for (Query.Header header : headers) {
+        for (Query.QuerySheet.Header header : headers) {
             Cell headerCell = headerRow.createCell(n);
             headerCell.setCellValue(header.header);
             headerCell.setCellStyle(styles.get("header"));
@@ -121,18 +117,18 @@ public class SheetGenerator {
 
     private static class GeneratorUtils {
 
-        static Set<Query.Header> getHeadersFromQueryResult(Query query, QueryResult deals) {
+        static Set<Query.QuerySheet.Header> getHeadersFromQueryResultSheet(QueryResult.QueryResultSheet deals) {
             List<Group> values = deals.valuesGrouped;
             List<QueryResultDeal> results = values.get(0).groupValues;
             QueryResultDeal result = results.get(0);
 
-            Set<Query.Header> retSet = Sets.newLinkedHashSet();
-            List<Query.Header> allowedHeaders = query.headers;
+            Set<Query.QuerySheet.Header> retSet = Sets.newLinkedHashSet();
+            List<Query.QuerySheet.Header> allowedHeaders = deals.headers;
 
             for (QueryResultDeal.Header h : result.dealProperties.keySet()) {
                 String primaryH = h.header;
 
-                for (Query.Header a : allowedHeaders) {
+                for (Query.QuerySheet.Header a : allowedHeaders) {
                     if (a.header.equals(primaryH)) {
                         retSet.add(a);
                         break;
@@ -143,10 +139,10 @@ public class SheetGenerator {
             return retSet;
         }
 
-        static List<String> getValuesInHeaderOrder(Set<Query.Header> headers, QueryResultDeal d){
+        static List<String> getValuesInHeaderOrder(Set<Query.QuerySheet.Header> headers, QueryResultDeal d){
             List<String> retList = Lists.newLinkedList();
 
-            for (Query.Header h : headers) {
+            for (Query.QuerySheet.Header h : headers) {
                 for (String sub: h.subs) {
                     if (d.hasDealProperty(sub)) retList.add(d.getDPValue(sub));
                     else retList.add("");

@@ -73,33 +73,9 @@ public class QueryFileManager {
 
     private Query parseQuery(String name, String json) {
         JsonParser parser = new JsonParser();
-        JsonObject o = (JsonObject) parser.parse(json);
+        JsonObject o = parser.parse(json).getAsJsonObject();
 
         Query.QueryBuilder qb = new Query.QueryBuilder(name);
-
-        JsonArray headersJSON = o.getAsJsonArray("headers"), headerGroupsJSON = o.getAsJsonArray("headerGroups");
-
-        for (int i = 0; i < headersJSON.size(); i++) {
-            String header = headersJSON.get(i).getAsString();
-            JsonArray headerGroupJSON = headerGroupsJSON.get(i).getAsJsonArray();
-
-            String[] headerGroup = new String[headerGroupJSON.size()];
-
-            for (int x = 0; x < headerGroupJSON.size(); x++) {
-                headerGroup[x] = headerGroupJSON.get(x).getAsString();
-            }
-
-            qb = qb.withColumns(header, headerGroup);
-        }
-
-        String filterColumn = o.get("filterColumn").getAsString(), filterValue = o.get("filterValue").getAsString();
-
-        qb = qb.setFilter(filterColumn, filterValue);
-
-        JsonElement groupByJSON = o.get("groupBy");
-        if (groupByJSON != null) qb = qb.setGroupBy(groupByJSON.getAsString());
-
-        qb = qb.setSortBy(o.get("sortBy").getAsString());
 
         JsonElement templateJSON = o.get("template");
         if (templateJSON != null) {
@@ -108,7 +84,43 @@ public class QueryFileManager {
                 qb.setTemplate(template);
         }
 
+        JsonArray sheetsArray = o.get("sheets").getAsJsonArray();
+        for (JsonElement sheet : sheetsArray) {
+            JsonObject sheetO = sheet.getAsJsonObject();
 
+            JsonElement sheetNameJSON = sheetO.get("sheetName");
+            String sheetName = (sheetNameJSON != null) ? sheetNameJSON.getAsString() : "Results";
+
+            Query.QuerySheet.QuerySheetBuilder qsb = new Query.QuerySheet.QuerySheetBuilder(sheetName);
+
+            JsonArray headersJSON = sheetO.getAsJsonArray("headers"),
+                    headerGroupsJSON = sheetO.getAsJsonArray("headerGroups");
+
+            for (int i = 0; i < headersJSON.size(); i++) {
+                String header = headersJSON.get(i).getAsString();
+                JsonArray headerGroupJSON = headerGroupsJSON.get(i).getAsJsonArray();
+
+                String[] headerGroup = new String[headerGroupJSON.size()];
+
+                for (int x = 0; x < headerGroupJSON.size(); x++) {
+                    headerGroup[x] = headerGroupJSON.get(x).getAsString();
+                }
+
+                qsb = qsb.withColumns(header, headerGroup);
+            }
+
+            String filterColumn = sheetO.get("filterColumn").getAsString(),
+                    filterValue = sheetO.get("filterValue").getAsString();
+
+            qsb = qsb.setFilter(filterColumn, filterValue);
+
+            JsonElement groupByJSON = sheetO.get("groupBy");
+            if (groupByJSON != null) qsb = qsb.setGroupBy(groupByJSON.getAsString());
+
+            qsb = qsb.setSortBy(sheetO.get("sortBy").getAsString());
+
+            qb.addSheet(qsb.build());
+        }
 
         return qb.build();
     }

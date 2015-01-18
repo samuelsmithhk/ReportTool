@@ -21,10 +21,17 @@ public class QueryExecutor {
     public static QueryResult executeQuery(Cache cache, Query query) {
         QueryExecutor qe = new QueryExecutor(cache);
 
-        Map<String, Deal> filteredDeals = qe.filterDeals(query.filterColumn, query.filterValue);
-        List<QueryResultDeal> selectedColumns = qe.selectColumns(query.headers, filteredDeals);
-        List<Group> groupedValues = qe.groupValues(query.groupBy, selectedColumns, query.sortBy);
-        QueryResult result = new QueryResult(query, query.name, groupedValues, query.headers, query.hasTemplate);
+        QueryResult.QueryResultBuilder qrb = new QueryResult.QueryResultBuilder(query);
+
+        for (Query.QuerySheet sheet : query.sheets) {
+            Map<String, Deal> filteredDeals = qe.filterDeals(sheet.filterColumn, sheet.filterValue);
+            List<QueryResultDeal> selectedColumns = qe.selectColumns(sheet.headers, filteredDeals);
+            List<Group> groupedValues = qe.groupValues(sheet.groupBy, selectedColumns, sheet.sortBy);
+
+            qrb.addSheet(new QueryResult.QueryResultSheet(sheet.sheetName, groupedValues, sheet.headers));
+        }
+
+        QueryResult result = qrb.build();
 
         return result;
     }
@@ -54,7 +61,7 @@ public class QueryExecutor {
         return retMap;
     }
 
-    public List<QueryResultDeal> selectColumns(List<Query.Header> headers, Map<String, Deal> filteredDeals) {
+    public List<QueryResultDeal> selectColumns(List<Query.QuerySheet.Header> headers, Map<String, Deal> filteredDeals) {
         logger.info("Selecting columns");
         List<QueryResultDeal> retList = Lists.newArrayList();
 
