@@ -1,11 +1,15 @@
 package deal;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
 /**
@@ -23,6 +27,36 @@ public class DealProperty {
 
     public Value getLatestValue() {
         return values.lastEntry().getValue();
+    }
+
+    public Set<Value> getValuesForDayRange(int r1, int r2) {
+        //special case, both values 0, return all
+        if ((r1 == 0) && (r2 == 0))
+            return Sets.newLinkedHashSet(values.values());
+
+        int rangeStart = Math.max(r1, r2), rangeEnd = Math.min(r1, r2);
+
+        DateTime firstDate = values.lastKey().minusDays(rangeStart);
+        DateTime lastDate = values.lastKey().minusDays(rangeEnd);
+
+        Set<Value> retValues = Sets.newLinkedHashSet();
+
+        boolean withinRange = false;
+        for (Map.Entry<DateTime, Value> entry : values.entrySet()) {
+            if (withinRange) {
+                if (entry.getKey().isBefore(lastDate))
+                    retValues.add(entry.getValue());
+                else if (entry.getKey().isEqual(lastDate) || entry.getKey().isAfter(lastDate)) break;
+            }
+
+            if (!withinRange)
+                if (entry.getKey().isEqual(firstDate) || entry.getKey().isAfter(firstDate)) {
+                    withinRange = true;
+                    retValues.add(entry.getValue());
+                }
+        }
+
+        return retValues;
     }
 
     public Value getValueAtTimestamp(DateTime timestamp) {
