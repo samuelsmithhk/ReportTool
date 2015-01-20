@@ -37,6 +37,8 @@ public class CalculatedColumn {
         operatorMap.put("MULTIPLY", new MultiplyOperator());
         operatorMap.put("DIVIDE", new DivideOperator());
         operatorMap.put("AGGREGATE", new AggregateOperator());
+        operatorMap.put("AVERAGE", new AverageOperator());
+        operatorMap.put("CONCAT", new ConcatOperator());
 
         this.operator = getOperator(operator);
     }
@@ -72,7 +74,7 @@ public class CalculatedColumn {
         }
     }
 
-    private class AggregateOperator implements Operator {
+    private abstract class RangeOperator implements Operator {
 
         @Override
         public DealProperty.Value evaluate(Deal deal, String firstHalf, String secondHalf) throws OperatorException {
@@ -95,16 +97,47 @@ public class CalculatedColumn {
             int r1, r2;
 
             if (secondHalf.equals("*")) {
-                r1 = 0; r2 = 0;
+                r1 = 0;
+                r2 = 0;
             } else if (simpleMatcher.find()) {
                 r1 = Integer.valueOf(simpleMatcher.group(1));
                 r2 = 0;
             } else if (complexMatcher.find()) {
-                 r1 = Integer.valueOf(complexMatcher.group(1));
-                 r2 = Integer.valueOf(complexMatcher.group(2));
+                r1 = Integer.valueOf(complexMatcher.group(1));
+                r2 = Integer.valueOf(complexMatcher.group(2));
             } else
                 throw new OperatorException("Instruction for aggregate operator invalid: " + secondHalf);
 
+            return calculate(dp, r1, r2);
+        }
+
+        public abstract DealProperty.Value calculate(DealProperty d1, int r1, int r2);
+    }
+
+    private class AverageOperator extends RangeOperator {
+
+        @Override
+        public DealProperty.Value calculate(DealProperty dp, int r1, int r2) {
+            double total = 0, count = 0;
+            for (DealProperty.Value value : dp.getValuesForDayRange(r1, r2)) {
+                if (value.type.equals(DealProperty.Value.ValueType.NUMERIC)) {
+                    total += (Double) value.innerValue;
+                    count++;
+                }
+                else logger.warn("Unable to add value " + value.innerValue
+                        + " in aggregation operation, as not numeric");
+            }
+
+            double average = total / count;
+
+            return new DealProperty.Value(average, DealProperty.Value.ValueType.NUMERIC);
+        }
+    }
+
+    private class AggregateOperator extends RangeOperator {
+
+        @Override
+        public DealProperty.Value calculate(DealProperty dp, int r1, int r2) {
             double total = 0;
             for (DealProperty.Value value : dp.getValuesForDayRange(r1, r2)) {
                 if (value.type.equals(DealProperty.Value.ValueType.NUMERIC)) total += (Double) value.innerValue;
@@ -114,30 +147,45 @@ public class CalculatedColumn {
 
             return new DealProperty.Value(total, DealProperty.Value.ValueType.NUMERIC);
         }
+
+
     }
 
     private abstract class MathematicalOperator implements Operator {
 
         @Override
         public DealProperty.Value evaluate(Deal deal, String firstHalf, String secondHalf) throws OperatorException {
-            DealProperty dp1 = (deal.dealProperties.containsKey(firstHalf)) ?
-                    deal.dealProperties.get(firstHalf) : null;
 
-            if (dp1 == null) throw new OperatorException("DealProperty " + firstHalf + " does not exist");
-            if (!(dp1.getLatestValue().type.equals(DealProperty.Value.ValueType.NUMERIC)))
-                throw new OperatorException("Addition operator cannot be applied to non-numeric DealProperty "
-                        + firstHalf);
+            if (firstHalf == null || firstHalf.trim().equals("") || secondHalf == null || secondHalf.trim().equals(""))
+                throw new OperatorException("Missing parameter for mathematical operation");
 
-            DealProperty dp2 = (deal.dealProperties.containsKey(secondHalf)) ?
-                    deal.dealProperties.get(secondHalf) : null;
+            double a, b;
 
-            if (dp2 == null) throw new OperatorException("DealProperty " + secondHalf + " does not exist");
-            if (!(dp2.getLatestValue().type.equals(DealProperty.Value.ValueType.NUMERIC)))
-                throw new OperatorException("Addition operator cannot be applied to non-numeric DealProperty "
-                        + secondHalf);
+            if (firstHalf.startsWith("#")) a = Double.parseDouble(firstHalf.substring(1));
+            else {
+                DealProperty dp1 = (deal.dealProperties.containsKey(firstHalf)) ?
+                        deal.dealProperties.get(firstHalf) : null;
 
-            double a = (Double) dp1.getLatestValue().innerValue;
-            double b = (Double) dp2.getLatestValue().innerValue;
+                if (dp1 == null) throw new OperatorException("DealProperty " + firstHalf + " does not exist");
+                if (!(dp1.getLatestValue().type.equals(DealProperty.Value.ValueType.NUMERIC)))
+                    throw new OperatorException("Addition operator cannot be applied to non-numeric DealProperty "
+                            + firstHalf);
+
+                a = (Double) dp1.getLatestValue().innerValue;
+            }
+
+            if (secondHalf.startsWith("#")) b = Double.parseDouble(secondHalf.substring(1));
+            else {
+                DealProperty dp2 = (deal.dealProperties.containsKey(secondHalf)) ?
+                        deal.dealProperties.get(secondHalf) : null;
+
+                if (dp2 == null) throw new OperatorException("DealProperty " + secondHalf + " does not exist");
+                if (!(dp2.getLatestValue().type.equals(DealProperty.Value.ValueType.NUMERIC)))
+                    throw new OperatorException("Addition operator cannot be applied to non-numeric DealProperty "
+                            + secondHalf);
+
+                b = (Double) dp2.getLatestValue().innerValue;
+            }
 
             return calculate(a, b);
         }
@@ -171,6 +219,39 @@ public class CalculatedColumn {
         @Override
         public DealProperty.Value calculate(double a, double b) {
             return new DealProperty.Value((a / b), DealProperty.Value.ValueType.NUMERIC);
+        }
+    }
+
+    private class ConcatOperator implements Operator {
+
+        @Override
+        public DealProperty.Value evaluate(Deal deal, String firstHalf, String secondHalf) throws OperatorException {
+            if (firstHalf == null || secondHalf == null) throw new OperatorException
+                    ("Both parameters are required for ConcatOperator");
+
+            String str1, str2;
+
+            if (firstHalf.startsWith("#")) str1 = firstHalf.substring(1);
+            else {
+                DealProperty dp = (deal.dealProperties.containsKey(firstHalf)) ?
+                        deal.dealProperties.get(firstHalf) : null;
+
+                if (dp == null) throw new OperatorException("DealProperty " + firstHalf + " does not exist");
+
+                str1 = (String) dp.getLatestValue().innerValue;
+            }
+
+            if (secondHalf.startsWith("#")) str2 = secondHalf.substring(1);
+            else {
+                DealProperty dp = (deal.dealProperties.containsKey(secondHalf)) ?
+                        deal.dealProperties.get(secondHalf) : null;
+
+                if (dp == null) throw new OperatorException("DealProperty " + firstHalf + " does not exist");
+
+                str2 = (String) dp.getLatestValue().innerValue;
+            }
+
+            return new DealProperty.Value((str1 + str2), DealProperty.Value.ValueType.STRING);
         }
     }
 
