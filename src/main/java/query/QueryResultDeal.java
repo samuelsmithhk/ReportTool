@@ -54,7 +54,7 @@ public class QueryResultDeal {
 
                         CalculatedColumn cc = query.calculatedColumns.get(reference);
                         try {
-                            retMap.put(new Header(col.header, cc.header), QueryUtils.parseValue(cc.evaluate(cache,
+                            retMap.put(new Header(col.header, cc.header), QueryUtils.parseValue(cc.evaluate(query, cache,
                                     dealName)));
                         } catch (Exception e) {
                             logger.error("Error evaluating calculated column: " + e, e);

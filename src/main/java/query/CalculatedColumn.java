@@ -43,11 +43,16 @@ public class CalculatedColumn {
         this.operator = getOperator(operator);
     }
 
-    public DealProperty.Value evaluate(Cache cache, String dealName) throws Exception {
+    public DealProperty.Value evaluate(Query query, Cache cache, String dealName) throws Exception {
         logger.info("Evaluating calculated column for deal: " + dealName);
 
         Deal deal = cache.getDeal(dealName);
-        return operator.evaluate(deal, firstHalf, secondHalf);
+        return operator.evaluate(cache, query, deal, firstHalf, secondHalf);
+    }
+
+    public DealProperty.Value evaluate(Query query, Cache cache, Deal deal) throws Exception {
+        logger.info("Evaluating calculated column for deal: " + deal);
+        return operator.evaluate(cache, query, deal, firstHalf, secondHalf);
     }
 
    private Operator getOperator(String operator) throws Exception {
@@ -57,12 +62,14 @@ public class CalculatedColumn {
 
 
     private interface Operator {
-        public DealProperty.Value evaluate(Deal deal, String firstHalf, String secondHalf) throws OperatorException;
+        public DealProperty.Value evaluate(Cache cache, Query query, Deal deal, String firstHalf,
+                                           String secondHalf) throws Exception;
     }
 
     private class HistoricOperator implements Operator {
         @Override
-        public DealProperty.Value evaluate(Deal deal, String firstHalf, String secondHalf) throws OperatorException {
+        public DealProperty.Value evaluate(Cache cache, Query query, Deal deal, String firstHalf,
+                                           String secondHalf) throws OperatorException {
             DealProperty dealProperty = (deal.dealProperties.containsKey(firstHalf))
                     ? deal.dealProperties.get(firstHalf) : null;
 
@@ -77,7 +84,8 @@ public class CalculatedColumn {
     private abstract class RangeOperator implements Operator {
 
         @Override
-        public DealProperty.Value evaluate(Deal deal, String firstHalf, String secondHalf) throws OperatorException {
+        public DealProperty.Value evaluate(Cache cache, Query query, Deal deal, String firstHalf,
+                                           String secondHalf) throws OperatorException {
             logger.info("Evaluating aggregate operator for deal " + deal + " col: "
                     + firstHalf + " rule: " + secondHalf);
 
@@ -154,7 +162,8 @@ public class CalculatedColumn {
     private abstract class MathematicalOperator implements Operator {
 
         @Override
-        public DealProperty.Value evaluate(Deal deal, String firstHalf, String secondHalf) throws OperatorException {
+        public DealProperty.Value evaluate(Cache cache, Query query, Deal deal, String firstHalf,
+                                           String secondHalf) throws Exception {
 
             if (firstHalf == null || firstHalf.trim().equals("") || secondHalf == null || secondHalf.trim().equals(""))
                 throw new OperatorException("Missing parameter for mathematical operation");
@@ -162,26 +171,54 @@ public class CalculatedColumn {
             double a, b;
 
             if (firstHalf.startsWith("#")) a = Double.parseDouble(firstHalf.substring(1));
+            else if (firstHalf.startsWith("=")) {
+                String reference = firstHalf.substring(1);
+                if (query.calculatedColumns.containsKey(reference)) {
+                    logger.info("Executing calculated column: " + reference);
+
+                    CalculatedColumn cc = query.calculatedColumns.get(reference);
+                    DealProperty.Value res = cc.evaluate(query, cache, deal);
+
+                    if (!(res.type.equals(DealProperty.Value.ValueType.NUMERIC)))
+                        throw new OperatorException("Mathematical operator cannot be applied to non-numeric DealProperty");
+
+                    a = (Double) res.innerValue;
+                } else throw new OperatorException("Calculated column missing: " + reference);
+            }
             else {
                 DealProperty dp1 = (deal.dealProperties.containsKey(firstHalf)) ?
                         deal.dealProperties.get(firstHalf) : null;
 
                 if (dp1 == null) throw new OperatorException("DealProperty " + firstHalf + " does not exist");
                 if (!(dp1.getLatestValue().type.equals(DealProperty.Value.ValueType.NUMERIC)))
-                    throw new OperatorException("Addition operator cannot be applied to non-numeric DealProperty "
+                    throw new OperatorException("Mathematical operator cannot be applied to non-numeric DealProperty "
                             + firstHalf);
 
                 a = (Double) dp1.getLatestValue().innerValue;
             }
 
             if (secondHalf.startsWith("#")) b = Double.parseDouble(secondHalf.substring(1));
+            else if (secondHalf.startsWith("=")) {
+                String reference = secondHalf.substring(1);
+                if (query.calculatedColumns.containsKey(reference)) {
+                    logger.info("Executing calculated column: " + reference);
+
+                    CalculatedColumn cc = query.calculatedColumns.get(reference);
+                    DealProperty.Value res = cc.evaluate(query, cache, deal);
+
+                    if (!(res.type.equals(DealProperty.Value.ValueType.NUMERIC)))
+                        throw new OperatorException("Mathematical operator cannot be applied to non-numeric DealProperty");
+
+                    b = (Double) res.innerValue;
+                } else throw new OperatorException("Calculated column missing: " + reference);
+            }
             else {
                 DealProperty dp2 = (deal.dealProperties.containsKey(secondHalf)) ?
                         deal.dealProperties.get(secondHalf) : null;
 
                 if (dp2 == null) throw new OperatorException("DealProperty " + secondHalf + " does not exist");
                 if (!(dp2.getLatestValue().type.equals(DealProperty.Value.ValueType.NUMERIC)))
-                    throw new OperatorException("Addition operator cannot be applied to non-numeric DealProperty "
+                    throw new OperatorException("Mathematical operator cannot be applied to non-numeric DealProperty "
                             + secondHalf);
 
                 b = (Double) dp2.getLatestValue().innerValue;
@@ -225,13 +262,24 @@ public class CalculatedColumn {
     private class ConcatOperator implements Operator {
 
         @Override
-        public DealProperty.Value evaluate(Deal deal, String firstHalf, String secondHalf) throws OperatorException {
+        public DealProperty.Value evaluate(Cache cache, Query query, Deal deal, String firstHalf,
+                                           String secondHalf) throws Exception {
             if (firstHalf == null || secondHalf == null) throw new OperatorException
                     ("Both parameters are required for ConcatOperator");
 
             String str1, str2;
 
             if (firstHalf.startsWith("#")) str1 = firstHalf.substring(1);
+            else if (firstHalf.startsWith("=")) {
+                String reference = firstHalf.substring(1);
+                if (query.calculatedColumns.containsKey(reference)) {
+                    logger.info("Executing calculated column: " + reference);
+
+                    CalculatedColumn cc = query.calculatedColumns.get(reference);
+                    DealProperty.Value res = cc.evaluate(query, cache, deal);
+                    str1 = (String) res.innerValue;
+                } else throw new OperatorException("Calculated column missing: " + reference);
+            }
             else {
                 DealProperty dp = (deal.dealProperties.containsKey(firstHalf)) ?
                         deal.dealProperties.get(firstHalf) : null;
@@ -242,6 +290,16 @@ public class CalculatedColumn {
             }
 
             if (secondHalf.startsWith("#")) str2 = secondHalf.substring(1);
+            else if (secondHalf.startsWith("=")) {
+                String reference = secondHalf.substring(1);
+                if (query.calculatedColumns.containsKey(reference)) {
+                    logger.info("Executing calculated column: " + reference);
+
+                    CalculatedColumn cc = query.calculatedColumns.get(reference);
+                    DealProperty.Value res = cc.evaluate(query, cache, deal);
+                    str2 = (String) res.innerValue;
+                } else throw new OperatorException("Calculated column missing: " + reference);
+            }
             else {
                 DealProperty dp = (deal.dealProperties.containsKey(secondHalf)) ?
                         deal.dealProperties.get(secondHalf) : null;
