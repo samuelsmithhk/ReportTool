@@ -9,10 +9,7 @@ import com.google.gson.JsonParser;
 import org.joda.time.format.DateTimeFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import query.CalculatedColumn;
-import query.Query;
-import query.QueryExecutor;
-import query.QueryResult;
+import query.*;
 
 import java.io.*;
 import java.nio.charset.Charset;
@@ -144,6 +141,21 @@ public class QueryFileManager {
                 } catch (Exception e) {
                     logger.error("Unable to construct calculated column: " + e.getMessage(), e);
                 }
+            }
+        }
+
+        JsonElement mappedColumnsJSON = o.get("mappedColumns");
+        if (mappedColumnsJSON != null) {
+            JsonArray mappedColumnsArray = mappedColumnsJSON.getAsJsonArray();
+            for (JsonElement mcJSON : mappedColumnsArray) {
+                JsonObject mcO = mcJSON.getAsJsonObject();
+                String reference = mcO.get("reference").getAsString();
+                String original = mcO.get("original").getAsString();
+                String header = mcO.get("header").getAsString();
+                MappedColumn mc = new MappedColumn(original, header);
+
+                qb.addMappedColumn(reference, mc);
+
             }
         }
 

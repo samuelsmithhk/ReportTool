@@ -62,7 +62,27 @@ public class QueryResultDeal {
 
                     } else {
                         logger.warn("Calculated column ( " + reference
-                                + ") not found in query, using filler for output" );
+                                + ") not found in query definition, using filler for output" );
+
+                        retMap.put(new Header(col.header, sub), "");
+                    }
+                }
+                else if (sub.startsWith("$")) {
+                    logger.info("Detected mapped column: " + sub);
+                    String reference = sub.substring(1);
+                    if (query.mappedColumns.containsKey(reference)) {
+                        logger.info("Executing mapped column: "+ reference);
+
+                        MappedColumn mc = query.mappedColumns.get(reference);
+
+                        if (toConvert.containsKey(mc.original))
+                            retMap.put(new Header(col.header, mc.header),
+                                    QueryUtils.parseValue(toConvert.get(mc.original).getLatestValue()));
+                        else
+                            retMap.put(new Header(col.header, mc.header), "");
+                    } else {
+                        logger.warn("Mapped column ( " + reference +
+                                ") not found in query definition, using filler for output");
 
                         retMap.put(new Header(col.header, sub), "");
                     }

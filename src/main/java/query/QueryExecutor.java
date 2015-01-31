@@ -29,7 +29,7 @@ public class QueryExecutor {
             List<QueryResultDeal> selectedColumns = qe.selectColumns(query, sheet.headers, filteredDeals);
             List<Group> groupedValues = qe.groupValues(sheet.groupBy, selectedColumns, sheet.sortBy);
 
-            qe.overwriteCCHeaders(query, sheet.headers);
+            qe.overwriteHeaders(query, sheet.headers);
 
             qrb.addSheet(new QueryResult.QueryResultSheet(sheet.sheetName, groupedValues, sheet.headers));
         }
@@ -110,13 +110,18 @@ public class QueryExecutor {
         return Lists.newLinkedList(retMap.values());
     }
 
-    private void  overwriteCCHeaders(Query query, List<Query.QuerySheet.Header> headers) {
+    private void  overwriteHeaders(Query query, List<Query.QuerySheet.Header> headers) {
         for (Query.QuerySheet.Header header : headers) {
             for (String sub : header.subs) {
                 if (sub.startsWith("=")) {
                     String reference = sub.substring(1);
                     if (query.calculatedColumns.containsKey(reference)) {
                         header.overwriteSub(sub, query.calculatedColumns.get(reference).header);
+                    }
+                } else if (sub.startsWith("$")) {
+                    String reference = sub.substring(1);
+                    if (query.mappedColumns.containsKey(reference)) {
+                        header.overwriteSub(sub, query.mappedColumns.get(reference).header);
                     }
                 }
             }

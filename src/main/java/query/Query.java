@@ -17,6 +17,7 @@ public class Query {
 
     public final List<QuerySheet> sheets;
     public final Map<String, CalculatedColumn> calculatedColumns;
+    public final Map<String, MappedColumn> mappedColumns;
     public final String name, templateName;
     public final boolean hasTemplate;
 
@@ -24,6 +25,7 @@ public class Query {
         logger.info("Creating query");
         this.sheets = qb.sheets;
         this.calculatedColumns = qb.calculatedColumns;
+        this.mappedColumns = qb.mappedColumns;
         this.name = qb.name;
         this.templateName = qb.templateName;
         this.hasTemplate = qb.hasTemplate;
@@ -32,6 +34,7 @@ public class Query {
     public static class QueryBuilder {
         List<QuerySheet> sheets;
         Map<String, CalculatedColumn> calculatedColumns;
+        Map<String, MappedColumn> mappedColumns;
         String name, templateName;
         boolean hasTemplate;
 
@@ -39,6 +42,7 @@ public class Query {
             this.name = name;
             this.sheets = Lists.newLinkedList();
             this.calculatedColumns = Maps.newHashMap();
+            this.mappedColumns = Maps.newHashMap();
             this.templateName = null;
             this.hasTemplate = false;
         }
@@ -50,6 +54,11 @@ public class Query {
 
         public QueryBuilder addCalculatedColumn(String columnName, CalculatedColumn column) {
             this.calculatedColumns.put(columnName, column);
+            return this;
+        }
+
+        public QueryBuilder addMappedColumn(String columnName, MappedColumn column) {
+            this.mappedColumns.put(columnName, column);
             return this;
         }
 
