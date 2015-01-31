@@ -77,7 +77,7 @@ public class ReportToolRunner {
 
         if (results == null) logger.info("No queries executed");
         else for (QueryResult r : results) efm.writeExport(r.queryName, SheetGenerator.generateSheet(r, tfm),
-                r.hasTemplate);
+                r.hasTemplate, r.outputTimestamp);
 
         logger.info("Run completed");
     }

@@ -1,6 +1,9 @@
 package files;
 
 import org.apache.poi.ss.usermodel.Workbook;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,13 +22,14 @@ public class ExportFileManager {
         this.exportDirectory = exportDirectory;
     }
 
-    public void writeExport(String filename, Workbook result, boolean hasTemplate) {
+    public void writeExport(String filename, Workbook result, boolean hasTemplate, boolean useTimestamp) {
         logger.info("Writing exported excel file: " + filename);
 
         FileOutputStream out = null;
         try {
             String extension = hasTemplate ? ".xlsm" : ".xlsx";
-            out = new FileOutputStream(new File(exportDirectory + filename + extension));
+            String timestamp = useTimestamp ? "-" + DateTime.now().toString(DateTimeFormat.forPattern("yyyyMMdd-HHmmss")) : "";
+            out = new FileOutputStream(new File(exportDirectory + filename + timestamp + extension));
             result.write(out);
             out.close();
         } catch (IOException e) {

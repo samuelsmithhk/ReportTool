@@ -19,7 +19,7 @@ public class Query {
     public final Map<String, CalculatedColumn> calculatedColumns;
     public final Map<String, MappedColumn> mappedColumns;
     public final String name, templateName;
-    public final boolean hasTemplate;
+    public final boolean hasTemplate, outputTimestamp;
 
     private Query(QueryBuilder qb) {
         logger.info("Creating query");
@@ -29,6 +29,7 @@ public class Query {
         this.name = qb.name;
         this.templateName = qb.templateName;
         this.hasTemplate = qb.hasTemplate;
+        this.outputTimestamp = qb.outputTimestamp;
     }
 
     public static class QueryBuilder {
@@ -36,7 +37,7 @@ public class Query {
         Map<String, CalculatedColumn> calculatedColumns;
         Map<String, MappedColumn> mappedColumns;
         String name, templateName;
-        boolean hasTemplate;
+        boolean hasTemplate, outputTimestamp;
 
         public QueryBuilder(String name) {
             this.name = name;
@@ -45,6 +46,7 @@ public class Query {
             this.mappedColumns = Maps.newHashMap();
             this.templateName = null;
             this.hasTemplate = false;
+            this.outputTimestamp = false;
         }
 
         public QueryBuilder addSheet(QuerySheet sheet) {
@@ -65,6 +67,11 @@ public class Query {
         public QueryBuilder setTemplate(String templateName) {
             this.templateName = templateName;
             this.hasTemplate = true;
+            return this;
+        }
+
+        public QueryBuilder setOutputTimestamp(boolean outputTimestamp) {
+            this.outputTimestamp = outputTimestamp;
             return this;
         }
 

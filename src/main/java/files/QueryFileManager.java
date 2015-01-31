@@ -82,6 +82,12 @@ public class QueryFileManager {
                 qb.setTemplate(template);
         }
 
+        JsonElement outputTimestampJSON = o.get("outputTimestamp");
+        if (outputTimestampJSON != null) {
+            boolean outputTimestamp = outputTimestampJSON.getAsBoolean();
+            qb.setOutputTimestamp(outputTimestamp);
+        }
+
         JsonArray sheetsArray = o.get("sheets").getAsJsonArray();
         for (JsonElement sheet : sheetsArray) {
             JsonObject sheetO = sheet.getAsJsonObject();

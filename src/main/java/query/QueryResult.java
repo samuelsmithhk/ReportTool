@@ -11,27 +11,28 @@ public class QueryResult {
 
     public final Query query;
     public final String queryName;
-    public final boolean hasTemplate;
+    public final boolean hasTemplate, outputTimestamp;
     public final List<QueryResultSheet> sheets;
 
     private QueryResult(QueryResultBuilder qb) {
         this.query = qb.query;
         this.queryName = qb.queryName;
         this.hasTemplate = qb.hasTemplate;
+        this.outputTimestamp = qb.outputTimestamp;
         this.sheets = qb.sheets;
     }
 
     public static class QueryResultBuilder {
         Query query;
         String queryName;
-        boolean hasTemplate;
+        boolean hasTemplate, outputTimestamp;
         List<QueryResultSheet> sheets;
 
         public QueryResultBuilder(Query query) {
             this.query = query;
             this.queryName = query.name;
             this.hasTemplate = query.hasTemplate;
-
+            this.outputTimestamp = query.outputTimestamp;
             this.sheets = Lists.newLinkedList();
         }
 
