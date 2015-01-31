@@ -13,7 +13,7 @@ public class Deal {
 
     private transient Logger logger = LoggerFactory.getLogger(Deal.class);
 
-    public final Map<String, DealProperty> dealProperties;
+    public final Map<String, DealProperty> dealProperties; //key is column
 
     public Deal (Map<String, DealProperty> dealProperties) {
         this.dealProperties = dealProperties;

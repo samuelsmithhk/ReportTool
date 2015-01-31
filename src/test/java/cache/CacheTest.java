@@ -39,8 +39,10 @@ public class CacheTest {
         toBeParsed.put("Project PE - AA2", deal2);
 
         String expected =
-                "{\"Project PE - AA2\":{\"dealProperties\":{\"Deal Code Name\":{\"values\":{\"2014-10-10T10:10:00.000+08:00\":{\"innerValue\":\"Deal Code - Project PE - AA2\",\"type\":\"STRING\"}}}}},\"Project PE - AA1\":{\"dealProperties\":{\"Deal Code Name\":{\"values\":{\"2014-10-10T10:10:00.000+08:00\":{\"innerValue\":\"Deal Code - Project PE - AA1\",\"type\":\"STRING\"}}}}}}";
-        String actual = Cache.serializeCache(toBeParsed);
+                "{\"deals\":{\"Project PE - AA2\":{\"dealProperties\":{\"Deal Code Name\":{\"values\":{\"2014-10-10T10:10:00.000+08:00\":{\"innerValue\":\"Deal Code - Project PE - AA2\",\"type\":\"STRING\"}}}}},\"Project PE - AA1\":{\"dealProperties\":{\"Deal Code Name\":{\"values\":{\"2014-10-10T10:10:00.000+08:00\":{\"innerValue\":\"Deal Code - Project PE - AA1\",\"type\":\"STRING\"}}}}}},\"columnIndex\":null}";
+        String actual = Cache.serializeCache(toBeParsed, null);
+
+        System.out.println(actual);
 
         Assert.assertTrue(actual.equals(expected));
     }
@@ -48,7 +50,7 @@ public class CacheTest {
     @Test
     public void shouldParseJsonToCache() {
         String json =
-                "{\"Project PE - AA2\":{\"dealProperties\":{\"Deal Code Name\":{\"values\":{\"2014-10-10T10:10:00.000+08:00\":{\"innerValue\":\"Deal Code - Project PE - AA2\",\"type\":\"STRING\"}}}}},\"Project PE - AA1\":{\"dealProperties\":{\"Deal Code Name\":{\"values\":{\"2014-10-10T10:10:00.000+08:00\":{\"innerValue\":\"Deal Code - Project PE - AA1\",\"type\":\"STRING\"}}}}}}";
+                "{\"deals\":{\"Project PE - AA2\":{\"dealProperties\":{\"Deal Code Name\":{\"values\":{\"2014-10-10T10:10:00.000+08:00\":{\"innerValue\":\"Deal Code - Project PE - AA2\",\"type\":\"STRING\"}}}}},\"Project PE - AA1\":{\"dealProperties\":{\"Deal Code Name\":{\"values\":{\"2014-10-10T10:10:00.000+08:00\":{\"innerValue\":\"Deal Code - Project PE - AA1\",\"type\":\"STRING\"}}}}}}}";
 
         String actual = String.valueOf(Cache.deserializeCacheContents(json));
         String expected =

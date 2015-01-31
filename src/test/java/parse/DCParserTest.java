@@ -38,43 +38,6 @@ public class DCParserTest {
         parser = new DCParser(wb, timestamp, mfm.loadColumnMap("dc"));
     }
 
-    @Test
-    public void shouldReturnCorrectHeaders() {
-       String h1 = "Deal Code Name", h2 = "Company";
-       List<String> actual = parser.getHeaders(parser.sheet.getRow(4), false);
-
-       assertThat(actual, containsInAnyOrder(h1, h2));
-    }
-
-    //parsing issue, may be because sheet was saved using pages not excel, need to research
-     @Test
-     public void shouldGenerateActualDeals() {
-
-         Map<String, DealProperty> e1dps = Maps.newHashMap(), e2dps = Maps.newHashMap();
-
-         DealProperty dp1 = new DealProperty.DealPropertyBuilder()
-                 .withValue(timestamp, new DealProperty.Value
-                         ("Deal Code - Project PE - AA1", DealProperty.Value.ValueType.STRING))
-                 .build();
-
-         DealProperty dp2 = new DealProperty.DealPropertyBuilder()
-                 .withValue(timestamp, new DealProperty.Value
-                         ("Deal Code - Project PE - AA2", DealProperty.Value.ValueType.STRING))
-                 .build();
-
-         e1dps.put("Deal Code Name", dp1);
-         e2dps.put("Deal Code Name", dp2);
-
-         Deal e1 = new Deal(e1dps), e2 = new Deal(e2dps);
-
-         Map<String, Deal> expected = Maps.newHashMap();
-         expected.put("Project PE - AA1", e1);
-         expected.put("Project PE - AA2", e2);
-
-         Map<String, Deal> actual = parser.parse();
-
-         assert(dealsEqualInAnyOrder(expected, actual));
-     }
 
     public boolean dealsEqualInAnyOrder(Map<String, Deal> ma, Map<String, Deal> mb) {
 

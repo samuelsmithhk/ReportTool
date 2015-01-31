@@ -56,7 +56,7 @@ public class CacheFileManager {
     public void saveCache(Cache cache)  {
         logger.info("Saving cache");
 
-        String toSave = Cache.serializeCache(cache.getDeals());
+        String toSave = Cache.serializeCache(cache.getDeals(), cache.getCols());
 
         String filename = cache.getLastUpdated().toString(DateTimeFormat.forPattern("yyyyMMddHHmmss"));
 

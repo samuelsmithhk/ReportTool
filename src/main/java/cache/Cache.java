@@ -1,6 +1,7 @@
 package cache;
 
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.google.gson.*;
 import deal.Deal;
 import deal.DealProperty;
@@ -11,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by samuelsmith on 02/11/2014.
@@ -24,22 +26,24 @@ public class Cache {
     }
 
     public static Cache createLoadedCache(String cacheContents, DateTime cacheTimestamp) {
-        return new Cache(deserializeCacheContents(cacheContents), cacheTimestamp);
+        return new Cache(deserializeCacheContents(cacheContents), deserializeCacheColumns(cacheContents), cacheTimestamp);
     }
 
-
+    private final Set<String> columnIndex;
     private final Map<String, Deal> deals;
     private DateTime lastUpdated;
 
     private Cache(){
         logger.info("Creating empty cache");
         this.deals = Maps.newHashMap();
+        this.columnIndex = Sets.newHashSet();
         this.lastUpdated = null;
     }
 
-    private Cache(Map<String, Deal> deals, DateTime lastUpdated) {
+    private Cache(Map<String, Deal> deals, Set<String> columnIndex, DateTime lastUpdated) {
         logger.info("Creating loaded cache with deals: " + deals);
         this.deals = deals;
+        this.columnIndex = columnIndex;
         this.lastUpdated = lastUpdated;
     }
 
@@ -47,12 +51,17 @@ public class Cache {
         logger.info("Processing deal update with newDeals: " + newDeals);
 
         for (Map.Entry<String, Deal> entry : newDeals.entrySet()) {
+            Deal deal = entry.getValue();
+
+            //update column index
+            columnIndex.addAll(deal.dealProperties.keySet());
+
             if (deals.containsKey(entry.getKey())) {
                 //update deal
-                deals.get(entry.getKey()).updateDeal(timestamp, entry.getValue());
+                deals.get(entry.getKey()).updateDeal(timestamp, deal);
             } else {
                 //new deal
-                deals.put(entry.getKey(), entry.getValue());
+                deals.put(entry.getKey(), deal);
             }
         }
 
@@ -68,15 +77,21 @@ public class Cache {
         return deals;
     }
 
+    public Set<String> getCols() {
+        return columnIndex;
+    }
+
     public Deal getDeal(String dealName) throws Exception {
         if (deals.containsKey(dealName)) return deals.get(dealName);
         else throw new Exception("Deal does not exist in cache: " + dealName);
     }
 
-    public static String serializeCache(Map<String, Deal> json) {
+    public static String serializeCache(Map<String, Deal> deals, Set<String> columnIndex) {
 
         Gson gson = new Gson();
-        return gson.toJson(json);
+        String dealsJSON = "{\"deals\":" + gson.toJson(deals) + ",";
+        String colsJSON = "\"columnIndex\":" + gson.toJson(columnIndex) + "}";
+        return dealsJSON + colsJSON;
 
     }
 
@@ -88,7 +103,8 @@ public class Cache {
         // {"innerValue":"Deal Code - Project PE - AA1","type":"STRING"}}}}}}
 
         JsonParser parser = new JsonParser();
-        JsonObject o = (JsonObject) parser.parse(json);
+        JsonObject jo = (JsonObject) parser.parse(json);
+        JsonObject o = jo.get("deals").getAsJsonObject();
 
         Map<String, Deal> retMap = Maps.newHashMap();
 
@@ -114,7 +130,7 @@ public class Cache {
                     Object innerValue;
                     DealProperty.Value.ValueType type;
 
-                    for (Map.Entry<String, JsonElement> val : ((JsonObject) value).entrySet()) {
+                    for (Map.Entry<String, JsonElement> val : value.entrySet()) {
                         timestampStr = val.getKey();
                         JsonObject v = val.getValue().getAsJsonObject();
 
@@ -142,6 +158,20 @@ public class Cache {
         }
 
         return retMap;
+    }
+
+    public static Set<String> deserializeCacheColumns(String json) {
+        Set<String> retSet = Sets.newHashSet();
+        JsonParser parser = new JsonParser();
+        JsonObject o = (JsonObject) parser.parse(json);
+
+        JsonArray continueIndexJsonArray = o.get("columnIndex").getAsJsonArray();
+
+        for (JsonElement col : continueIndexJsonArray) {
+            retSet.add(col.getAsString());
+        }
+
+        return retSet;
     }
 
     private static Object parseInnerValue(DealProperty.Value.ValueType type, JsonElement innerValue) {
