@@ -37,6 +37,7 @@ public class SheetGenerator {
 
         for (QueryResult.QueryResultSheet resultSheet : results.sheets) {
             workbook = generateOutputSheet(workbook, resultSheet, styles);
+            workbook.setSheetHidden(workbook.getSheetIndex(resultSheet.sheetName), resultSheet.isHidden);
         }
 
         return workbook;

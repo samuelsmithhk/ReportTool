@@ -31,7 +31,8 @@ public class QueryExecutor {
 
             qe.overwriteHeaders(query, sheet.headers);
 
-            qrb.addSheet(new QueryResult.QueryResultSheet(sheet.sheetName, groupedValues, sheet.headers));
+            qrb.addSheet(new QueryResult.QueryResultSheet(sheet.sheetName, groupedValues, sheet.headers,
+                    sheet.isHidden));
         }
         
 

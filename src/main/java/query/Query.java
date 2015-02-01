@@ -85,6 +85,7 @@ public class Query {
     public static class QuerySheet {
         public final List<Header> headers;
         public final String sheetName, groupBy, filterColumn, filterValue, sortBy;
+        public final boolean isHidden;
 
         private QuerySheet(QuerySheetBuilder qsb) {
             logger.info("Creating query sheet");
@@ -95,11 +96,13 @@ public class Query {
             this.filterColumn = qsb.filterColumn;
             this.filterValue = qsb.filterValue;
             this.sortBy = qsb.sortBy;
+            this.isHidden = qsb.isHidden;
         }
 
         public static class QuerySheetBuilder {
             List<Header> headers;
             String sheetName, groupBy, filterColumn, filterValue, sortBy;
+            boolean isHidden;
 
             public QuerySheetBuilder(String sheetName) {
                 this.sheetName = sheetName;
@@ -108,6 +111,7 @@ public class Query {
                 filterColumn = null;
                 filterValue = null;
                 sortBy = null;
+                isHidden = false;
             }
 
             public QuerySheetBuilder withColumns(String header, String[] columns) {
@@ -135,6 +139,11 @@ public class Query {
             public QuerySheetBuilder setFilter(String filterColumn, String filterValue) {
                 this.filterColumn = filterColumn;
                 this.filterValue = filterValue;
+                return this;
+            }
+
+            public QuerySheetBuilder setIsHidden(boolean isHidden) {
+                this.isHidden = isHidden;
                 return this;
             }
 

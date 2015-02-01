@@ -94,8 +94,11 @@ public class QueryFileManager {
 
             JsonElement sheetNameJSON = sheetO.get("sheetName");
             String sheetName = (sheetNameJSON != null) ? sheetNameJSON.getAsString() : "Results";
-
             Query.QuerySheet.QuerySheetBuilder qsb = new Query.QuerySheet.QuerySheetBuilder(sheetName);
+
+            JsonElement isHiddenJSON = sheetO.get("hidden");
+            boolean isHidden = (isHiddenJSON != null) ? isHiddenJSON.getAsBoolean() : false;
+            qsb.setIsHidden(isHidden);
 
             JsonArray headersJSON = sheetO.getAsJsonArray("headers"),
                     headerGroupsJSON = sheetO.getAsJsonArray("headerGroups");

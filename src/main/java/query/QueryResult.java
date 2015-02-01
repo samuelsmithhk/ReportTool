@@ -50,11 +50,14 @@ public class QueryResult {
         public final String sheetName;
         public final List<Group> valuesGrouped;
         public final List<Query.QuerySheet.Header> headers;
+        public final boolean isHidden;
 
-        public QueryResultSheet(String sheetName, List<Group> valuesGrouped, List<Query.QuerySheet.Header> headers) {
+        public QueryResultSheet(String sheetName, List<Group> valuesGrouped, List<Query.QuerySheet.Header> headers,
+                                boolean isHidden) {
             this.sheetName = sheetName;
             this.valuesGrouped = valuesGrouped;
             this.headers = headers;
+            this.isHidden = isHidden;
         }
     }
 
