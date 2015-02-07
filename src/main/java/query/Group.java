@@ -30,6 +30,9 @@ public class Group {
     public void addDeal(QueryResultDeal deal) {
         logger.info("Adding deal " + deal + " to group " + groupKey);
         groupValues.add(deal);
+    }
+
+    public void sortGroup() {
         Collections.sort(groupValues, compare);
     }
 

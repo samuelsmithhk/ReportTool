@@ -46,44 +46,18 @@ public class QueryResultDeal {
             for (String sub : col.subs) {
                 if (toConvert.containsKey(sub))
                     retMap.put(new Header(col.header, sub), QueryUtils.parseValue(toConvert.get(sub).getLatestValue()));
-                else if (sub.startsWith("=")) {
-                    logger.info("Detected calculated column: " + sub);
-                    String reference = sub.substring(1);
-                    if (query.calculatedColumns.containsKey(reference)) {
-                        logger.info("Executing calculated column: " + reference);
+                else if ((sub.startsWith("=")) || (sub.startsWith("$"))) {
+                    logger.info("Detected special column: " + sub);
+                    try {
+                        SpecialColumn sc = query.getSpecialColumn(sub);
 
-                        CalculatedColumn cc = query.calculatedColumns.get(reference);
-                        try {
-                            retMap.put(new Header(col.header, cc.header), QueryUtils.parseValue(cc.evaluate(query, cache,
-                                    dealName)));
-                        } catch (Exception e) {
-                            logger.error("Error evaluating calculated column: " + e, e);
-                        }
-
-                    } else {
-                        logger.warn("Calculated column ( " + reference
-                                + ") not found in query definition, using filler for output" );
-
+                        retMap.put(new Header(col.header, sc.getHeader()),
+                                QueryUtils.parseValue(sc.evaluate(query, cache, dealName)));
+                    } catch (SpecialColumn.SpecialColumnException e) {
+                        logger.warn("Exception for creating special column, using filler content in result", e);
                         retMap.put(new Header(col.header, sub), "");
-                    }
-                }
-                else if (sub.startsWith("$")) {
-                    logger.info("Detected mapped column: " + sub);
-                    String reference = sub.substring(1);
-                    if (query.mappedColumns.containsKey(reference)) {
-                        logger.info("Executing mapped column: "+ reference);
-
-                        MappedColumn mc = query.mappedColumns.get(reference);
-
-                        if (toConvert.containsKey(mc.original))
-                            retMap.put(new Header(col.header, mc.header),
-                                    QueryUtils.parseValue(toConvert.get(mc.original).getLatestValue()));
-                        else
-                            retMap.put(new Header(col.header, mc.header), "");
-                    } else {
-                        logger.warn("Mapped column ( " + reference +
-                                ") not found in query definition, using filler for output");
-
+                    } catch (Cache.CacheException e) {
+                        logger.warn("Cache exception for creating special column, using filler content in result", e);
                         retMap.put(new Header(col.header, sub), "");
                     }
                 }

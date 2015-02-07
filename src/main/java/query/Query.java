@@ -32,6 +32,20 @@ public class Query {
         this.outputTimestamp = qb.outputTimestamp;
     }
 
+    public SpecialColumn getSpecialColumn(String reference) throws SpecialColumn.SpecialColumnException {
+        if (reference.startsWith("=")) {
+            reference = reference.substring(1);
+            if (calculatedColumns.containsKey(reference)) return calculatedColumns.get(reference);
+            throw new SpecialColumn.SpecialColumnException("Column does not exist: =" + reference);
+        } else if (reference.startsWith("$")) {
+            reference = reference.substring(1);
+            if (mappedColumns.containsKey(reference)) return mappedColumns.get(reference);
+            throw new SpecialColumn.SpecialColumnException("Column does not exist: $" + reference);
+        }
+        throw new SpecialColumn.SpecialColumnException("Invalid reference: " + reference);
+    }
+
+
     public static class QueryBuilder {
         List<QuerySheet> sheets;
         Map<String, CalculatedColumn> calculatedColumns;

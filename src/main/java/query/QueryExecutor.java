@@ -17,7 +17,7 @@ import java.util.Map;
  */
 public class QueryExecutor {
 
-    private transient Logger logger = LoggerFactory.getLogger(QueryExecutor.class);
+    private static transient Logger logger = LoggerFactory.getLogger(QueryExecutor.class);
 
     public static QueryResult executeQuery(Cache cache, Query query) {
         QueryExecutor qe = new QueryExecutor(cache);
@@ -27,14 +27,21 @@ public class QueryExecutor {
         for (Query.QuerySheet sheet : query.sheets) {
             Map<String, Deal> filteredDeals = qe.filterDeals(sheet.filterColumn, sheet.filterValue);
             List<QueryResultDeal> selectedColumns = qe.selectColumns(query, sheet.headers, filteredDeals);
-            List<Group> groupedValues = qe.groupValues(sheet.groupBy, selectedColumns, sheet.sortBy);
+            List<Group> groupedValues;
+            try {
+                groupedValues = qe.groupValues(query, sheet.groupBy, selectedColumns, sheet.sortBy);
+            } catch (SpecialColumn.SpecialColumnException e) {
+                logger.warn("Unable to execute group by for query, outputting with no groupings, reason: "
+                        + e.getMessage(), e);
+                groupedValues = qe.safeGroupValues(selectedColumns, sheet.sortBy);
+            }
+            List<Group> sortedValues = qe.sortValues(groupedValues);
 
             qe.overwriteHeaders(query, sheet.headers);
 
-            qrb.addSheet(new QueryResult.QueryResultSheet(sheet.sheetName, groupedValues, sheet.headers,
+            qrb.addSheet(new QueryResult.QueryResultSheet(sheet.sheetName, sortedValues, sheet.headers,
                     sheet.isHidden));
         }
-        
 
 
         QueryResult result = qrb.build();
@@ -80,17 +87,20 @@ public class QueryExecutor {
         return retList;
     }
 
-    public List<Group> groupValues(String groupBy, List<QueryResultDeal> selected, String sortBy) {
+    public List<Group> groupValues(Query query, String groupBy, List<QueryResultDeal> selected, String sortBy)
+            throws SpecialColumn.SpecialColumnException {
         logger.info("Grouping values");
         Map<String, Group> retMap = Maps.newTreeMap();
 
         if (groupBy == null) {
-            Group g = new Group("Deals", sortBy);
+            return safeGroupValues(selected, sortBy);
+        }
 
-            for (QueryResultDeal deal : selected) { g.addDeal(deal); }
-            retMap.put("Deals", g);
-
-            return Lists.newArrayList(retMap.values());
+        if (groupBy.startsWith("$")) {
+            MappedColumn mc = (MappedColumn) query.getSpecialColumn(groupBy);
+            groupBy = mc.getHeader();
+        } else if (groupBy.startsWith("=")) {
+            throw new SpecialColumn.SpecialColumnException("Unable to group by calculated columns");
         }
 
         for (QueryResultDeal deal : selected) {
@@ -111,18 +121,34 @@ public class QueryExecutor {
         return Lists.newLinkedList(retMap.values());
     }
 
+    public List<Group> safeGroupValues(List<QueryResultDeal> selected, String sortBy) {
+        Map<String, Group> retMap = Maps.newTreeMap();
+
+        Group g = new Group("Deals", sortBy);
+
+        for (QueryResultDeal deal : selected) {
+            g.addDeal(deal);
+        }
+        retMap.put("Deals", g);
+
+        return Lists.newArrayList(retMap.values());
+    }
+
+    public List<Group> sortValues(List<Group> toSort) {
+        for (Group g : toSort) g.sortGroup();
+        return toSort;
+    }
+
     private void  overwriteHeaders(Query query, List<Query.QuerySheet.Header> headers) {
         for (Query.QuerySheet.Header header : headers) {
             for (String sub : header.subs) {
-                if (sub.startsWith("=")) {
-                    String reference = sub.substring(1);
-                    if (query.calculatedColumns.containsKey(reference)) {
-                        header.overwriteSub(sub, query.calculatedColumns.get(reference).header);
-                    }
-                } else if (sub.startsWith("$")) {
-                    String reference = sub.substring(1);
-                    if (query.mappedColumns.containsKey(reference)) {
-                        header.overwriteSub(sub, query.mappedColumns.get(reference).header);
+                if ((sub.startsWith("=")) || (sub.startsWith("$"))) {
+                    try {
+                        SpecialColumn sc = query.getSpecialColumn(sub);
+                        header.overwriteSub(sub, sc.getHeader());
+                    } catch (SpecialColumn.SpecialColumnException e) {
+                        logger.warn("Special column " + sub + " does not exist in query, skipping header overwrite");
+                        continue;
                     }
                 }
             }

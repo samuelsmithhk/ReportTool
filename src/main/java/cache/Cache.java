@@ -11,6 +11,7 @@ import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
@@ -36,7 +37,7 @@ public class Cache {
     private Cache(){
         logger.info("Creating empty cache");
         this.deals = Maps.newHashMap();
-        this.columnIndex = Sets.newHashSet();
+        this.columnIndex = Sets.newTreeSet();
         this.lastUpdated = null;
     }
 
@@ -81,9 +82,9 @@ public class Cache {
         return columnIndex;
     }
 
-    public Deal getDeal(String dealName) throws Exception {
+    public Deal getDeal(String dealName) throws CacheException {
         if (deals.containsKey(dealName)) return deals.get(dealName);
-        else throw new Exception("Deal does not exist in cache: " + dealName);
+        else throw new CacheException("Deal does not exist in cache: " + dealName);
     }
 
     public static String serializeCache(Map<String, Deal> deals, Set<String> columnIndex) {
@@ -192,5 +193,9 @@ public class Cache {
         if (typeStr.equals("BOOLEAN")) return DealProperty.Value.ValueType.BOOLEAN;
         if (typeStr.equals("NUMERIC")) return DealProperty.Value.ValueType.NUMERIC;
         return DealProperty.Value.ValueType.STRING;
+    }
+
+    public class CacheException extends Exception {
+        public CacheException(String e) { super(e);}
     }
 }
