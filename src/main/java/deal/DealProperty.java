@@ -7,10 +7,7 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
+import java.util.*;
 
 /**
  * Created by samuelsmith on 01/11/2014.
@@ -71,8 +68,11 @@ public class DealProperty {
 
         if (values.firstKey().isAfter(timestamp)) return values.get(values.firstKey());
 
-        for (DateTime compare : values.keySet()) {
-            if (!(compare.isBefore(timestamp))) return values.get(compare);
+        List<DateTime> dates = Lists.newLinkedList(values.keySet());
+
+        for (int i = dates.size() -1; i >= 0; i--) {
+            DateTime compare = dates.get(i);
+            if (!(compare.isAfter(timestamp))) return values.get(compare);
         }
 
         logger.warn("No value found at minus x days, returning latest value");
