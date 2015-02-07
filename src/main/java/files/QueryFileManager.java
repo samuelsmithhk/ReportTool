@@ -172,15 +172,31 @@ public class QueryFileManager {
         return qb.build();
     }
 
-    public List<QueryResult> executeQueries() {
+    public List<QueryResult> executeQueries(String[] queriesToRun) {
         logger.info("Executing queries");
 
         List<QueryResult> retList = Lists.newArrayList();
 
         for (Query q : queries) {
-            logger.info("Executing query: " + q);
-            retList.add(QueryExecutor.executeQuery(cache, q));
+            if (queriesToRun.length == 0) {
+                logger.info("Executing query: " + q);
+                retList.add(QueryExecutor.executeQuery(cache, q));
+            }
         }
+
+        if (queriesToRun.length == 0)
+            for (Query q : queries) {
+                    logger.info("Executing query: " + q);
+                    retList.add(QueryExecutor.executeQuery(cache, q));
+            }
+        else
+            for (String s : queriesToRun)
+                for (Query q : queries)
+                    if (q.name.equals(s)) {
+                        logger.info("Executing query: " + q);
+                        retList.add(QueryExecutor.executeQuery(cache, q));
+                        break;
+                    }
 
         return retList;
     }

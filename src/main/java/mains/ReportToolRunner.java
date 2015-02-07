@@ -23,7 +23,7 @@ public class ReportToolRunner {
     public static void main(String[] args) {
         ReportToolRunner rtr = new ReportToolRunner();
         try {
-            rtr.run();
+            rtr.run(args);
             System.exit(0);
         } catch (Exception e) {
             e.printStackTrace();
@@ -57,7 +57,7 @@ public class ReportToolRunner {
 
     }
 
-    private void run() throws Exception {
+    private void run(String[] queriesToRun) throws Exception {
         logger.info("Running ReportToolRunner");
 
         if (ifm.newInputs()) {
@@ -73,7 +73,7 @@ public class ReportToolRunner {
         }
 
         List<QueryResult> results = null;
-        if (qfm.loadQueries()) results = qfm.executeQueries();
+        if (qfm.loadQueries()) results = qfm.executeQueries(queriesToRun);
 
         if (results == null) logger.info("No queries executed");
         else for (QueryResult r : results) efm.writeExport(r.queryName, SheetGenerator.generateSheet(r, tfm),
