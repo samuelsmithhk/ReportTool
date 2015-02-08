@@ -4,7 +4,7 @@ import com.google.common.collect.Maps;
 import deal.Deal;
 import deal.DealProperty;
 import mapping.Mapping;
-import mapping.CagMapping;
+import mapping.CRGMapping;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -22,11 +22,11 @@ import java.util.Map;
 public class EverestParser extends AbstractParser {
 
     private final Logger logger = LoggerFactory.getLogger(EverestParser.class);
-    private final CagMapping cagMapping;
+    private final CRGMapping cagMapping;
 
     public final Sheet sheet;
 
-    public EverestParser(Workbook workbook, DateTime timestamp, Mapping mapping, CagMapping cagMapping) {
+    public EverestParser(Workbook workbook, DateTime timestamp, Mapping mapping, CRGMapping cagMapping) {
         super(workbook.getCreationHelper().createFormulaEvaluator(), timestamp, mapping);
 
         logger.info("Creating Everest parser for workbook: " + workbook);

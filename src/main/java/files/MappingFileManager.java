@@ -4,7 +4,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import mapping.CagMapping;
+import mapping.CRGMapping;
 import mapping.ICDateMapping;
 import mapping.Mapping;
 import org.slf4j.Logger;
@@ -91,9 +91,9 @@ public class MappingFileManager {
         return mb.build();
     }
 
-    public CagMapping loadCagMap() throws Exception {
+    public CRGMapping loadCagMap() throws Exception {
         String json = getFileAsJSON("countryAndGrouping");
-        CagMapping.CagMappingBuilder cmb = new CagMapping.CagMappingBuilder();
+        CRGMapping.CagMappingBuilder cmb = new CRGMapping.CagMappingBuilder();
 
         if (json == null) throw new Exception("Error generating country and grouping mapping");
 
