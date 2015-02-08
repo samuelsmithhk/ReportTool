@@ -3,6 +3,7 @@ package parse;
 import com.google.common.collect.Maps;
 import deal.Deal;
 import deal.DealProperty;
+import mapping.ICDateMapping;
 import mapping.Mapping;
 import org.apache.poi.ss.usermodel.*;
 import org.joda.time.DateTime;
@@ -21,10 +22,13 @@ public class DCICSummaryParser extends AbstractParser {
 
     private final Workbook workbook;
 
-    public DCICSummaryParser(Workbook workbook, DateTime timestamp, Mapping mapping) {
+    private final ICDateMapping icdm;
+
+    public DCICSummaryParser(Workbook workbook, DateTime timestamp, Mapping mapping, ICDateMapping icdm) {
         super(workbook.getCreationHelper().createFormulaEvaluator(), timestamp, mapping);
 
         this.workbook = workbook;
+        this.icdm = icdm;
     }
 
     @Override
@@ -98,6 +102,10 @@ public class DCICSummaryParser extends AbstractParser {
 
                 dealProperties.put(mappedHeader, currentVal);
 
+                if (mappedHeader.equals("Deal Code")) {
+                    dealProperties.put("Date Shown on IC Report", getDateShowedMapping(currentVal));
+                }
+
                 if (headerIndex >= headers.size()) endOfRow = true;
                 cCount++;
             }
@@ -111,6 +119,13 @@ public class DCICSummaryParser extends AbstractParser {
         logger.info("Parsed from sheet: " + parsedDeals);
 
         return parsedDeals;
+    }
+
+    public DealProperty getDateShowedMapping(DealProperty val) {
+        String result = icdm.getMapping(val.getLatestValue().innerValue.toString());
+        DealProperty.DealPropertyBuilder dpb = new DealProperty.DealPropertyBuilder();
+        dpb.withValue(timestamp, new DealProperty.Value(result, DealProperty.Value.ValueType.STRING));
+        return dpb.build();
     }
 
 }

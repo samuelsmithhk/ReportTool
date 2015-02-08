@@ -5,6 +5,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import mapping.CagMapping;
+import mapping.ICDateMapping;
 import mapping.Mapping;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -107,10 +108,31 @@ public class MappingFileManager {
             String grouping = mapO.get("grouping").getAsString();
             String region = mapO.get("region").getAsString();
 
-            cmb.withCag(coi, geography, grouping, region);
+            cmb = cmb.withCag(coi, geography, grouping, region);
         }
 
         return cmb.build();
+    }
+
+    public ICDateMapping loadICDateMap() throws Exception {
+        String json = getFileAsJSON("icDates");
+        ICDateMapping.ICDateMappingBuilder idmb = new ICDateMapping.ICDateMappingBuilder();
+
+        if (json == null) throw new Exception("Error generating IC date mapping");
+
+        JsonParser parser = new JsonParser();
+        JsonObject o = parser.parse(json).getAsJsonObject();
+        JsonArray maps = o.get("mapping").getAsJsonArray();
+
+        for (JsonElement map : maps) {
+            JsonObject mapO = map.getAsJsonObject();
+            String dealCode = mapO.get("dealCode").getAsString();
+            String date = mapO.get("dateShown").getAsString();
+
+            idmb = idmb.withDate(dealCode, date);
+        }
+
+        return idmb.build();
     }
 
     private String getFileAsJSON(String sheetType) {

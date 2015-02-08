@@ -14,7 +14,7 @@ public class DCFileNameParser {
         filename = filename.toLowerCase();
         if (filename.contains("pipeline")) return new DCPipelineParser(wb, timestamp, mfm.loadColumnMap("dcPipeline"));
         else if (filename.contains("ic_summary"))
-            return new DCICSummaryParser(wb, timestamp, mfm.loadColumnMap("icSummary"));
+            return new DCICSummaryParser(wb, timestamp, mfm.loadColumnMap("icSummary"), mfm.loadICDateMap());
 
         throw new Exception("Unable to find parser for file: " + filename);
     }

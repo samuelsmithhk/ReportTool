@@ -115,6 +115,4 @@ public class EverestParser extends AbstractParser {
 
         return retMap;
     }
-
-
 }
