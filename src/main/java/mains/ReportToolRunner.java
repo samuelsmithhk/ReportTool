@@ -49,7 +49,7 @@ public class ReportToolRunner {
 
         cache = cfm.getCache();
 
-        ifm = new InputFileManager(cache, properties.get("inputDirectory"));
+        ifm = new InputFileManager(cache, properties.get("everestDirectory"), properties.get("dealCentralDirectory"));
         mfm = new MappingFileManager(properties.get("mappingDirectory"));
         tfm = new TemplateFileManager(properties.get("templateDirectory"));
         qfm = new QueryFileManager(cache, properties.get("queryDirectory"));

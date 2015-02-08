@@ -32,6 +32,11 @@ public class Query {
         this.outputTimestamp = qb.outputTimestamp;
     }
 
+    @Override
+    public String toString() {
+        return name;
+    }
+
     public SpecialColumn getSpecialColumn(String reference) throws SpecialColumn.SpecialColumnException {
         if (reference.startsWith("=")) {
             reference = reference.substring(1);

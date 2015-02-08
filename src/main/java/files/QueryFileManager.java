@@ -177,13 +177,6 @@ public class QueryFileManager {
 
         List<QueryResult> retList = Lists.newArrayList();
 
-        for (Query q : queries) {
-            if (queriesToRun.length == 0) {
-                logger.info("Executing query: " + q);
-                retList.add(QueryExecutor.executeQuery(cache, q));
-            }
-        }
-
         if (queriesToRun.length == 0)
             for (Query q : queries) {
                     logger.info("Executing query: " + q);

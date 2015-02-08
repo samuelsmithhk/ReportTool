@@ -33,85 +33,62 @@ public class EverestParser extends AbstractParser {
     }
 
     @Override
-    public Map<String, Deal> parse() {
+    public Map<String, Deal> parse() throws ParserException {
         logger.info("Parsing workbook");
 
         Map<String, Deal> parsedDeals = Maps.newHashMap();
 
-        Row headerRow = sheet.getRow(0);
-        List<String> headers = getHeaders(headerRow, true);
+        int headerRowIndex = getHeaderRowIndex(sheet);
+        if (headerRowIndex == -1) throw new ParserException("Unable to find header row in sheet: " + sheet);
 
-        int rCount = 1;
+        int startingColIndex = getStartingColIndex(sheet, headerRowIndex);
+        if (startingColIndex == -1) throw new ParserException("Unable to find starting column index in sheet: "
+                + sheet);
+
+        Row headerRow = sheet.getRow(headerRowIndex);
+
+        List<String> headers = getHeaders(headerRow);
+
+        int rCount = headerRowIndex + 1;
+        Row currentRow;
 
         while (rCount < 99) {
-            logger.info("Parsing row: " + rCount);
+            currentRow = sheet.getRow(rCount);
 
-            Row currentRow = sheet.getRow(rCount);
+            if (currentRow == null) break;
 
-            DealProperty firstDP = parseCell(null, currentRow.getCell(0));
-            if (firstDP == null) break;
-            if (firstDP.getLatestValue().type == DealProperty.Value.ValueType.BLANK) break;
+            DealProperty firstDP = parseCell(null, currentRow.getCell(startingColIndex - 1));
+            if (firstDP == null)
+                if (parsedDeals.size() > 0) break;
+                else continue;
+            if (firstDP.getLatestValue().type == DealProperty.Value.ValueType.BLANK)
+                if (parsedDeals.size() > 0) break;
+                else continue;
 
-            if (!(isGroupHeaderRow(currentRow))) {
+            Map<String, DealProperty> dealProperties = Maps.newHashMap();
+            String opportunity = null;
 
-                Map<String, DealProperty> dealProperties = Maps.newHashMap();
-                String opportunity = null;
+            for (int cCount = startingColIndex; cCount < headers.size() + startingColIndex; cCount++) {
+                String header = headers.get(cCount - startingColIndex);
+                String mappedHeader = mapping.getHeaderMapping(header);
+                Cell currentCell = currentRow.getCell(cCount);
+                DealProperty currentVal = parseCell(mappedHeader, currentCell);
 
-                for (int cCount = 0; cCount < headers.size(); cCount++) {
-                    String header = headers.get(cCount);
-                    String mappedHeader = mapping.getHeaderMapping(header);
-                    Cell currentCell = currentRow.getCell(cCount);
-                    DealProperty currentVal = parseCell(header, currentCell);
+                if (mappedHeader.equals("Company"))
+                    opportunity = (String) currentVal.getLatestValue().innerValue;
 
-                    if (header.equals("Opportunity"))
-                        opportunity = (String) currentVal.getLatestValue().innerValue;
-
-                    if (mappedHeader.equals("Country"))
-                        currentVal = mappedCountry(currentVal);
-
-                    dealProperties.put(mappedHeader, currentVal);
-
-                }
-
-                Deal currentDeal = new Deal(dealProperties);
-
-                parsedDeals.put(opportunity, currentDeal);
+                dealProperties.put(mappedHeader, currentVal);
             }
+
+            Deal currentDeal = new Deal(dealProperties);
+
+            parsedDeals.put(opportunity, currentDeal);
             rCount++;
         }
 
+        logger.info("Parsed from workbook: " + parsedDeals);
         return parsedDeals;
     }
 
 
-    public DealProperty mappedCountry(DealProperty toMap) {
-        String preMap = (String) toMap.getLatestValue().innerValue;
-        String mapped = null;
-
-        if (preMap.contains("China")) mapped = "China";
-        else if (preMap.contains("Thailand")) mapped = "SE Asia";
-        else if (preMap.contains("Australia")) mapped = "Australia";
-
-        if (mapped == null)
-            return toMap;
-
-        DealProperty.Value newValue = new DealProperty.Value(mapped, DealProperty.Value.ValueType.STRING);
-
-        DealProperty.DealPropertyBuilder dpb = new DealProperty.DealPropertyBuilder();
-        DealProperty newDP = dpb.withValue(timestamp, newValue).build();
-
-        return newDP;
-    }
-
-    public boolean isGroupHeaderRow(Row row) {
-
-        Cell testCell = row.getCell(1);
-        DealProperty testDP = parseCell(null, testCell);
-
-        if (testDP.getLatestValue().type == DealProperty.Value.ValueType.BLANK) {
-            return true;
-        }
-
-        return false;
-    }
 }

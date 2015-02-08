@@ -1,6 +1,5 @@
 package parse;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import deal.Deal;
 import deal.DealProperty;
@@ -16,13 +15,13 @@ import java.util.Map;
 /**
  * Created by samuelsmith on 28/10/2014.
  */
-public class DCParser extends AbstractParser {
+public class DCPipelineParser extends AbstractParser {
 
-    private final Logger logger = LoggerFactory.getLogger(DCParser.class);
+    private final Logger logger = LoggerFactory.getLogger(DCPipelineParser.class);
 
     public final Sheet sheet;
 
-    public DCParser(Workbook workbook, DateTime timestamp, Mapping mapping) {
+    public DCPipelineParser(Workbook workbook, DateTime timestamp, Mapping mapping) {
         super(workbook.getCreationHelper().createFormulaEvaluator(), timestamp, mapping);
 
         logger.info("Creating Deal Central Parser for workbook: " + workbook);
@@ -36,12 +35,14 @@ public class DCParser extends AbstractParser {
 
         Map<String, Deal> parsedDeals = Maps.newHashMap();
 
-        Row headerRow = sheet.getRow(4);
+        int headerRowIndex = getHeaderRowIndex(sheet);
 
-        List<String> headers = getHeaders(headerRow, false);
+        Row headerRow = sheet.getRow(headerRowIndex);
 
-        int rCount = 5;
-        Row currentRow = null;
+        List<String> headers = getHeaders(headerRow);
+
+        int rCount = headerRowIndex + 1;
+        Row currentRow;
 
         while (rCount < 99) {
             logger.info("Parsing row " + rCount);
@@ -55,13 +56,13 @@ public class DCParser extends AbstractParser {
             Map<String, DealProperty> dealProperties = Maps.newHashMap();
             String opportunity = null;
 
-            for (int cCount = 1; cCount <= headers.size(); cCount++) {
-                String header = headers.get(cCount - 1);
+            for (int cCount = 0; cCount < headers.size(); cCount++) {
+                String header = headers.get(cCount);
                 String mappedHeader = mapping.getHeaderMapping(header);
                 Cell currentCell = currentRow.getCell(cCount);
                 DealProperty currentVal = parseCell(mappedHeader, currentCell);
 
-                if (mappedHeader.equals("Company"))
+                if (mappedHeader.equals("Company Name"))
                     opportunity = (String) currentVal.getLatestValue().innerValue;
 
                 dealProperties.put(mappedHeader, currentVal);

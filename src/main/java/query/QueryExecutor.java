@@ -64,7 +64,11 @@ public class QueryExecutor {
             Deal deal = entry.getValue();
 
             if (deal.dealProperties.containsKey(filterColumn)) {
+                logger.info("Deal: " + deal);
+                logger.info("Deal properties: " + deal.dealProperties);
+                logger.info("Filter column: " + filterColumn);
                 DealProperty dp = deal.dealProperties.get(filterColumn);
+                logger.info("DP: " + dp);
                 DealProperty.Value latestValue = dp.getLatestValue();
                 if (QueryUtils.parseValue(latestValue).equals(filterValue))
                     retMap.put(entry.getKey(), entry.getValue());
@@ -74,7 +78,8 @@ public class QueryExecutor {
         return retMap;
     }
 
-    public List<QueryResultDeal> selectColumns(Query query, List<Query.QuerySheet.Header> headers, Map<String, Deal> filteredDeals) {
+    public List<QueryResultDeal> selectColumns(Query query, List<Query.QuerySheet.Header> headers,
+                                               Map<String, Deal> filteredDeals) {
         logger.info("Selecting columns");
         List<QueryResultDeal> retList = Lists.newArrayList();
 
