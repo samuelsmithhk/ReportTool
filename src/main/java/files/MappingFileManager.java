@@ -4,6 +4,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import mapping.CagMapping;
 import mapping.Mapping;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,10 +59,8 @@ public class MappingFileManager {
 
         if (json == null) throw new Exception("Error generating column mapping");
 
-        logger.info(json);
-
         JsonParser parser = new JsonParser();
-        JsonObject o = (JsonObject) parser.parse(json);
+        JsonObject o = parser.parse(json).getAsJsonObject();
         JsonObject headers = o.get("headers").getAsJsonObject();
         JsonObject values = o.get("values").getAsJsonObject();
 
@@ -89,6 +88,29 @@ public class MappingFileManager {
 
 
         return mb.build();
+    }
+
+    public CagMapping loadCagMap() throws Exception {
+        String json = getFileAsJSON("countryAndGrouping");
+        CagMapping.CagMappingBuilder cmb = new CagMapping.CagMappingBuilder();
+
+        if (json == null) throw new Exception("Error generating country and grouping mapping");
+
+        JsonParser parser = new JsonParser();
+        JsonObject o = parser.parse(json).getAsJsonObject();
+        JsonArray maps = o.get("mapping").getAsJsonArray();
+
+        for (JsonElement map : maps) {
+            JsonObject mapO = map.getAsJsonObject();
+            String coi = mapO.get("coi").getAsString();
+            String geography = mapO.get("geography").getAsString();
+            String grouping = mapO.get("grouping").getAsString();
+            String region = mapO.get("region").getAsString();
+
+            cmb.withCag(coi, geography, grouping, region);
+        }
+
+        return cmb.build();
     }
 
     private String getFileAsJSON(String sheetType) {

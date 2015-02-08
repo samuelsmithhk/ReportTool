@@ -4,6 +4,7 @@ import com.google.common.collect.Maps;
 import deal.Deal;
 import deal.DealProperty;
 import mapping.Mapping;
+import mapping.CagMapping;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -21,15 +22,17 @@ import java.util.Map;
 public class EverestParser extends AbstractParser {
 
     private final Logger logger = LoggerFactory.getLogger(EverestParser.class);
+    private final CagMapping cagMapping;
 
     public final Sheet sheet;
 
-    public EverestParser(Workbook workbook, DateTime timestamp, Mapping mapping) {
+    public EverestParser(Workbook workbook, DateTime timestamp, Mapping mapping, CagMapping cagMapping) {
         super(workbook.getCreationHelper().createFormulaEvaluator(), timestamp, mapping);
 
         logger.info("Creating Everest parser for workbook: " + workbook);
 
         this.sheet = workbook.getSheetAt(0);
+        this.cagMapping = cagMapping;
     }
 
     @Override
@@ -66,7 +69,7 @@ public class EverestParser extends AbstractParser {
                 else continue;
 
             Map<String, DealProperty> dealProperties = Maps.newHashMap();
-            String opportunity = null;
+            String companyName = null;
 
             for (int cCount = startingColIndex; cCount < headers.size() + startingColIndex; cCount++) {
                 String header = headers.get(cCount - startingColIndex);
@@ -74,20 +77,43 @@ public class EverestParser extends AbstractParser {
                 Cell currentCell = currentRow.getCell(cCount);
                 DealProperty currentVal = parseCell(mappedHeader, currentCell);
 
-                if (mappedHeader.equals("Company"))
-                    opportunity = (String) currentVal.getLatestValue().innerValue;
+                if (mappedHeader.equals("Company Name"))
+                    companyName = (String) currentVal.getLatestValue().innerValue;
 
                 dealProperties.put(mappedHeader, currentVal);
+
+                if (header.equals("Country of Incorporation")) {
+                    dealProperties.putAll(getInternalMappings(currentVal));
+                }
             }
 
             Deal currentDeal = new Deal(dealProperties);
 
-            parsedDeals.put(opportunity, currentDeal);
+            parsedDeals.put(companyName, currentDeal);
             rCount++;
         }
 
         logger.info("Parsed from workbook: " + parsedDeals);
         return parsedDeals;
+    }
+
+    private Map<String, DealProperty> getInternalMappings(DealProperty val) {
+        Map<String, DealProperty> retMap = Maps.newHashMap();
+
+        String coi = val.getLatestValue().innerValue.toString();
+        Map<String, String> result = cagMapping.getMapping(coi);
+
+        if (mapping == null) return retMap;
+
+        for (Map.Entry<String, String> entry : result.entrySet()) {
+            DealProperty.DealPropertyBuilder dpb = new DealProperty.DealPropertyBuilder();
+            DealProperty dp = dpb.withValue
+                    (timestamp, new DealProperty.Value(entry.getValue(), DealProperty.Value.ValueType.STRING)).build();
+
+            retMap.put(entry.getKey(), dp);
+        }
+
+        return retMap;
     }
 
 

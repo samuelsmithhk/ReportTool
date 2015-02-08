@@ -126,7 +126,10 @@ public class InputFileManager {
         for (File f : newEverestFiles) {
             logger.info("Parsing everest file: " + f);
             Workbook wb = WorkbookFactory.create(f);
-            SheetParser parser = new EverestParser(wb, getTimestamp(f), mfm.loadColumnMap("everest"));
+
+            String mapName = f.getName().contains("NBFC") ? "everestNBFC" : "everestSpecial";
+
+            SheetParser parser = new EverestParser(wb, getTimestamp(f), mfm.loadColumnMap(mapName), mfm.loadCagMap());
             retList.add(new InputPair(getTimestamp(f), parser.parse()));
         }
 
