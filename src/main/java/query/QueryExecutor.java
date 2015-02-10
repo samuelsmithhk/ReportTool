@@ -60,6 +60,8 @@ public class QueryExecutor {
         Map<String, Deal> dealMap = cache.getDeals();
         Map<String, Deal> retMap = Maps.newHashMap();
 
+        if ((filterColumn == null) || (filterColumn.trim().equals(""))) return dealMap;
+
         for (Map.Entry<String, Deal> entry : dealMap.entrySet()) {
             Deal deal = entry.getValue();
 
