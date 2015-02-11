@@ -54,6 +54,11 @@ public class DCPipelineParser extends AbstractParser {
             if (firstDP.getLatestValue().type == DealProperty.Value.ValueType.BLANK) break;
 
             Map<String, DealProperty> dealProperties = Maps.newHashMap();
+
+            DealProperty.DealPropertyBuilder dpb = new DealProperty.DealPropertyBuilder();
+            dpb = dpb.withValue(timestamp, new DealProperty.Value("DC_PIPELINE", DealProperty.Value.ValueType.STRING));
+            dealProperties.put("Source Type", dpb.build());
+
             String opportunity = null;
 
             for (int cCount = 0; cCount < headers.size(); cCount++) {

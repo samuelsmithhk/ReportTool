@@ -11,7 +11,6 @@ import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
@@ -162,7 +161,7 @@ public class Cache {
     }
 
     public static Set<String> deserializeCacheColumns(String json) {
-        Set<String> retSet = Sets.newHashSet();
+        Set<String> retSet = Sets.newTreeSet();
         JsonParser parser = new JsonParser();
         JsonObject o = (JsonObject) parser.parse(json);
 

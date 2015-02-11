@@ -3,7 +3,6 @@ package query;
 import cache.Cache;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import deal.Deal;
 import deal.DealProperty;
 import org.slf4j.Logger;
@@ -44,9 +43,7 @@ public class QueryExecutor {
         }
 
 
-        QueryResult result = qrb.build();
-
-        return result;
+        return qrb.build();
     }
 
     private final Cache cache;
@@ -60,7 +57,8 @@ public class QueryExecutor {
         Map<String, Deal> dealMap = cache.getDeals();
         Map<String, Deal> retMap = Maps.newHashMap();
 
-        if ((filterColumn == null) || (filterColumn.trim().equals(""))) return dealMap;
+        if ((filterColumn == null) || (filterColumn.trim().equals("")) || (filterColumn.trim().equals("null")))
+            return dealMap;
 
         for (Map.Entry<String, Deal> entry : dealMap.entrySet()) {
             Deal deal = entry.getValue();
@@ -99,7 +97,7 @@ public class QueryExecutor {
         logger.info("Grouping values");
         Map<String, Group> retMap = Maps.newTreeMap();
 
-        if (groupBy == null) {
+        if ((groupBy == null) || (groupBy.trim().equals("")) || (groupBy.trim().equals("null"))) {
             return safeGroupValues(selected, sortBy);
         }
 
@@ -155,7 +153,6 @@ public class QueryExecutor {
                         header.overwriteSub(sub, sc.getHeader());
                     } catch (SpecialColumn.SpecialColumnException e) {
                         logger.warn("Special column " + sub + " does not exist in query, skipping header overwrite");
-                        continue;
                     }
                 }
             }

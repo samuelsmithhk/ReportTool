@@ -69,6 +69,11 @@ public class EverestParser extends AbstractParser {
                 else continue;
 
             Map<String, DealProperty> dealProperties = Maps.newHashMap();
+
+            DealProperty.DealPropertyBuilder dpb = new DealProperty.DealPropertyBuilder();
+            dpb = dpb.withValue(timestamp, new DealProperty.Value("EVEREST", DealProperty.Value.ValueType.STRING));
+            dealProperties.put("Source Type", dpb.build());
+
             String companyName = null;
 
             for (int cCount = startingColIndex; cCount < headers.size() + startingColIndex; cCount++) {

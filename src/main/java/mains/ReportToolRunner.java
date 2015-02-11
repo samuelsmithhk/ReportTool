@@ -73,7 +73,7 @@ public class ReportToolRunner {
         }
 
         List<QueryResult> results = null;
-        if (qfm.loadQueries()) results = qfm.executeQueries(queriesToRun);
+        if ((qfm.loadQueries()) || (queriesToRun.length > 0)) results = qfm.executeQueries(queriesToRun);
 
         if (results == null) logger.info("No queries executed");
         else for (QueryResult r : results) efm.writeExport(r.queryName, SheetGenerator.generateSheet(r, tfm),

@@ -52,6 +52,7 @@ public class SheetGenerator {
         Set<Query.QuerySheet.Header> headers = GeneratorUtils.getHeadersFromQueryResultSheet(deals);
 
         Row headerRow = sheet.createRow(0), subRow = sheet.createRow(1);
+        headerRow.setHeightInPoints(2 * sheet.getDefaultRowHeightInPoints());
         int n = 0;
 
         for (Query.QuerySheet.Header header : headers) {
@@ -158,6 +159,7 @@ public class SheetGenerator {
             int potential = (value.length() * 256) + 512;
 
             if (current >= potential) return current;
+            else if (potential >= 40000) return 40000;
             else return potential;
         }
 
@@ -175,6 +177,7 @@ public class SheetGenerator {
             hs.setFont(headerFont);
             hs.setFillPattern(XSSFCellStyle.SOLID_FOREGROUND);
             hs.setFillForegroundColor(new XSSFColor(Color.ORANGE));
+            hs.setWrapText(true);
 
             gs = (XSSFCellStyle) createBorderedStyle(wb);
             gs.setFont(headerFont);
@@ -183,6 +186,7 @@ public class SheetGenerator {
 
             vs = (XSSFCellStyle) wb.createCellStyle();
             vs.setAlignment(CellStyle.ALIGN_CENTER);
+            vs.setWrapText(true);
 
 
             styles.put("header", hs);

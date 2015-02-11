@@ -6,7 +6,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import org.joda.time.format.DateTimeFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import query.*;
@@ -14,7 +13,6 @@ import query.*;
 import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -97,7 +95,7 @@ public class QueryFileManager {
             Query.QuerySheet.QuerySheetBuilder qsb = new Query.QuerySheet.QuerySheetBuilder(sheetName);
 
             JsonElement isHiddenJSON = sheetO.get("hidden");
-            boolean isHidden = (isHiddenJSON != null) ? isHiddenJSON.getAsBoolean() : false;
+            boolean isHidden = (isHiddenJSON != null) && isHiddenJSON.getAsBoolean();
             qsb.setIsHidden(isHidden);
 
             JsonArray headersJSON = sheetO.getAsJsonArray("headers"),
@@ -116,8 +114,11 @@ public class QueryFileManager {
                 qsb = qsb.withColumns(header, headerGroup);
             }
 
-            String filterColumn = sheetO.get("filterColumn").getAsString(),
-                    filterValue = sheetO.get("filterValue").getAsString();
+            JsonElement filterColumnJSON = sheetO.get("filterColumn"),
+                    filterValueJSON = sheetO.get("filterValue");
+
+            String filterColumn = filterColumnJSON == null ? null : filterColumnJSON.getAsString(),
+                    filterValue = filterValueJSON == null ? null : filterValueJSON.getAsString();
 
             qsb = qsb.setFilter(filterColumn, filterValue);
 
@@ -184,13 +185,13 @@ public class QueryFileManager {
             }
         else
             for (String s : queriesToRun)
-                for (Query q : queries)
-                    if (q.name.equals(s)) {
-                        logger.info("Executing query: " + q);
-                        retList.add(QueryExecutor.executeQuery(cache, q));
-                        break;
-                    }
 
+                    for (Query q : queries)
+                        if (q.name.equals(s)) {
+                            logger.info("Executing query: " + q);
+                            retList.add(QueryExecutor.executeQuery(cache, q));
+                            break;
+                        }
         return retList;
     }
 

@@ -70,6 +70,11 @@ public class DCICSummaryParser extends AbstractParser {
             if (firstDP.getLatestValue().type == DealProperty.Value.ValueType.BLANK) break;
 
             Map<String, DealProperty> dealProperties = Maps.newHashMap();
+
+            DealProperty.DealPropertyBuilder dpb = new DealProperty.DealPropertyBuilder();
+            dpb = dpb.withValue(timestamp, new DealProperty.Value("DC_IC_SUMMARY", DealProperty.Value.ValueType.STRING));
+            dealProperties.put("Source Type", dpb.build());
+
             String opportunity = null;
 
             boolean endOfRow = false;
@@ -102,7 +107,7 @@ public class DCICSummaryParser extends AbstractParser {
 
                 dealProperties.put(mappedHeader, currentVal);
 
-                if (mappedHeader.equals("Deal Code")) {
+                if (mappedHeader.equals("Deal Code Name")) {
                     dealProperties.put("Date Shown on IC Report", getDateShowedMapping(currentVal));
                 }
 

@@ -1,7 +1,6 @@
 package query;
 
 import cache.Cache;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import deal.DealProperty;
 import org.slf4j.Logger;
@@ -93,6 +92,11 @@ public class QueryResultDeal {
         }
 
         return null;
+    }
+
+    @Override
+    public String toString() {
+        return dealName;
     }
 
     public class Header {
