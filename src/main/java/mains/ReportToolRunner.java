@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import query.QueryResult;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -89,7 +90,9 @@ public class ReportToolRunner {
 
         Properties properties = new Properties();
         try {
-            properties.load(this.getClass().getClassLoader().getResourceAsStream("config.properties"));
+            String configLocation = ReportToolRunner.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+            configLocation = configLocation.replace("reportTool.jar", "");
+            properties.load(new FileInputStream(configLocation + "config.properties"));
 
             for (String key : properties.stringPropertyNames()) {
                 String value = properties.getProperty(key);
