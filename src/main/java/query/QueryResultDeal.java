@@ -53,10 +53,8 @@ public class QueryResultDeal {
                         retMap.put(new Header(col.header, sc.getHeader()),
                                 QueryUtils.parseValue(sc.evaluate(query, cache, dealName)));
                     } catch (SpecialColumn.SpecialColumnException e) {
-                        logger.warn("Exception for creating special column, using filler content in result", e);
                         retMap.put(new Header(col.header, sub), "");
                     } catch (Cache.CacheException e) {
-                        logger.warn("Cache exception for creating special column, using filler content in result", e);
                         retMap.put(new Header(col.header, sub), "");
                     }
                 }

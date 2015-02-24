@@ -25,14 +25,11 @@ public class Mapping {
     }
 
     public String getHeaderMapping(String header) {
-        logger.info("Finding mapping for header " + header + " in " + headerMap);
         if (headerMap.containsKey(header)) return headerMap.get(header);
         return header;
     }
 
     public Map.Entry<String, String> getMapping(String header, String value) {
-        logger.info("Finding mapping for header/value pair " + header + "/" + value + " in " + valueMap);
-
         String retHeader = header, retValue = value;
 
         if (headerMap.containsKey(header)) {

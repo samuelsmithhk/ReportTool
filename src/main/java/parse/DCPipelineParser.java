@@ -44,12 +44,13 @@ public class DCPipelineParser extends AbstractParser {
         int rCount = headerRowIndex + 1;
         Row currentRow;
 
-        while (rCount < 99) {
-            logger.info("Parsing row " + rCount);
-
+        while (rCount < 999) {
             currentRow = sheet.getRow(rCount);
+            if (currentRow == null) break;
 
-            DealProperty firstDP = parseCell(null, currentRow.getCell(0));
+            Cell firstCell = currentRow.getCell(0);
+            if (firstCell == null) break;
+            DealProperty firstDP = parseCell(null, firstCell);
             if (firstDP == null) break;
             if (firstDP.getLatestValue().type == DealProperty.Value.ValueType.BLANK) break;
 

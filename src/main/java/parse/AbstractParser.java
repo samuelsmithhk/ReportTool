@@ -32,9 +32,6 @@ public abstract class AbstractParser implements SheetParser {
     }
 
     public DealProperty parseCell(String header, Cell cell) {
-
-        logger.info("Parsing cell: " + cell);
-
         DealProperty.DealPropertyBuilder retDPB = new DealProperty.DealPropertyBuilder();
         DealProperty.Value val;
 

@@ -57,7 +57,6 @@ public class CalculatedColumn implements SpecialColumn {
 
     public DealProperty.Value evaluate(Query query, Cache cache, Deal deal) throws
             Cache.CacheException, SpecialColumnException {
-        logger.info("Evaluating calculated column for deal: " + deal);
         return operator.evaluate(cache, query, deal, firstHalf, secondHalf);
     }
 
@@ -93,8 +92,6 @@ public class CalculatedColumn implements SpecialColumn {
         @Override
         public DealProperty.Value evaluate(Cache cache, Query query, Deal deal, String firstHalf,
                                            String secondHalf) throws SpecialColumnException {
-            logger.info("Evaluating aggregate operator for deal " + deal + " col: "
-                    + firstHalf + " rule: " + secondHalf);
 
             DealProperty dp = (deal.dealProperties.containsKey(firstHalf)) ?
                     deal.dealProperties.get(firstHalf) : null;

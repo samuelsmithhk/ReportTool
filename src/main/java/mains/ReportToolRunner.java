@@ -10,6 +10,7 @@ import query.QueryResult;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.net.URLDecoder;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -90,9 +91,10 @@ public class ReportToolRunner {
 
         Properties properties = new Properties();
         try {
-            String configLocation = ReportToolRunner.class.getProtectionDomain().getCodeSource().getLocation().getPath();
-            configLocation = configLocation.replace("reportTool.jar", "");
-            properties.load(new FileInputStream(configLocation + "config.properties"));
+            String path = ReportToolRunner.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+            String decodedPath = URLDecoder.decode(path, "UTF-8");
+            decodedPath = decodedPath.replace("reportTool.jar", "");
+            properties.load(new FileInputStream(decodedPath + "config.properties"));
 
             for (String key : properties.stringPropertyNames()) {
                 String value = properties.getProperty(key);

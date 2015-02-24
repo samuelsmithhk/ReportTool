@@ -55,7 +55,7 @@ public class EverestParser extends AbstractParser {
         int rCount = headerRowIndex + 1;
         Row currentRow;
 
-        while (rCount < 99) {
+        while (rCount < 999) {
             currentRow = sheet.getRow(rCount);
 
             if (currentRow == null) break;

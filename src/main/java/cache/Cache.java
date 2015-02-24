@@ -41,14 +41,14 @@ public class Cache {
     }
 
     private Cache(Map<String, Deal> deals, Set<String> columnIndex, DateTime lastUpdated) {
-        logger.info("Creating loaded cache with deals: " + deals);
+        logger.info("Creating loaded cache with deals");
         this.deals = deals;
         this.columnIndex = columnIndex;
         this.lastUpdated = lastUpdated;
     }
 
     public void processDealUpdate(DateTime timestamp, Map<String, Deal> newDeals) {
-        logger.info("Processing deal update with newDeals: " + newDeals);
+        logger.info("Processing deal update with newDeals");
 
         for (Map.Entry<String, Deal> entry : newDeals.entrySet()) {
             Deal deal = entry.getValue();
