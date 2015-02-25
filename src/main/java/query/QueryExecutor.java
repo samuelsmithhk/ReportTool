@@ -57,7 +57,8 @@ public class QueryExecutor {
         Map<String, Deal> dealMap = cache.getDeals();
         Map<String, Deal> retMap = Maps.newHashMap();
 
-        if ((filterColumn == null) || (filterColumn.trim().equals("")) || (filterColumn.trim().equals("null")))
+        if ((filterColumn == null) || (filterColumn.trim().equals("")) || (filterColumn.trim().equals("null")) ||
+                (filterColumn.trim().equals("N/A")))
             return dealMap;
 
         for (Map.Entry<String, Deal> entry : dealMap.entrySet()) {
@@ -93,7 +94,8 @@ public class QueryExecutor {
         logger.info("Grouping values");
         Map<String, Group> retMap = Maps.newTreeMap();
 
-        if ((groupBy == null) || (groupBy.trim().equals("")) || (groupBy.trim().equals("null"))) {
+        if ((groupBy == null) || (groupBy.trim().equals("")) || (groupBy.trim().equals("null")) ||
+                (groupBy.trim().equals("N/A"))) {
             return safeGroupValues(selected, sortBy);
         }
 

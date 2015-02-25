@@ -15,16 +15,17 @@ public class Group {
 
     private transient Logger logger = LoggerFactory.getLogger(Group.class);
 
-    public final String groupKey;
+    public final String groupKey, sortBy;
     public final List<QueryResultDeal> groupValues;
 
     private final ColumnCompare compare;
 
     public Group(String groupKey, String sortBy) {
         logger.info("Creating group: " + groupKey);
+        this.sortBy = sortBy;
         this.groupKey = groupKey;
         this.groupValues = Lists.newArrayList();
-        compare = new ColumnCompare(sortBy);
+        compare = new ColumnCompare();
     }
 
     public void addDeal(QueryResultDeal deal) {
@@ -33,17 +34,11 @@ public class Group {
     }
 
     public void sortGroup() {
-        Collections.sort(groupValues, compare);
+        if (!(sortBy == null || sortBy.trim().equals("") || sortBy.trim().equals("null") || sortBy.trim().equals("N/A")))
+            Collections.sort(groupValues, compare);
     }
 
     private class ColumnCompare implements Comparator<QueryResultDeal> {
-
-        private final String sortBy;
-
-        public ColumnCompare(String sortBy) {
-            this.sortBy = sortBy;
-        }
-
         @Override
         public int compare(QueryResultDeal o1, QueryResultDeal o2) {
             String v1 = o1.getDPValue(sortBy);
