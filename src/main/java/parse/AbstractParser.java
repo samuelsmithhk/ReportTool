@@ -60,7 +60,7 @@ public abstract class AbstractParser implements SheetParser {
                 return retDPB.build();
             case Cell.CELL_TYPE_STRING:
                 String tmp = cell.getStringCellValue();
-                tmp = tmp.replaceAll("[\n\r]", "");
+                tmp = tmp.replaceAll("[\n\r\\xA0]", "").trim();
                 if (header != null) tmp = mapping.getMapping(header, tmp).getValue();
                 val = new DealProperty.Value(tmp, DealProperty.Value.ValueType.STRING);
                 retDPB = retDPB.withValue(timestamp, val);
