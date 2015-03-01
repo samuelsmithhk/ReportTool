@@ -127,7 +127,7 @@ public class QueryExecutor {
     public List<Group> safeGroupValues(List<QueryResultDeal> selected, String sortBy) {
         Map<String, Group> retMap = Maps.newTreeMap();
 
-        Group g = new Group("Deals", sortBy);
+        Group g = new Group("no-group", sortBy);
 
         for (QueryResultDeal deal : selected) {
             g.addDeal(deal);

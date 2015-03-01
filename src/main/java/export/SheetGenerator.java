@@ -81,12 +81,18 @@ public class SheetGenerator {
 
         int r = 2;
         for (Group g : deals.valuesGrouped) {
-            Row groupHeaderRow = sheet.createRow(r);
-            Cell groupCell = groupHeaderRow.createCell(0);
-            groupCell.setCellValue(g.groupKey);
-            groupCell.setCellStyle(styles.get("groupHeader"));
-            int ghRow = r;
-            r++;
+
+            Row groupHeaderRow = null;
+            int ghRow = 0;
+
+            if (!g.groupKey.equals("no-group")) {
+                groupHeaderRow = sheet.createRow(r);
+                Cell groupCell = groupHeaderRow.createCell(0);
+                groupCell.setCellValue(g.groupKey);
+                groupCell.setCellStyle(styles.get("groupHeader"));
+                ghRow = r;
+                r++;
+            }
 
             for (QueryResultDeal d : g.groupValues) {
                 Row currentRow = sheet.createRow(r);
@@ -98,7 +104,7 @@ public class SheetGenerator {
                     currentCell.setCellValue(value);
                     currentCell.setCellStyle(styles.get("valueCell"));
 
-                    if (n != 0) {
+                    if ((groupHeaderRow != null) && (n != 0)) {
                         Cell aboveCell = groupHeaderRow.createCell(n);
                         aboveCell.setCellStyle(styles.get("groupHeader"));
                     }
@@ -110,7 +116,7 @@ public class SheetGenerator {
                 r++;
             }
 
-            sheet.addMergedRegion(new CellRangeAddress(ghRow, ghRow, 0, n - 1));
+            if (groupHeaderRow != null) sheet.addMergedRegion(new CellRangeAddress(ghRow, ghRow, 0, n - 1));
 
         }
 
