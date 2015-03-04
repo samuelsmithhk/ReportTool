@@ -174,7 +174,7 @@ public class Cache {
         return retSet;
     }
 
-    private static Object parseInnerValue(DealProperty.Value.ValueType type, JsonElement innerValue) {
+    public static Object parseInnerValue(DealProperty.Value.ValueType type, JsonElement innerValue) {
         switch (type) {
             case BLANK:
                 return "";
@@ -187,7 +187,7 @@ public class Cache {
         }
     }
 
-    private static DealProperty.Value.ValueType parseType(String typeStr) {
+    public static DealProperty.Value.ValueType parseType(String typeStr) {
         if (typeStr.equals("BLANK")) return DealProperty.Value.ValueType.BLANK;
         if (typeStr.equals("BOOLEAN")) return DealProperty.Value.ValueType.BOOLEAN;
         if (typeStr.equals("NUMERIC")) return DealProperty.Value.ValueType.NUMERIC;

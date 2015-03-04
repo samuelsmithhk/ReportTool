@@ -40,24 +40,5 @@ public class Deal {
         return " Deal properties : " + dealProperties;
     }
 
-    public int almostUniqueCode() {
-        logger.info("Generating almost unique code for" + this);
 
-        int retInt = 0;
-
-        StringBuilder sb = new StringBuilder();
-
-        for (Map.Entry<String, DealProperty> e : dealProperties.entrySet()) {
-            sb.append(e.getKey() + e.getValue().getLatestValue().innerValue);
-        }
-
-        String dp = sb.toString();
-        char[] dpArr = dp.toCharArray();
-
-        for (char c : dpArr) {
-            retInt += c;
-        }
-
-        return retInt;
-    }
 }
