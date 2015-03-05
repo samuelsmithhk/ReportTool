@@ -7,6 +7,7 @@ import files.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import query.QueryResult;
+import webservice.HttpServer;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -23,7 +24,6 @@ public class ReportToolRunner {
         ReportToolRunner rtr = new ReportToolRunner();
         try {
             rtr.run(args);
-            System.exit(0);
         } catch (Exception e) {
             e.printStackTrace();
             System.exit(1);
@@ -57,6 +57,11 @@ public class ReportToolRunner {
 
     private void run(String[] queriesToRun) throws Exception {
         logger.info("Running ReportToolRunner");
+
+        HttpServer server = new HttpServer(8088);
+        server.start();
+
+        System.out.println("Server running");
 
         if (ifm.newInputs()) {
 

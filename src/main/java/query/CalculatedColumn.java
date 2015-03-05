@@ -46,7 +46,6 @@ public class CalculatedColumn implements SpecialColumn {
 
     public DealProperty.Value evaluate(Query query, Cache cache, String dealName) throws
             Cache.CacheException, SpecialColumnException {
-        logger.info("Evaluating calculated column for deal: " + dealName);
 
         Deal deal = cache.getDeal(dealName);
         return operator.evaluate(cache, query, deal, firstHalf, secondHalf);
@@ -177,8 +176,6 @@ public class CalculatedColumn implements SpecialColumn {
             else if (firstHalf.startsWith("=")) {
                 String reference = firstHalf.substring(1);
                 if (query.calculatedColumns.containsKey(reference)) {
-                    logger.info("Executing calculated column: " + reference);
-
                     CalculatedColumn cc = query.calculatedColumns.get(reference);
                     DealProperty.Value res = cc.evaluate(query, cache, deal);
 

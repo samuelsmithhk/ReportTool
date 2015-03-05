@@ -22,8 +22,6 @@ public class QueryResultDeal {
 
     public QueryResultDeal(Cache cache, Query query, String dealName, Map<String, DealProperty> dpToConvert,
                            List<Query.QuerySheet.Header> selectedColumns) {
-        logger.info("Constructing a query result deal");
-
         this.dealName = dealName;
         this.query = query;
         this.cache = cache;
@@ -36,14 +34,11 @@ public class QueryResultDeal {
 
         Map<Header, String> retMap = Maps.newLinkedHashMap();
 
-        logger.info("Converting deal properties");
-
         for (Query.QuerySheet.Header col : cols) {
             for (String sub : col.subs) {
                 if (toConvert.containsKey(sub))
                     retMap.put(new Header(col.header, sub), QueryUtils.parseValue(toConvert.get(sub).getLatestValue()));
                 else if ((sub.startsWith("=")) || (sub.startsWith("$"))) {
-                    logger.info("Detected special column: " + sub);
                     try {
                         SpecialColumn sc = query.getSpecialColumn(sub);
 
