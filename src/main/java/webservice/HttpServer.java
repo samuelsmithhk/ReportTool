@@ -16,15 +16,9 @@ import java.util.List;
 public class HttpServer {
 
     private static final String logPath = "logs/web-logs/yyyy_mm_dd.log";
-    private static final String webXML = "src/main/resources/META-INF/webapp/WEB-INF/web.xml";
+    private static final String webXML = "META-INF/webapp/WEB-INF/web.xml";
     private static final String onlyInIDE = "webservice.ide";
-    private static final String projectPathRelativeWebApp = "src/main/resources/META-INF/webapp";
-
-    public static interface WebContext {
-        public File getWarPath();
-
-        public String getContextPath();
-    }
+    private static final String projectPathRelativeWebApp = "src/main/java/META-INF/webapp";
 
     private final Server server;
     private final int port;
@@ -66,10 +60,10 @@ public class HttpServer {
         RequestLogHandler log = new RequestLogHandler();
         log.setRequestLog(createRequestLog());
 
-        HandlerCollection _result = new HandlerCollection();
-        _result.setHandlers(new Handler[] {contexts, log});
+        HandlerCollection result = new HandlerCollection();
+        result.setHandlers(new Handler[] {contexts, log});
 
-        return _result;
+        return result;
     }
 
     private RequestLog createRequestLog() {
