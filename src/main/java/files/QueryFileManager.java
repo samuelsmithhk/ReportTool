@@ -15,9 +15,7 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.util.List;
 
-/**
- * Created by samuelsmith on 13/11/2014.
- */
+
 public class QueryFileManager {
 
     Logger logger = LoggerFactory.getLogger(QueryFileManager.class);

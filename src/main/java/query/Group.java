@@ -8,9 +8,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-/**
- * Created by samuelsmith on 09/11/2014.
- */
 public class Group {
 
     private transient Logger logger = LoggerFactory.getLogger(Group.class);

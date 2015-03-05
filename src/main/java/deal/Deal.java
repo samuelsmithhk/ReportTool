@@ -6,9 +6,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
-/**
- * Created by samuelsmith on 28/10/2014.
- */
 public class Deal {
 
     private transient Logger logger = LoggerFactory.getLogger(Deal.class);

@@ -4,9 +4,6 @@ import com.google.common.collect.Maps;
 
 import java.util.Map;
 
-/**
- * Created by samuelsmith on 08/02/2015.
- */
 public class ICDateMapping {
 
     private final Map<String, String> dateMap;

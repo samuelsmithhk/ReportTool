@@ -8,9 +8,6 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Created by samuelsmith on 09/11/2014.
- */
 public class Query {
 
     private static transient Logger logger = LoggerFactory.getLogger(Query.class);

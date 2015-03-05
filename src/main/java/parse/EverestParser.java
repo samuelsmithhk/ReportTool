@@ -16,9 +16,6 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Created by samuelsmith on 08/12/2014.
- */
 public class EverestParser extends AbstractParser {
 
     private final Logger logger = LoggerFactory.getLogger(EverestParser.class);
@@ -71,7 +68,7 @@ public class EverestParser extends AbstractParser {
             Map<String, DealProperty> dealProperties = Maps.newHashMap();
 
             DealProperty.DealPropertyBuilder dpb = new DealProperty.DealPropertyBuilder();
-            dpb = dpb.withValue(timestamp, new DealProperty.Value("EVEREST", DealProperty.Value.ValueType.STRING));
+            dpb = dpb.withValue(timestamp, new DealProperty.Value<String>("EVEREST", DealProperty.Value.ValueType.STRING));
             dealProperties.put("Source Type", dpb.build());
 
             String companyName = null;
@@ -113,7 +110,8 @@ public class EverestParser extends AbstractParser {
         for (Map.Entry<String, String> entry : result.entrySet()) {
             DealProperty.DealPropertyBuilder dpb = new DealProperty.DealPropertyBuilder();
             DealProperty dp = dpb.withValue
-                    (timestamp, new DealProperty.Value(entry.getValue(), DealProperty.Value.ValueType.STRING)).build();
+                    (timestamp, new DealProperty.Value<String>(entry.getValue(),
+                            DealProperty.Value.ValueType.STRING)).build();
 
             retMap.put(entry.getKey(), dp);
         }

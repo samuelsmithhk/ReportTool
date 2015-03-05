@@ -11,9 +11,6 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * Created by samuelsmith on 18/01/2015.
- */
 public class CalculatedColumn implements SpecialColumn {
 
     Logger logger = LoggerFactory.getLogger(CalculatedColumn.class);
@@ -144,7 +141,7 @@ public class CalculatedColumn implements SpecialColumn {
 
             double average = total / count;
 
-            return new DealProperty.Value(average, DealProperty.Value.ValueType.NUMERIC);
+            return new DealProperty.Value<Double>(average, DealProperty.Value.ValueType.NUMERIC);
         }
     }
 
@@ -159,7 +156,7 @@ public class CalculatedColumn implements SpecialColumn {
                         + " in aggregation operation, as not numeric");
             }
 
-            return new DealProperty.Value(total, DealProperty.Value.ValueType.NUMERIC);
+            return new DealProperty.Value<Double>(total, DealProperty.Value.ValueType.NUMERIC);
         }
 
 
@@ -244,28 +241,28 @@ public class CalculatedColumn implements SpecialColumn {
     private class AddOperator extends MathematicalOperator{
         @Override
         public DealProperty.Value calculate(double a, double b) {
-            return new DealProperty.Value((a + b), DealProperty.Value.ValueType.NUMERIC);
+            return new DealProperty.Value<Double>((a + b), DealProperty.Value.ValueType.NUMERIC);
         }
     }
 
     private class SubtractOperator extends MathematicalOperator {
         @Override
         public DealProperty.Value calculate(double a, double b) {
-            return new DealProperty.Value((a - b), DealProperty.Value.ValueType.NUMERIC);
+            return new DealProperty.Value<Double>((a - b), DealProperty.Value.ValueType.NUMERIC);
         }
     }
 
     private class MultiplyOperator extends MathematicalOperator {
         @Override
         public DealProperty.Value calculate(double a, double b) {
-            return new DealProperty.Value((a * b), DealProperty.Value.ValueType.NUMERIC);
+            return new DealProperty.Value<Double>((a * b), DealProperty.Value.ValueType.NUMERIC);
         }
     }
 
     private class DivideOperator extends MathematicalOperator {
         @Override
         public DealProperty.Value calculate(double a, double b) {
-            return new DealProperty.Value((a / b), DealProperty.Value.ValueType.NUMERIC);
+            return new DealProperty.Value<Double>((a / b), DealProperty.Value.ValueType.NUMERIC);
         }
     }
 
@@ -322,7 +319,7 @@ public class CalculatedColumn implements SpecialColumn {
                 str2 = (String) dp.getLatestValue().innerValue;
             }
 
-            return new DealProperty.Value((str1 + str2), DealProperty.Value.ValueType.STRING);
+            return new DealProperty.Value<String>((str1 + str2), DealProperty.Value.ValueType.STRING);
         }
     }
 

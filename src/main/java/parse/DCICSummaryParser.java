@@ -13,9 +13,6 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Created by samuelsmith on 08/02/2015.
- */
 public class DCICSummaryParser extends AbstractParser {
 
     private final Logger logger = LoggerFactory.getLogger(DCICSummaryParser.class);
@@ -34,7 +31,7 @@ public class DCICSummaryParser extends AbstractParser {
     @Override
     public Map<String, Deal> parse() throws ParserException {
         logger.info("Parsing workbook");
-        Map parsedDeals = Maps.newHashMap();
+        Map<String, Deal> parsedDeals = Maps.newHashMap();
 
         for (int i = 0; i < workbook.getNumberOfSheets(); i++) {
             Sheet currentSheet = workbook.getSheetAt(i);
@@ -49,7 +46,7 @@ public class DCICSummaryParser extends AbstractParser {
 
     private Map<String, Deal> parseSheet(Sheet sheet) {
         logger.info("Parsing sheet: " + sheet.getSheetName());
-        Map parsedDeals = Maps.newHashMap();
+        Map<String, Deal> parsedDeals = Maps.newHashMap();
 
         int headerRowIndex = getHeaderRowIndex(sheet);
         int firstColIndex = getStartingColIndex(sheet, headerRowIndex) - 1;
@@ -72,7 +69,7 @@ public class DCICSummaryParser extends AbstractParser {
             Map<String, DealProperty> dealProperties = Maps.newHashMap();
 
             DealProperty.DealPropertyBuilder dpb = new DealProperty.DealPropertyBuilder();
-            dpb = dpb.withValue(timestamp, new DealProperty.Value("DC_IC_SUMMARY", DealProperty.Value.ValueType.STRING));
+            dpb = dpb.withValue(timestamp, new DealProperty.Value<String>("DC_IC_SUMMARY", DealProperty.Value.ValueType.STRING));
             dealProperties.put("Source Type", dpb.build());
 
             String opportunity = null;
@@ -129,7 +126,7 @@ public class DCICSummaryParser extends AbstractParser {
     public DealProperty getDateShowedMapping(DealProperty val) {
         String result = icdm.getMapping(val.getLatestValue().innerValue.toString());
         DealProperty.DealPropertyBuilder dpb = new DealProperty.DealPropertyBuilder();
-        dpb.withValue(timestamp, new DealProperty.Value(result, DealProperty.Value.ValueType.STRING));
+        dpb.withValue(timestamp, new DealProperty.Value<String>(result, DealProperty.Value.ValueType.STRING));
         return dpb.build();
     }
 

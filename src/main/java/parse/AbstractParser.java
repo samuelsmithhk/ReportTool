@@ -13,9 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
-/**
- * Created by samuelsmith on 01/11/2014.
- */
+
 public abstract class AbstractParser implements SheetParser {
 
     private final Logger logger = LoggerFactory.getLogger(AbstractParser.class);
@@ -33,36 +31,38 @@ public abstract class AbstractParser implements SheetParser {
 
     public DealProperty parseCell(String header, Cell cell) {
         DealProperty.DealPropertyBuilder retDPB = new DealProperty.DealPropertyBuilder();
-        DealProperty.Value val;
+        DealProperty.Value<java.io.Serializable> val;
 
         if (cell == null) {
-            val = new DealProperty.Value(null, DealProperty.Value.ValueType.BLANK);
+            val = new DealProperty.Value<java.io.Serializable>(null, DealProperty.Value.ValueType.BLANK);
             retDPB = retDPB.withValue(timestamp, val);
             return retDPB.build();
         }
 
         switch (cell.getCellType()) {
             case Cell.CELL_TYPE_BOOLEAN:
-                val = new DealProperty.Value(cell.getBooleanCellValue(), DealProperty.Value.ValueType.BOOLEAN);
+                val = new DealProperty.Value<java.io.Serializable>(cell.getBooleanCellValue(),
+                        DealProperty.Value.ValueType.BOOLEAN);
                 retDPB = retDPB.withValue(timestamp, val);
                 return retDPB.build();
             case Cell.CELL_TYPE_BLANK:
-                val = new DealProperty.Value(null, DealProperty.Value.ValueType.BLANK);
+                val = new DealProperty.Value<java.io.Serializable>(null, DealProperty.Value.ValueType.BLANK);
                 retDPB = retDPB.withValue(timestamp, val);
                 return retDPB.build();
             case Cell.CELL_TYPE_ERROR:
-                val = new DealProperty.Value("ERROR", DealProperty.Value.ValueType.STRING);
+                val = new DealProperty.Value<java.io.Serializable>("ERROR", DealProperty.Value.ValueType.STRING);
                 retDPB = retDPB.withValue(timestamp, val);
                 return retDPB.build();
             case Cell.CELL_TYPE_NUMERIC:
-                val = new DealProperty.Value(cell.getNumericCellValue(), DealProperty.Value.ValueType.NUMERIC);
+                val = new DealProperty.Value<java.io.Serializable>(cell.getNumericCellValue(),
+                        DealProperty.Value.ValueType.NUMERIC);
                 retDPB = retDPB.withValue(timestamp, val);
                 return retDPB.build();
             case Cell.CELL_TYPE_STRING:
                 String tmp = cell.getStringCellValue();
                 tmp = tmp.replaceAll("[\n\r\\xA0]", "").trim();
                 if (header != null) tmp = mapping.getMapping(header, tmp).getValue();
-                val = new DealProperty.Value(tmp, DealProperty.Value.ValueType.STRING);
+                val = new DealProperty.Value<java.io.Serializable>(tmp, DealProperty.Value.ValueType.STRING);
                 retDPB = retDPB.withValue(timestamp, val);
                 return retDPB.build();
             case Cell.CELL_TYPE_FORMULA:

@@ -9,9 +9,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
-/**
- * Created by samuelsmith on 01/11/2014.
- */
 public class DealProperty {
 
     private transient Logger logger = LoggerFactory.getLogger(DealProperty.class);
@@ -92,7 +89,7 @@ public class DealProperty {
     }
 
 
-    public static class DealPropertyBuilder<T> {
+    public static class DealPropertyBuilder {
 
         private TreeMap<DateTime, Value> values = Maps.newTreeMap();
 

@@ -4,9 +4,6 @@ import files.MappingFileManager;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.joda.time.DateTime;
 
-/**
- * Created by samuelsmith on 08/02/2015.
- */
 public class DCFileNameParser {
 
     public static SheetParser getParser(String filename, Workbook wb, DateTime timestamp, MappingFileManager mfm)

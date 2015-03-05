@@ -4,9 +4,7 @@ import com.google.common.collect.Maps;
 
 import java.util.Map;
 
-/**
- * Created by samuelsmith on 08/02/2015.
- */
+
 public class CRGMapping {
 
     private final Map<String, CagHolder> cagMap;
@@ -18,7 +16,7 @@ public class CRGMapping {
     public Map<String, String> getMapping(String coi) {
         if (cagMap.containsKey(coi)) {
             CagHolder ch = cagMap.get(coi);
-            Map retMap = Maps.newHashMap();
+            Map<String, String> retMap = Maps.newHashMap();
             retMap.put("Geography", ch.geography);
             retMap.put("Region", ch.region);
             retMap.put("Groupings", ch.grouping);

@@ -1,7 +1,6 @@
 package files;
 
 import cache.Cache;
-import deal.Deal;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -12,11 +11,7 @@ import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Map;
 
-/**
- * Created by samuelsmith on 08/11/2014.
- */
 public class CacheFileManager {
 
     private final Logger logger = LoggerFactory.getLogger(CacheFileManager.class);
@@ -60,14 +55,13 @@ public class CacheFileManager {
 
         String filename = cache.getLastUpdated().toString(DateTimeFormat.forPattern("yyyyMMddHHmmss"));
 
-        PrintWriter out = null;
+        PrintWriter out;
         try {
             out = new PrintWriter(cacheDirectory + filename  + ".cache");
             out.print(toSave);
             out.close();
         } catch (FileNotFoundException e) {
             logger.error("Error saving cache file: " + e.getLocalizedMessage());
-            if (out != null) out.close();
         }
 
         historicCleanUp();
@@ -111,14 +105,13 @@ public class CacheFileManager {
         logger.info("Getting all cache files");
 
         File dir = new File(cacheDirectory);
-        File[] files = dir.listFiles(new FilenameFilter() {
+
+        return dir.listFiles(new FilenameFilter() {
             @Override
             public boolean accept(File dir, String name) {
                 return name.endsWith(".cache");
             }
         });
-
-        return files;
     }
 
     private String getLatestCache() {

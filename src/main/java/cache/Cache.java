@@ -14,9 +14,6 @@ import org.slf4j.LoggerFactory;
 import java.util.Map;
 import java.util.Set;
 
-/**
- * Created by samuelsmith on 02/11/2014.
- */
 public class Cache {
 
     private final Logger logger = LoggerFactory.getLogger(Cache.class);

@@ -12,9 +12,6 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Created by samuelsmith on 28/10/2014.
- */
 public class DCPipelineParser extends AbstractParser {
 
     private final Logger logger = LoggerFactory.getLogger(DCPipelineParser.class);
@@ -57,7 +54,7 @@ public class DCPipelineParser extends AbstractParser {
             Map<String, DealProperty> dealProperties = Maps.newHashMap();
 
             DealProperty.DealPropertyBuilder dpb = new DealProperty.DealPropertyBuilder();
-            dpb = dpb.withValue(timestamp, new DealProperty.Value("DC_PIPELINE", DealProperty.Value.ValueType.STRING));
+            dpb = dpb.withValue(timestamp, new DealProperty.Value<String>("DC_PIPELINE", DealProperty.Value.ValueType.STRING));
             dealProperties.put("Source Type", dpb.build());
 
             String opportunity = null;

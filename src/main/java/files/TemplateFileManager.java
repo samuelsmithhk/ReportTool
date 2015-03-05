@@ -10,9 +10,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-/**
- * Created by samuelsmith on 29/12/2014.
- */
 public class TemplateFileManager {
 
     private final Logger logger = LoggerFactory.getLogger(TemplateFileManager.class);

@@ -10,9 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-/**
- * Created by samuelsmith on 09/11/2014.
- */
 public class QueryResultDeal {
 
     Logger logger = LoggerFactory.getLogger(QueryResultDeal.class);

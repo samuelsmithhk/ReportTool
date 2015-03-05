@@ -15,9 +15,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-/**
- * Created by samuelsmith on 08/11/2014.
- */
 public class ReportToolRunner {
 
     private final Logger logger = LoggerFactory.getLogger(ReportToolRunner.class);
@@ -33,7 +30,6 @@ public class ReportToolRunner {
         }
     }
 
-    private final Map<String, String> properties;
     private final CacheFileManager cfm;
     private final InputFileManager ifm;
     private final MappingFileManager mfm;
@@ -44,7 +40,7 @@ public class ReportToolRunner {
 
     private ReportToolRunner() {
         logger.info("Initializing ReportToolRunner");
-        properties = loadProperties();
+        Map<String, String> properties = loadProperties();
 
         cfm = new CacheFileManager(properties.get("cacheDirectory"),
                 Integer.valueOf(properties.get("numberOfHistoricFiles")));

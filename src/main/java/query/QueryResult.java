@@ -4,9 +4,6 @@ import com.google.common.collect.Lists;
 
 import java.util.List;
 
-/**
- * Created by samuelsmith on 09/11/2014.
- */
 public class QueryResult {
 
     public final Query query;

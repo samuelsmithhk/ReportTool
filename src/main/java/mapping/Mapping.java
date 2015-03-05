@@ -2,19 +2,13 @@ package mapping;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.AbstractMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Created by samuelsmith on 17/01/2015.
- */
-public class Mapping {
 
-    Logger logger = LoggerFactory.getLogger(Mapping.class);
+public class Mapping {
 
     private final Map<String, String> headerMap;
     private final Map<String, List<Map.Entry<String, String>>> valueMap;
@@ -64,7 +58,7 @@ public class Mapping {
         }
 
         public MappingBuilder addValueMap(String column, String toMapTo, String toBeMapped) {
-            AbstractMap.SimpleEntry toAdd = new AbstractMap.SimpleEntry(toMapTo, toBeMapped);
+            AbstractMap.SimpleEntry<String, String> toAdd = new AbstractMap.SimpleEntry<String, String>(toMapTo, toBeMapped);
 
             if (this.valueMap.containsKey(column)) {
                 List<Map.Entry<String, String>> values = valueMap.get(column);

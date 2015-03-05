@@ -3,15 +3,12 @@ package files;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
 
-/**
- * Created by samuelsmith on 27/11/2014.
- */
+
 public class ExportFileManager {
 
     private final Logger logger = LoggerFactory.getLogger(ExportFileManager.class);
@@ -25,7 +22,7 @@ public class ExportFileManager {
     public void writeExport(String filename, Workbook result, boolean hasTemplate, boolean useTimestamp) {
         logger.info("Writing exported excel file: " + filename);
 
-        FileOutputStream out = null;
+        FileOutputStream out;
         try {
             String extension = hasTemplate ? ".xlsm" : ".xlsx";
             String timestamp = useTimestamp ? "-" + DateTime.now().toString(DateTimeFormat.forPattern("yyyyMMdd-HHmmss")) : "";
