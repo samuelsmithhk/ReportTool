@@ -120,7 +120,7 @@ public class SheetGenerator {
         return toWorkOn;
     }
 
-    private static class GeneratorUtils {
+    public static class GeneratorUtils {
 
         static Set<Query.QuerySheet.Header> getHeadersFromQueryResultSheet(QueryResult.QueryResultSheet deals) {
             List<Group> values = deals.valuesGrouped;

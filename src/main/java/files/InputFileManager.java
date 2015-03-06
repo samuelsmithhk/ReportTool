@@ -84,7 +84,7 @@ public class InputFileManager {
         return everestTimestamp.isAfter(dealCentralTimestamp) ? everestTimestamp : dealCentralTimestamp;
     }
 
-    private File[] getFilesForDirectory(String directory) {
+    public File[] getFilesForDirectory(String directory) {
         File dir = new File(directory);
         File[] files = dir.listFiles(new FilenameFilter() {
             @Override

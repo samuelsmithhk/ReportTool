@@ -114,12 +114,12 @@ public class CacheFileManager {
         });
     }
 
-    private String getLatestCache() {
+    public String getLatestCache() {
         logger.info("Trying to find last saved cache");
 
         File[] files = getAllCaches();
 
-        if (files.length == 0) return null;
+        if (files == null || files.length == 0) return null;
 
         logger.info("Previous saved caches found, identifying latest.");
 
