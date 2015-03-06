@@ -4,6 +4,7 @@ import cache.Cache;
 import com.google.common.collect.Maps;
 import export.SheetGenerator;
 import files.*;
+import managers.QueryManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import query.QueryResult;
@@ -50,7 +51,8 @@ public class ReportToolRunner {
         ifm = new InputFileManager(cache, properties.get("everestDirectory"), properties.get("dealCentralDirectory"));
         mfm = new MappingFileManager(properties.get("mappingDirectory"));
         tfm = new TemplateFileManager(properties.get("templateDirectory"));
-        qfm = new QueryFileManager(cache, properties.get("queryDirectory"));
+        qfm = new QueryFileManager(properties.get("queryDirectory"));
+        QueryManager.initQueryManager(qfm);
         efm = new ExportFileManager(properties.get("exportDirectory"));
 
     }
@@ -61,8 +63,7 @@ public class ReportToolRunner {
         HttpServer server = new HttpServer(8088);
         server.start();
 
-        System.out.println("Server running");
-
+        /**
         if (ifm.newInputs()) {
 
             List<InputPair> newInputs = ifm.parseNewInputs(mfm);
@@ -83,6 +84,8 @@ public class ReportToolRunner {
                 r.hasTemplate, r.outputTimestamp);
 
         logger.info("Run completed");
+
+         **/
     }
 
     private Map<String, String> loadProperties() {

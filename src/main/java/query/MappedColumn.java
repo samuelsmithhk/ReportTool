@@ -30,4 +30,8 @@ public class MappedColumn implements SpecialColumn {
         if (deal.dealProperties.containsKey(original)) return deal.dealProperties.get(original).getLatestValue();
         return new DealProperty.Value<String>("", DealProperty.Value.ValueType.BLANK);
     }
+
+    public String getOriginal() {
+        return original;
+    }
 }

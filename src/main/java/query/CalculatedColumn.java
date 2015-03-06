@@ -15,7 +15,7 @@ public class CalculatedColumn implements SpecialColumn {
 
     Logger logger = LoggerFactory.getLogger(CalculatedColumn.class);
 
-    private final String header, firstHalf, secondHalf;
+    private final String header, firstHalf, operatorString, secondHalf;
     private final Operator operator;
 
     private final Map<String, Operator> operatorMap;
@@ -25,6 +25,7 @@ public class CalculatedColumn implements SpecialColumn {
         logger.info("Constructing calculated column");
         this.header = header;
         this.firstHalf = firstHalf;
+        this.operatorString = operator;
         this.secondHalf = secondHalf;
 
         operatorMap = Maps.newHashMap();
@@ -60,6 +61,18 @@ public class CalculatedColumn implements SpecialColumn {
        if (operatorMap.containsKey(operator)) return operatorMap.get(operator);
        throw new SpecialColumnException("Unknown operator: " + operator);
    }
+
+    public String getFirstHalf() {
+        return firstHalf;
+    }
+
+    public String getOperator() {
+        return operatorString;
+    }
+
+    public String getSecondHalf() {
+        return secondHalf;
+    }
 
 
     private interface Operator {

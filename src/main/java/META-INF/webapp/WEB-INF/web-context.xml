@@ -13,6 +13,7 @@ http://www.springframework.org/schema/context/spring-context-3.0.xsd">
 
     <!-- Configures the @Controller programming model -->
     <mvc:annotation-driven/>
+    <context:component-scan base-package="webservice.controllers" />
 
     <mvc:view-controller path="/" view-name="/index.html"/>
 
@@ -23,7 +24,5 @@ http://www.springframework.org/schema/context/spring-context-3.0.xsd">
                    location="WEB-INF/images/favicon.ico" />
 
     <mvc:resources mapping="/index.html" location="WEB-INF/html/" />
-
-
 
 </beans>

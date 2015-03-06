@@ -1,0 +1,31 @@
+body {
+    font-size: 12px;
+}
+
+table {
+    margin: 20px;
+    background-color: white;
+    color: #039;
+}
+
+table tr th {
+    font-size: 14px;
+    font-weight: normal;
+    padding: 10px 8px;
+    font-family: 'Proxima Nova Bold',"Segoe UI",Roboto,"Droid Sans","Helvetica Neue",Arial,sans-serif;
+}
+
+table tr td {
+    padding: 10px 8px;
+}
+
+.odd {
+
+    background-color: #e8edff;
+    color: black;
+}
+
+#queriesAccordion .ui-accordion-content {
+    max-height: 300px;
+    overflow-y: auto;
+}
