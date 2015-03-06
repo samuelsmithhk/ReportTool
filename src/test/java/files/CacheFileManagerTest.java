@@ -5,14 +5,10 @@ import com.google.common.collect.Lists;
 import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Test;
-import sun.jvm.hotspot.utilities.AssertionFailure;
 
 import java.io.File;
 import java.util.List;
 
-/**
- * Created by samuelsmith on 08/11/2014.
- */
 public class CacheFileManagerTest {
 
     @Test

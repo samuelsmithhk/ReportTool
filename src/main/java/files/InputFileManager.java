@@ -8,7 +8,6 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import parse.DCFileNameParser;
-import parse.DCPipelineParser;
 import parse.EverestParser;
 import parse.SheetParser;
 
@@ -21,9 +20,6 @@ import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
 
-/**
- * Created by samuelsmith on 08/11/2014.
- */
 public class InputFileManager {
 
     private final Logger logger = LoggerFactory.getLogger(InputFileManager.class);
@@ -86,14 +82,13 @@ public class InputFileManager {
 
     public File[] getFilesForDirectory(String directory) {
         File dir = new File(directory);
-        File[] files = dir.listFiles(new FilenameFilter() {
+
+        return dir.listFiles(new FilenameFilter() {
             @Override
             public boolean accept(File dir, String name) {
                 return name.endsWith(".xlsx") || (name.endsWith(".xls"));
             }
         });
-
-        return files;
     }
 
     private File getNewestFileInFiles(File[] files) throws IOException {
@@ -164,7 +159,7 @@ public class InputFileManager {
                 try {
                     logger.info("name: " + name);
 
-                    BasicFileAttributes attr  = Files.readAttributes(Paths.get(dir.getAbsolutePath() + "/" + name),
+                    BasicFileAttributes attr = Files.readAttributes(Paths.get(dir.getAbsolutePath() + "/" + name),
                             BasicFileAttributes.class);
 
                     DateTime fileTimestamp = new DateTime(attr.creationTime().toMillis());
@@ -174,8 +169,7 @@ public class InputFileManager {
                     if (cacheTimestamp == null) return (name.endsWith(".xlsx") || name.endsWith(".xls"));
                     logger.info("cacheTimestamp: " + cacheTimestamp);
                     logger.info("fileTimestamp: " + fileTimestamp);
-                    if (fileTimestamp.isAfter(cacheTimestamp)) return (name.endsWith(".xlsx") || name.endsWith(".xls"));
-                    return false;
+                    return fileTimestamp.isAfter(cacheTimestamp) && (name.endsWith(".xlsx") || name.endsWith(".xls"));
 
                 } catch (IOException e) {
                     logger.error("Error finding latest files: " + e.getLocalizedMessage());
