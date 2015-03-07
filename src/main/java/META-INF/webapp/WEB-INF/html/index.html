@@ -7,6 +7,10 @@
     <script src="/js/jq.js"></script>
     <script src="/js/jqui.js"></script>
     <script src="/js/index.js"></script>
+    <script src="/js/buttonBindings.js"></script>
+    <script src="/js/query/queryValidation.js"></script>
+    <script src="/js/query/query.js"></script>
+    <script src="/js/query/queryCreatorUIManagement.js"></script>
 
     <link href="c/jquery-ui.min.css" rel="stylesheet">
     <link href="c/jquery-ui.structure.min.css" rel="stylesheet">
@@ -31,111 +35,29 @@
 
         <div id="sheetsTabs">
             <ul>
-                <li><a href="#sheet1">Sheet 1</a></li>
+                <li><a href="#sheet0">Sheet 0</a></li>
             </ul>
-            <div id="sheet1">
-                <label for="sheetNameTextBox1">Sheet Name: </label>
-                <input id="sheetNameTextBox1"/><br /><br />
+            <div id="sheet0">
+                <label for="sheet0-nameTextBox">Sheet Name: </label>
+                <input id="sheet0-nameTextBox"/><br /><br />
 
-                <div id="sheet1Headers">
-                    <div id="sheet1HeadersAccordion" class="headerAccordion">
-                        <h3>Header 1</h3>
+                <div id="sheet0Headers">
+                    <div id="sheet0HeadersAccordion" class="headerAccordion">
+                        <h3>Header 0</h3>
                         <div>
-                            <button id="sheet1Header1UpdateButton" class="button sheet1-header-1">Update Header</button>
-                            <button id="sheet1Header1RemoveButton" class="button sheet1-header-1">Remove Header</button><br /><br />
+                            <button id="sheet0-header0-UpdateButton" class="button sheet0-header0">Update Header</button>
+                            <button id="sheet0-header0-RemoveButton" class="button sheet0-header0">Remove Header</button><br /><br />
 
-                            <label for="sheet1-header1-nameTextBox" class="sheet1-header-1">Header Name: </label>
-                            <input id="sheet1-header1-nameTextBox" class="sheet1-header-1"><br /><br />
+                            <label for="sheet0-header0-nameTextBox" class="sheet0-header0">Header Name: </label>
+                            <input id="sheet0-header0-nameTextBox" class="sheet0-header0"><br /><br />
 
-                            <button id="sheet1-header1-addColumnButton" class="button sheet1-header-1">Add Column</button>
-                            <table id="sheet1-header1-columnsTable" class="sheet1-header-1">
+                            <button id="sheet0-header0-addColumnButton" class="button sheet0-header0 addColumnButton">Add Column</button>
+                            <table id="sheet0-header0-columnsTable" class="sheet0-header0">
                                 <tr>
                                     <th>Column</th>
                                     <th>Rule</th>
                                 </tr>
                             </table>
-
-                            <div id="columnCreator" class="hidden">
-                                <div id="columnTypeButtonSet">
-                                    <input type="radio" id="directColumnOption" name="columnType" checked>
-                                    <label for="directColumnOption">Direct from Cache</label>
-                                    <input type="radio" id="calculatedColumnOption" name="columnType">
-                                    <label for="calculatedColumnOption">Calculated Column</label>
-                                </div> <br />
-
-                                <div id="directColumn">
-                                    <label for="directColumnList">Pick Column: </label>
-                                    <select id="directColumnList" class="columnSelectBox">
-                                        <!-- Blank atm -->
-                                    </select>
-
-                                    <label for="overwriteNameTextBox">Overwrite Name on Output: (optional)</label>
-                                    <input id="overwriteNameTextBox">
-                                </div>
-
-                                <div id="calculatedColumn" class="hidden">
-                                    <label for="columnNameTextBox">Name on Output: </label>
-                                    <input id="columnNameTextBox">
-
-                                    <table>
-                                        <tr>
-                                            <th>First Parameter</th>
-                                            <th>Operator</th>
-                                            <th>Second Parameter</th>
-                                        </tr>
-
-                                        <tr class="odd">
-                                            <td>
-                                                <label for="param1SelectColumn">Pick Column: </label>
-                                                <select id="param1SelectColumn" class="columnSelectBox">
-                                                    <!-- Blank atm -->
-                                                </select> <br />
-
-                                                <label for="param1RawValueTextBox">Raw Value: </label>
-                                                <input id="param1RawValueTextBox" disabled>
-                                            </td>
-
-                                            <td>
-                                                <select id="operatorSelect">
-                                                    <option value="h">HISTORIC</option>
-                                                    <option value="a">ADD</option>
-                                                    <option value="s">SUBTRACT</option>
-                                                    <option value="m">MULTIPLY</option>
-                                                    <option value="d">DIVIDE</option>
-                                                    <option value="ag">AGGREGATE</option>
-                                                    <option value="av">AVERAGE</option>
-                                                    <option value="c">CONCAT</option>
-                                                </select>
-                                            </td>
-
-                                            <td>
-                                                <div id="secondParamHistoric">
-                                                    <label for="historicDays">Number of Days Back: </label>
-                                                    <input id="historicDays">
-                                                </div>
-
-                                                <div id="secondParamNormal" class="hidden">
-                                                    <label for="param2SelectColumn">Pick Column: </label>
-                                                    <select id="param2SelectColumn" class="columnSelectBox">
-                                                        <!-- Blank atm -->
-                                                    </select> <br />
-
-                                                    <label for="param2RawValueTextBox">Raw Value: </label>
-                                                    <input id="param2RawValueTextBox" disabled>
-                                                </div>
-
-                                                <div id="secondParamRange" class="hidden">
-                                                    <label for="valueRange">Range: </label>
-                                                    <input id="valueRange">
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    </table>
-                                </div>
-
-                                <button id="saveColumnButton" class="button">Save Column</button>
-                                <button id="cancelColumnButton" class="button">Cancel Column</button>
-                            </div>
                         </div>
                     </div>
                     <br />

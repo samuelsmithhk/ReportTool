@@ -1,50 +1,9 @@
 $(document).ready(function(){
-    $(".button").button();
-    $("#tabbedPanel").tabs();
-    $("#addQueryButton").click(function(){
-        requestColumns();
-        displayAddQueryWindow();
-    });
 
-    $("#cancelQueryButton").click(function(){
-            hideAddQueryWindow();
-        });
+    $("#tabbedPanel").tabs();
 
     $("#sheetsTabs").tabs();
-    $("#sheet1HeadersAccordion").accordion();
-
-    $("#sheet1-header1-addColumnButton").click(function() {
-        $(".sheet1-header-1").hide();
-        $("#columnCreator").show();
-    });
-
-    $("#columnTypeButtonSet").buttonset().change(function(){
-        if ($("#directColumnOption").is(":checked")) {
-            $("#directColumn").show();
-            $("#calculatedColumn").hide();
-        } else {
-            $("#directColumn").hide();
-            $("#calculatedColumn").show();
-        }
-    });
-
-    $("#operatorSelect").on("change", function(){
-        var val = $(this).val();
-
-        if (val === "h") {
-            $("#secondParamHistoric").show();
-            $("#secondParamNormal").hide();
-            $("#secondParamRange").hide();
-        } else if (val === "a" || val === "s" || val === "m" || val === "d" || val === "c") {
-            $("#secondParamNormal").show();
-            $("#secondParamHistoric").hide();
-            $("#secondParamRange").hide();
-        } else { //val === ag || av
-            $("#secondParamRange").show();
-            $("#secondParamHistoric").hide();
-            $("#secondParamNormal").hide();
-        }
-    });
+    $("#sheet0HeadersAccordion").accordion();
 
     $.ajax({
         type : "GET",
@@ -76,16 +35,16 @@ function addColumnsToSelects(columnsToAdd) {
 
 function displayAddQueryWindow() {
     // get the screen height and width
-        var maskHeight = $(document).height();
-        var maskWidth = $(window).width();
+    var maskHeight = $(document).height();
+    var maskWidth = $(window).width();
 
-        // calculate the values for center alignment
-        var dialogTop =  0;
-        var dialogLeft = (maskWidth/2) - ($('#queriesDialog').width()/2);
+    // calculate the values for center alignment
+    var dialogTop =  0;
+    var dialogLeft = (maskWidth/2) - ($('#queriesDialog').width()/2);
 
-        // assign values to the overlay and dialog box
-        $('#dialogUnderlay').css({height:maskHeight, width:maskWidth}).show();
-        $('#queriesDialog').css({top:dialogTop, left:dialogLeft}).show();
+    // assign values to the overlay and dialog box
+    $('#dialogUnderlay').css({height:maskHeight, width:maskWidth}).show();
+    $('#queriesDialog').css({top:dialogTop, left:dialogLeft}).show();
 }
 
 function hideAddQueryWindow() {
