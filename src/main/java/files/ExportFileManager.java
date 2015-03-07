@@ -25,7 +25,8 @@ public class ExportFileManager {
         FileOutputStream out;
         try {
             String extension = hasTemplate ? ".xlsm" : ".xlsx";
-            String timestamp = useTimestamp ? "-" + DateTime.now().toString(DateTimeFormat.forPattern("yyyyMMdd-HHmmss")) : "";
+            String timestamp = useTimestamp ?
+                    "-" + DateTime.now().toString(DateTimeFormat.forPattern("yyyyMMdd-HHmmss")) : "";
             out = new FileOutputStream(new File(exportDirectory + filename + timestamp + extension));
             result.write(out);
             out.close();

@@ -4,7 +4,9 @@ import cache.Cache;
 import com.google.common.collect.Maps;
 import export.SheetGenerator;
 import files.*;
+import managers.ExportManager;
 import managers.QueryManager;
+import managers.TemplateManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import query.QueryResult;
@@ -51,9 +53,11 @@ public class ReportToolRunner {
         ifm = new InputFileManager(cache, properties.get("everestDirectory"), properties.get("dealCentralDirectory"));
         mfm = new MappingFileManager(properties.get("mappingDirectory"));
         tfm = new TemplateFileManager(properties.get("templateDirectory"));
+        TemplateManager.initTemplateManager(tfm);
         qfm = new QueryFileManager(properties.get("queryDirectory"));
-        QueryManager.initQueryManager(qfm);
+        QueryManager.initQueryManager(qfm, cache);
         efm = new ExportFileManager(properties.get("exportDirectory"));
+        ExportManager.initExportManager(efm);
 
     }
 

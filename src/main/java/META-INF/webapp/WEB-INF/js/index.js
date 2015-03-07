@@ -151,14 +151,18 @@ function createQueryList(queryListString) {
             $.ajax({
                 type : "POST",
                 url : "executeQuery",
-                data : queryName
+                data : {
+                    "queryName" : queryName
+                    }
             }).done(function(data) {
                 var result = JSON.parse(data);
 
                 if (result.result == true) {
                     alert("Successfully executed " + result.queryName);
+                    $(".executeButton").removeAttr("disabled");
                 } else {
                     alert("Failed to execute " + result.queryName);
+                    $(".executeButton").removeAttr("disabled");
                 }
             });
         }

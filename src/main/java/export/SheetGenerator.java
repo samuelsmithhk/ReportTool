@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import files.TemplateFileManager;
+import managers.TemplateManager;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.util.CellRangeAddress;
@@ -22,10 +23,11 @@ import java.util.Set;
 
 public class SheetGenerator {
 
-    public static Workbook generateSheet(QueryResult results, TemplateFileManager tfm) {
+    public static Workbook generateSheet(QueryResult results) throws Exception {
         SheetGenerator generator = new SheetGenerator();
 
-        Workbook workbook = results.hasTemplate ? tfm.getTemplate(results.query.templateName) : new XSSFWorkbook();
+        Workbook workbook = results.hasTemplate ?
+                TemplateManager.getTemplateManager().getTemplate(results.query.templateName) : new XSSFWorkbook();
         return generator.generateWorkbook(workbook, results);
     }
 
