@@ -20,6 +20,7 @@ import java.util.List;
 
 @Controller
 public class QueryController {
+    private final Logger logger = LoggerFactory.getLogger(QueryController.class);
 
     private QueryManager qm;
     private final Gson gson;
@@ -31,9 +32,7 @@ public class QueryController {
         gson = builder.create();
     }
 
-    Logger logger = LoggerFactory.getLogger(QueryController.class);
-
-    @RequestMapping(value = "/getAllQueries")
+    @RequestMapping(value = "/getAllQueries", method = RequestMethod.GET)
     public void getAllQueries(HttpServletRequest request, HttpServletResponse response) throws Exception {
         logger.info(request.getRemoteAddr() + " is requesting all queries");
 
@@ -49,7 +48,7 @@ public class QueryController {
         }
     }
 
-    @RequestMapping(value = "/executeQuery", method= RequestMethod.POST)
+    @RequestMapping(value = "/executeQuery", method = RequestMethod.POST)
     public void executeQuery(HttpServletRequest request, HttpServletResponse response) throws Exception {
         String queryName = request.getParameter("queryName");
         logger.info(request.getRemoteAddr() + " is attempting to execute query " + queryName);
@@ -65,6 +64,5 @@ public class QueryController {
             response.getWriter().write("{\"result\":false, \"queryName\":\"" + queryName + "\"}");
             logger.info("Returned failure message to " + request.getRemoteAddr());
         }
-
     }
 }

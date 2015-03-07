@@ -1,6 +1,50 @@
 $(document).ready(function(){
+    $(".button").button();
     $("#tabbedPanel").tabs();
-    $("#addQueryButton").button();
+    $("#addQueryButton").click(function(){
+        requestColumns();
+        displayAddQueryWindow();
+    });
+
+    $("#cancelQueryButton").click(function(){
+            hideAddQueryWindow();
+        });
+
+    $("#sheetsTabs").tabs();
+    $("#sheet1HeadersAccordion").accordion();
+
+    $("#sheet1-header1-addColumnButton").click(function() {
+        $(".sheet1-header-1").hide();
+        $("#columnCreator").show();
+    });
+
+    $("#columnTypeButtonSet").buttonset().change(function(){
+        if ($("#directColumnOption").is(":checked")) {
+            $("#directColumn").show();
+            $("#calculatedColumn").hide();
+        } else {
+            $("#directColumn").hide();
+            $("#calculatedColumn").show();
+        }
+    });
+
+    $("#operatorSelect").on("change", function(){
+        var val = $(this).val();
+
+        if (val === "h") {
+            $("#secondParamHistoric").show();
+            $("#secondParamNormal").hide();
+            $("#secondParamRange").hide();
+        } else if (val === "a" || val === "s" || val === "m" || val === "d" || val === "c") {
+            $("#secondParamNormal").show();
+            $("#secondParamHistoric").hide();
+            $("#secondParamRange").hide();
+        } else { //val === ag || av
+            $("#secondParamRange").show();
+            $("#secondParamHistoric").hide();
+            $("#secondParamNormal").hide();
+        }
+    });
 
     $.ajax({
         type : "GET",
@@ -9,6 +53,44 @@ $(document).ready(function(){
         createQueryList(response);
     });
 });
+
+function requestColumns() {
+    $.ajax({
+        type : "GET",
+        url : "getAllColumns"
+    }).done(function(response){
+        var columns = JSON.parse(response);
+        addColumnsToSelects(columns);
+    });
+}
+
+function addColumnsToSelects(columnsToAdd) {
+    var htmlValue = "<option value=\"RAWVAL\"></option>";
+
+    $.each(columnsToAdd, function(index, column) {
+        htmlValue += "<option value=\"" + column + "\">" + column + "</option>";
+    });
+
+    $(".columnSelectBox").html(htmlValue);
+}
+
+function displayAddQueryWindow() {
+    // get the screen height and width
+        var maskHeight = $(document).height();
+        var maskWidth = $(window).width();
+
+        // calculate the values for center alignment
+        var dialogTop =  0;
+        var dialogLeft = (maskWidth/2) - ($('#queriesDialog').width()/2);
+
+        // assign values to the overlay and dialog box
+        $('#dialogUnderlay').css({height:maskHeight, width:maskWidth}).show();
+        $('#queriesDialog').css({top:dialogTop, left:dialogLeft}).show();
+}
+
+function hideAddQueryWindow() {
+    $('#dialogUnderlay, .dialogBox').hide();
+}
 
 function createQueryList(queryListString) {
     var queryList = JSON.parse(queryListString);

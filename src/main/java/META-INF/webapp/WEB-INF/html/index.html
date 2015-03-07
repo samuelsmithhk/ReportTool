@@ -16,6 +16,147 @@
 </head>
 <body>
 
+<div id="dialogUnderlay">
+    <div id="queriesDialog" class="dialogBox">
+        <label for="queryNameTextBox">Query Name: </label>
+        <input id="queryNameTextBox" /> <br /><br />
+
+        <input type="checkbox" value="outputTimestamp"> Include timestamp in output filename?<br /><br />
+
+        <input type="checkbox" value="useTemplate"> Load an excel file as a template for creating output?<br />
+        <label for="templateSelect">Template to use: &nbsp;&nbsp;</label>
+        <select id="templateSelect" disabled>
+            <option>SELECT USE TEMPLATE</option>
+        </select><br /><br />
+
+        <div id="sheetsTabs">
+            <ul>
+                <li><a href="#sheet1">Sheet 1</a></li>
+            </ul>
+            <div id="sheet1">
+                <label for="sheetNameTextBox1">Sheet Name: </label>
+                <input id="sheetNameTextBox1"/><br /><br />
+
+                <div id="sheet1Headers">
+                    <div id="sheet1HeadersAccordion" class="headerAccordion">
+                        <h3>Header 1</h3>
+                        <div>
+                            <button id="sheet1Header1UpdateButton" class="button sheet1-header-1">Update Header</button>
+                            <button id="sheet1Header1RemoveButton" class="button sheet1-header-1">Remove Header</button><br /><br />
+
+                            <label for="sheet1-header1-nameTextBox" class="sheet1-header-1">Header Name: </label>
+                            <input id="sheet1-header1-nameTextBox" class="sheet1-header-1"><br /><br />
+
+                            <button id="sheet1-header1-addColumnButton" class="button sheet1-header-1">Add Column</button>
+                            <table id="sheet1-header1-columnsTable" class="sheet1-header-1">
+                                <tr>
+                                    <th>Column</th>
+                                    <th>Rule</th>
+                                </tr>
+                            </table>
+
+                            <div id="columnCreator" class="hidden">
+                                <div id="columnTypeButtonSet">
+                                    <input type="radio" id="directColumnOption" name="columnType" checked>
+                                    <label for="directColumnOption">Direct from Cache</label>
+                                    <input type="radio" id="calculatedColumnOption" name="columnType">
+                                    <label for="calculatedColumnOption">Calculated Column</label>
+                                </div> <br />
+
+                                <div id="directColumn">
+                                    <label for="directColumnList">Pick Column: </label>
+                                    <select id="directColumnList" class="columnSelectBox">
+                                        <!-- Blank atm -->
+                                    </select>
+
+                                    <label for="overwriteNameTextBox">Overwrite Name on Output: (optional)</label>
+                                    <input id="overwriteNameTextBox">
+                                </div>
+
+                                <div id="calculatedColumn" class="hidden">
+                                    <label for="columnNameTextBox">Name on Output: </label>
+                                    <input id="columnNameTextBox">
+
+                                    <table>
+                                        <tr>
+                                            <th>First Parameter</th>
+                                            <th>Operator</th>
+                                            <th>Second Parameter</th>
+                                        </tr>
+
+                                        <tr class="odd">
+                                            <td>
+                                                <label for="param1SelectColumn">Pick Column: </label>
+                                                <select id="param1SelectColumn" class="columnSelectBox">
+                                                    <!-- Blank atm -->
+                                                </select> <br />
+
+                                                <label for="param1RawValueTextBox">Raw Value: </label>
+                                                <input id="param1RawValueTextBox" disabled>
+                                            </td>
+
+                                            <td>
+                                                <select id="operatorSelect">
+                                                    <option value="h">HISTORIC</option>
+                                                    <option value="a">ADD</option>
+                                                    <option value="s">SUBTRACT</option>
+                                                    <option value="m">MULTIPLY</option>
+                                                    <option value="d">DIVIDE</option>
+                                                    <option value="ag">AGGREGATE</option>
+                                                    <option value="av">AVERAGE</option>
+                                                    <option value="c">CONCAT</option>
+                                                </select>
+                                            </td>
+
+                                            <td>
+                                                <div id="secondParamHistoric">
+                                                    <label for="historicDays">Number of Days Back: </label>
+                                                    <input id="historicDays">
+                                                </div>
+
+                                                <div id="secondParamNormal" class="hidden">
+                                                    <label for="param2SelectColumn">Pick Column: </label>
+                                                    <select id="param2SelectColumn" class="columnSelectBox">
+                                                        <!-- Blank atm -->
+                                                    </select> <br />
+
+                                                    <label for="param2RawValueTextBox">Raw Value: </label>
+                                                    <input id="param2RawValueTextBox" disabled>
+                                                </div>
+
+                                                <div id="secondParamRange" class="hidden">
+                                                    <label for="valueRange">Range: </label>
+                                                    <input id="valueRange">
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+
+                                <button id="saveColumnButton" class="button">Save Column</button>
+                                <button id="cancelColumnButton" class="button">Cancel Column</button>
+                            </div>
+                        </div>
+                    </div>
+                    <br />
+                    <button id="sheet1AddHeader" class="button">Add Header</button>
+                </div><br />
+
+                <input type="checkbox" value="hideSheet1">Hide this sheet in output?<br /><br />
+
+                <button id="updateSheet1" class="button">Update Sheet</button>
+                <button id="removeSheet1" class="button">Remove Sheet</button>
+            </div>
+        </div><br />
+
+        <button id="addSheetButton" class="button">Add Sheet</button><br /><br />
+        <hr>
+
+        <button id="saveQueryButton" class="button">Save Query</button>
+        <button id="cancelQueryButton" class="button">Cancel Query</button>
+    </div>
+</div>
+
 <div id="tabbedPanel">
     <ul>
         <li><a href="#queriesTab">Queries</a></li>
@@ -25,7 +166,7 @@
     <div id="queriesTab">
         <h2>Queries</h2>
 
-        <button id="addQueryButton">Add New Query</button><br /><br />
+        <button id="addQueryButton" class="button">Add New Query</button><br /><br />
         <div id="queriesAccordion"></div>
 
     </div>

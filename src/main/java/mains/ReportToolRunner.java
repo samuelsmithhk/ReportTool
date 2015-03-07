@@ -4,6 +4,7 @@ import cache.Cache;
 import com.google.common.collect.Maps;
 import export.SheetGenerator;
 import files.*;
+import managers.CacheManager;
 import managers.ExportManager;
 import managers.QueryManager;
 import managers.TemplateManager;
@@ -47,8 +48,8 @@ public class ReportToolRunner {
 
         cfm = new CacheFileManager(properties.get("cacheDirectory"),
                 Integer.valueOf(properties.get("numberOfHistoricFiles")));
-
         cache = cfm.getCache();
+        CacheManager.initCacheManager(cache);
 
         ifm = new InputFileManager(cache, properties.get("everestDirectory"), properties.get("dealCentralDirectory"));
         mfm = new MappingFileManager(properties.get("mappingDirectory"));
