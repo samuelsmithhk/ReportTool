@@ -4,13 +4,11 @@ import cache.Cache;
 import com.google.common.collect.Maps;
 import export.SheetGenerator;
 import files.*;
-import managers.CacheManager;
-import managers.ExportManager;
-import managers.QueryManager;
-import managers.TemplateManager;
+import managers.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import query.QueryResult;
+import scheduler.Schedule;
 import webservice.HttpServer;
 
 import java.io.FileInputStream;
@@ -40,6 +38,7 @@ public class ReportToolRunner {
     private final TemplateFileManager tfm;
     private final QueryFileManager qfm;
     private final ExportFileManager efm;
+    private final ScheduleFileManager sfm;
     private final Cache cache;
 
     private ReportToolRunner() {
@@ -58,12 +57,16 @@ public class ReportToolRunner {
         qfm = new QueryFileManager(properties.get("queryDirectory"));
         QueryManager.initQueryManager(qfm, cache);
         efm = new ExportFileManager(properties.get("exportDirectory"));
+        sfm = new ScheduleFileManager(properties.get("scheduleDirectory"));
+        ScheduleManager.initScheduleManager(sfm);
         ExportManager.initExportManager(efm);
 
     }
 
     private void run(String[] queriesToRun) throws Exception {
         logger.info("Running ReportToolRunner");
+
+        loadSchedule();
 
         HttpServer server = new HttpServer(8088);
         server.start();
@@ -116,6 +119,11 @@ public class ReportToolRunner {
         }
 
         return retMap;
+    }
+
+    private void loadSchedule() throws Exception {
+        ScheduleManager sm = ScheduleManager.getScheduleManager();
+        sm.startSchedule();
     }
 
 }

@@ -46,4 +46,10 @@ public class QueryManager {
         QueryResult qr = QueryExecutor.executeQuery(cache, toExecute);
         ExportManager.getExportManager().exportQuery(qr);
     }
+
+    public Query getQueryByName(String queryName) throws Exception {
+        if (qfm.hasUpdate()) currentQueries = qfm.loadQueries();
+        if (!(currentQueries.containsKey(queryName))) throw new Exception("Query " + queryName + " does not exist");
+        return currentQueries.get(queryName);
+    }
 }

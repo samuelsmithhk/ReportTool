@@ -1,7 +1,5 @@
 package files;
 
-import cache.Cache;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.gson.*;
 import org.slf4j.Logger;
@@ -11,9 +9,7 @@ import query.*;
 import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
-import java.util.List;
 import java.util.Map;
-
 
 public class QueryFileManager {
 
@@ -59,7 +55,7 @@ public class QueryFileManager {
                 Query q = gson.fromJson(json, Query.class);
                 queries.put(q.name, q);
             } catch (IOException e) {
-                logger.error("Error parsing query " + f.getName() + ": " + e.getLocalizedMessage());
+                logger.error("Error parsing query " + f.getName() + ": " + e.getLocalizedMessage(), e);
             }
         }
 
