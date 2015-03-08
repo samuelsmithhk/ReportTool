@@ -31,8 +31,17 @@ public class JobInstance implements Comparable<JobInstance> {
         this.jobToExecute = jobToExecute;
     }
 
-    public void execute() {
-        logger.info("Executing");
+    public void execute() throws Exception {
+        logger.info("Executing " + this);
+
+        QueryManager qm = QueryManager.getQueryManager();
+
+        for (Query q : jobToExecute.queries) {
+            qm.executeQuery(q);
+        }
+
+        //compile email
+        //send email
     }
 
     @Override

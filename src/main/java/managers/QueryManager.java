@@ -43,7 +43,11 @@ public class QueryManager {
                 + queryName + " does not exist");
 
         Query toExecute = currentQueries.get(queryName);
-        QueryResult qr = QueryExecutor.executeQuery(cache, toExecute);
+        executeQuery(toExecute);
+    }
+
+    public synchronized void executeQuery(Query q) throws Exception {
+        QueryResult qr = QueryExecutor.executeQuery(cache, q);
         ExportManager.getExportManager().exportQuery(qr);
     }
 
