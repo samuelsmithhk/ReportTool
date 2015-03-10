@@ -10,8 +10,8 @@ import java.util.List;
 public class InputFileManagerTest {
 
     @Test
-    public void shouldGetAllInputFiles() {
-        InputFileManager ifm = new InputFileManager(null, null, null);
+    public void shouldGetAllInputFiles() throws Exception {
+        InputFileManager ifm = new InputFileManager(null, null);
         File[] actual = ifm.getFilesForDirectory("src/test/resources/testInputDirectory/");
 
         if (actual == null) Assert.fail();

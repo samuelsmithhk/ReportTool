@@ -3,8 +3,6 @@ package query;
 import cache.Cache;
 import com.google.common.collect.Maps;
 import deal.DealProperty;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
@@ -12,25 +10,21 @@ import java.util.Set;
 
 public class QueryResultDeal {
 
-    Logger logger = LoggerFactory.getLogger(QueryResultDeal.class);
-
     public final String dealName;
     public final Map<Header, String> dealProperties;
 
     private final Query query;
-    private final Cache cache;
 
-    public QueryResultDeal(Cache cache, Query query, String dealName, Map<String, DealProperty> dpToConvert,
-                           List<Query.QuerySheet.Header> selectedColumns) {
+    public QueryResultDeal(Query query, String dealName, Map<String, DealProperty> dpToConvert,
+                           List<Query.QuerySheet.Header> selectedColumns) throws Exception {
         this.dealName = dealName;
         this.query = query;
-        this.cache = cache;
 
         this.dealProperties = convertDealProperties(dpToConvert, selectedColumns);
     }
 
     public Map<Header, String> convertDealProperties(Map<String, DealProperty> toConvert,
-                                                     List<Query.QuerySheet.Header> cols) {
+                                                     List<Query.QuerySheet.Header> cols) throws Exception {
 
         Map<Header, String> retMap = Maps.newLinkedHashMap();
 
@@ -43,7 +37,7 @@ public class QueryResultDeal {
                         SpecialColumn sc = query.getSpecialColumn(sub);
 
                         retMap.put(new Header(col.header, sc.getHeader()),
-                                QueryUtils.parseValue(sc.evaluate(query, cache, dealName)));
+                                QueryUtils.parseValue(sc.evaluate(query, dealName)));
                     } catch (SpecialColumn.SpecialColumnException e) {
                         retMap.put(new Header(col.header, sub), "");
                     } catch (Cache.CacheException e) {

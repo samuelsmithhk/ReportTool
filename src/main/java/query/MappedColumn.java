@@ -1,8 +1,8 @@
 package query;
 
-import cache.Cache;
 import deal.Deal;
 import deal.DealProperty;
+import managers.CacheManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 public class MappedColumn implements SpecialColumn {
@@ -23,9 +23,12 @@ public class MappedColumn implements SpecialColumn {
     }
 
     @Override
-    public DealProperty.Value evaluate(Query query, Cache cache, String dealName)
-            throws Cache.CacheException,SpecialColumnException {
-        Deal deal = cache.getDeal(dealName);
+    public DealProperty.Value evaluate(Query query, String dealName)
+            throws Exception {
+
+        CacheManager cm = CacheManager.getCacheManager();
+
+        Deal deal = cm.getDeal(dealName);
 
         if (deal.dealProperties.containsKey(original)) return deal.dealProperties.get(original).getLatestValue();
         return new DealProperty.Value<String>("", DealProperty.Value.ValueType.BLANK);

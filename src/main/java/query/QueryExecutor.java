@@ -1,10 +1,10 @@
 package query;
 
-import cache.Cache;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import deal.Deal;
 import deal.DealProperty;
+import managers.CacheManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,43 +16,47 @@ public class QueryExecutor {
 
     private static transient Logger logger = LoggerFactory.getLogger(QueryExecutor.class);
 
-    public static QueryResult executeQuery(Cache cache, Query query) {
-        QueryExecutor qe = new QueryExecutor(cache);
+    public static QueryResult executeQuery(Query query) {
+        QueryExecutor qe = new QueryExecutor();
 
         QueryResult.QueryResultBuilder qrb = new QueryResult.QueryResultBuilder(query);
 
         for (Query.QuerySheet sheet : query.sheets) {
-            Map<String, Deal> filteredDeals = qe.filterDeals(sheet.filterColumn, sheet.filterValue);
-            List<QueryResultDeal> selectedColumns = qe.selectColumns(query, sheet.headers, filteredDeals);
-            List<Group> groupedValues;
+            Map<String, Deal> filteredDeals;
             try {
-                groupedValues = qe.groupValues(query, sheet.groupBy, selectedColumns, sheet.sortBy);
-            } catch (SpecialColumn.SpecialColumnException e) {
-                logger.warn("Unable to execute group by for query, outputting with no groupings, reason: "
-                        + e.getMessage(), e);
-                groupedValues = qe.safeGroupValues(selectedColumns, sheet.sortBy);
+                filteredDeals = qe.filterDeals(sheet.filterColumn, sheet.filterValue);
+                List<QueryResultDeal> selectedColumns = qe.selectColumns(query, sheet.headers, filteredDeals);
+                List<Group> groupedValues;
+                try {
+                    groupedValues = qe.groupValues(query, sheet.groupBy, selectedColumns, sheet.sortBy);
+                } catch (SpecialColumn.SpecialColumnException e) {
+                    logger.warn("Unable to execute group by for query, outputting with no groupings, reason: "
+                            + e.getMessage(), e);
+                    groupedValues = qe.safeGroupValues(selectedColumns, sheet.sortBy);
+                }
+                List<Group> sortedValues = qe.sortValues(groupedValues);
+
+                qe.overwriteHeaders(query, sheet.headers);
+
+                qrb.addSheet(new QueryResult.QueryResultSheet(sheet.sheetName, sortedValues, sheet.headers,
+                        sheet.isHidden));
+            } catch (Exception e) {
+                logger.error("Error executing query, skipping sheet: " + e.getMessage(), e);
             }
-            List<Group> sortedValues = qe.sortValues(groupedValues);
-
-            qe.overwriteHeaders(query, sheet.headers);
-
-            qrb.addSheet(new QueryResult.QueryResultSheet(sheet.sheetName, sortedValues, sheet.headers,
-                    sheet.isHidden));
         }
-
 
         return qrb.build();
     }
 
-    private final Cache cache;
 
-    private QueryExecutor(Cache cache) {
-        this.cache = cache;
-    }
+    private QueryExecutor() {}
 
-    public Map<String, Deal> filterDeals(String filterColumn, String filterValue) {
+    public Map<String, Deal> filterDeals(String filterColumn, String filterValue) throws Exception {
         logger.info("Filtering deals");
-        Map<String, Deal> dealMap = cache.getDeals();
+
+        CacheManager cm = CacheManager.getCacheManager();
+
+        Map<String, Deal> dealMap = cm.getDeals();
         Map<String, Deal> retMap = Maps.newHashMap();
 
         if ((filterColumn == null) || (filterColumn.trim().equals("")) || (filterColumn.trim().equals("null")) ||
@@ -74,12 +78,12 @@ public class QueryExecutor {
     }
 
     public List<QueryResultDeal> selectColumns(Query query, List<Query.QuerySheet.Header> headers,
-                                               Map<String, Deal> filteredDeals) {
+                                               Map<String, Deal> filteredDeals) throws Exception {
         logger.info("Selecting columns");
         List<QueryResultDeal> retList = Lists.newArrayList();
 
         for (Map.Entry<String, Deal> toBeConverted : filteredDeals.entrySet()) {
-            retList.add(new QueryResultDeal(cache, query, toBeConverted.getKey(),
+            retList.add(new QueryResultDeal(query, toBeConverted.getKey(),
                     toBeConverted.getValue().dealProperties, headers));
         }
 

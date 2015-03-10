@@ -4,6 +4,7 @@ import cache.Cache;
 import com.google.common.collect.Maps;
 import deal.Deal;
 import deal.DealProperty;
+import managers.CacheManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,16 +46,18 @@ public class CalculatedColumn implements SpecialColumn {
         return header;
     }
 
-    public DealProperty.Value evaluate(Query query, Cache cache, String dealName) throws
-            Cache.CacheException, SpecialColumnException {
+    public DealProperty.Value evaluate(Query query, String dealName) throws
+            Exception {
 
-        Deal deal = cache.getDeal(dealName);
-        return operator.evaluate(cache, query, deal, firstHalf, secondHalf);
+        CacheManager cm = CacheManager.getCacheManager();
+
+        Deal deal = cm.getDeal(dealName);
+        return operator.evaluate(query, deal, firstHalf, secondHalf);
     }
 
-    public DealProperty.Value evaluate(Query query, Cache cache, Deal deal) throws
+    public DealProperty.Value evaluate(Query query, Deal deal) throws
             Cache.CacheException, SpecialColumnException {
-        return operator.evaluate(cache, query, deal, firstHalf, secondHalf);
+        return operator.evaluate(query, deal, firstHalf, secondHalf);
     }
 
    private Operator getOperator(String operator) throws SpecialColumnException {
@@ -76,13 +79,13 @@ public class CalculatedColumn implements SpecialColumn {
 
 
     private interface Operator {
-        public DealProperty.Value evaluate(Cache cache, Query query, Deal deal, String firstHalf, String secondHalf)
+        public DealProperty.Value evaluate(Query query, Deal deal, String firstHalf, String secondHalf)
                 throws Cache.CacheException, SpecialColumnException;
     }
 
     private class HistoricOperator implements Operator {
         @Override
-        public DealProperty.Value evaluate(Cache cache, Query query, Deal deal, String firstHalf,
+        public DealProperty.Value evaluate(Query query, Deal deal, String firstHalf,
                                            String secondHalf) throws SpecialColumnException {
             DealProperty dealProperty = (deal.dealProperties.containsKey(firstHalf))
                     ? deal.dealProperties.get(firstHalf) : null;
@@ -99,7 +102,7 @@ public class CalculatedColumn implements SpecialColumn {
     private abstract class RangeOperator implements Operator {
 
         @Override
-        public DealProperty.Value evaluate(Cache cache, Query query, Deal deal, String firstHalf,
+        public DealProperty.Value evaluate(Query query, Deal deal, String firstHalf,
                                            String secondHalf) throws SpecialColumnException {
 
             DealProperty dp = (deal.dealProperties.containsKey(firstHalf)) ?
@@ -177,7 +180,7 @@ public class CalculatedColumn implements SpecialColumn {
     private abstract class MathematicalOperator implements Operator {
 
         @Override
-        public DealProperty.Value evaluate(Cache cache, Query query, Deal deal, String firstHalf, String secondHalf)
+        public DealProperty.Value evaluate(Query query, Deal deal, String firstHalf, String secondHalf)
                 throws Cache.CacheException, SpecialColumnException {
 
             if (firstHalf == null || firstHalf.trim().equals("") || secondHalf == null || secondHalf.trim().equals(""))
@@ -190,7 +193,7 @@ public class CalculatedColumn implements SpecialColumn {
                 String reference = firstHalf.substring(1);
                 if (query.calculatedColumns.containsKey(reference)) {
                     CalculatedColumn cc = query.calculatedColumns.get(reference);
-                    DealProperty.Value res = cc.evaluate(query, cache, deal);
+                    DealProperty.Value res = cc.evaluate(query, deal);
 
                     if (!(res.type.equals(DealProperty.Value.ValueType.NUMERIC)))
                         throw new SpecialColumnException
@@ -219,7 +222,7 @@ public class CalculatedColumn implements SpecialColumn {
                     logger.info("Executing calculated column: " + reference);
 
                     CalculatedColumn cc = query.calculatedColumns.get(reference);
-                    DealProperty.Value res = cc.evaluate(query, cache, deal);
+                    DealProperty.Value res = cc.evaluate(query, deal);
 
                     if (!(res.type.equals(DealProperty.Value.ValueType.NUMERIC)))
                         throw new SpecialColumnException
@@ -279,7 +282,7 @@ public class CalculatedColumn implements SpecialColumn {
     private class ConcatOperator implements Operator {
 
         @Override
-        public DealProperty.Value evaluate(Cache cache, Query query, Deal deal, String firstHalf,
+        public DealProperty.Value evaluate(Query query, Deal deal, String firstHalf,
                                            String secondHalf) throws Cache.CacheException,
                 SpecialColumnException {
             if (firstHalf == null || secondHalf == null) throw new SpecialColumnException
@@ -294,7 +297,7 @@ public class CalculatedColumn implements SpecialColumn {
                     logger.info("Executing calculated column: " + reference);
 
                     CalculatedColumn cc = query.calculatedColumns.get(reference);
-                    DealProperty.Value res = cc.evaluate(query, cache, deal);
+                    DealProperty.Value res = cc.evaluate(query, deal);
                     str1 = (String) res.innerValue;
                 } else throw new SpecialColumnException("Calculated column missing: " + reference);
             }
@@ -315,7 +318,7 @@ public class CalculatedColumn implements SpecialColumn {
                     logger.info("Executing calculated column: " + reference);
 
                     CalculatedColumn cc = query.calculatedColumns.get(reference);
-                    DealProperty.Value res = cc.evaluate(query, cache, deal);
+                    DealProperty.Value res = cc.evaluate(query, deal);
                     str2 = (String) res.innerValue;
                 } else throw new SpecialColumnException("Calculated column missing: " + reference);
             }

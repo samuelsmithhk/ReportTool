@@ -1,7 +1,8 @@
 package files;
 
-import cache.Cache;
 import com.google.common.collect.Lists;
+import managers.CacheManager;
+import managers.MappingManager;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.joda.time.DateTime;
@@ -23,35 +24,35 @@ import java.util.List;
 public class InputFileManager {
 
     private final Logger logger = LoggerFactory.getLogger(InputFileManager.class);
-
-    private final Cache cache;
     private final String everestDirectory, dealCentralDirectory;
+    private final CacheManager cm;
 
 
-    public InputFileManager(Cache cache, String everestDirectory, String dealCentralDirectory) {
+    public InputFileManager(String everestDirectory, String dealCentralDirectory) throws Exception {
         logger.info("Creating InputFileManager");
-        this.cache = cache;
         this.everestDirectory = everestDirectory;
         this.dealCentralDirectory = dealCentralDirectory;
+        cm = CacheManager.getCacheManager();
     }
 
-    public boolean newInputs() throws IOException {
+    public boolean newInputs() throws Exception {
         logger.info("Checking to see if there's any new input files");
         if (newestTimestamp() == null) {
             logger.info("No new input files");
             return false;
         }
-        if (cache.getLastUpdated() == null) {
+
+        if (cm.getLastUpdated() == null) {
             logger.info("New input files");
             return true;
         }
-        if (cache.getLastUpdated().isBefore(newestTimestamp())) {
+        if (cm.getLastUpdated().isBefore(newestTimestamp())) {
             logger.info("New input files");
             return true;
         }
 
         logger.info("No new input files newestTimestamp: " + newestTimestamp() +
-                " cacheLastUpdated: " + cache.getLastUpdated());
+                " cacheLastUpdated: " + cm.getLastUpdated());
         return false;
     }
 
@@ -111,7 +112,7 @@ public class InputFileManager {
         return latestFile;
     }
 
-    public List<InputPair> parseNewInputs(MappingFileManager mfm) throws Exception {
+    public List<InputPair> parseNewInputs() throws Exception {
         logger.info("Parsing the new input files");
         List<InputPair> retList = Lists.newArrayList();
 
@@ -124,14 +125,16 @@ public class InputFileManager {
 
             String mapName = f.getName().contains("NBFC") ? "everestNBFC" : "everestSpecial";
 
-            SheetParser parser = new EverestParser(wb, getTimestamp(f), mfm.loadColumnMap(mapName), mfm.loadCagMap());
+            MappingManager mm = MappingManager.getMappingManager();
+
+            SheetParser parser = new EverestParser(wb, getTimestamp(f), mm.loadColumnMap(mapName), mm.loadCagMap());
             retList.add(new InputPair(getTimestamp(f), parser.parse()));
         }
 
         for (File f : newDealCentralFiles) {
             logger.info("Parsing deal central file: " + f);
             Workbook wb = WorkbookFactory.create(f);
-            SheetParser parser = DCFileNameParser.getParser(f.getName(), wb, getTimestamp(f), mfm);
+            SheetParser parser = DCFileNameParser.getParser(f.getName(), wb, getTimestamp(f));
             retList.add(new InputPair(getTimestamp(f), parser.parse()));
         }
 
@@ -145,13 +148,14 @@ public class InputFileManager {
         return new DateTime(attr.creationTime().toMillis());
     }
 
-    private File[] getAllNewFilesForDirectory(String directory) {
+    private File[] getAllNewFilesForDirectory(String directory) throws Exception {
         logger.info("Getting all the new input files");
 
         File dir = new File(directory);
+
         File[] files = dir.listFiles(new FilenameFilter() {
 
-            DateTime cacheTimestamp = cache.getLastUpdated();
+            DateTime cacheTimestamp = cm.getLastUpdated();
 
             @Override
             public boolean accept(File dir, String name) {

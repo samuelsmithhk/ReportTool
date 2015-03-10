@@ -1,6 +1,5 @@
 package managers;
 
-import cache.Cache;
 import files.QueryFileManager;
 import query.Query;
 import query.QueryExecutor;
@@ -15,8 +14,8 @@ public class QueryManager {
 
     private static QueryManager qm;
 
-    public static void initQueryManager(QueryFileManager qfm, Cache cache) {
-        if (qm == null) qm = new QueryManager(qfm, cache);
+    public static void initQueryManager(QueryFileManager qfm) {
+        if (qm == null) qm = new QueryManager(qfm);
     }
 
     public static QueryManager getQueryManager() throws Exception {
@@ -26,11 +25,9 @@ public class QueryManager {
 
     private final QueryFileManager qfm;
     private volatile Map<String, Query> currentQueries;
-    private final Cache cache;
 
-    private QueryManager(QueryFileManager qfm, Cache cache) {
+    private QueryManager(QueryFileManager qfm) {
         this.qfm = qfm;
-        this.cache = cache;
     }
 
     public synchronized List<Query> getAllQueries() {
@@ -47,7 +44,9 @@ public class QueryManager {
     }
 
     public synchronized void executeQuery(Query q) throws Exception {
-        QueryResult qr = QueryExecutor.executeQuery(cache, q);
+        InputManager im = InputManager.getInputManager();
+        im.loadNewInputsIfAny();
+        QueryResult qr = QueryExecutor.executeQuery(q);
         ExportManager.getExportManager().exportQuery(qr);
     }
 
