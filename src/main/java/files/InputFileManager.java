@@ -128,14 +128,14 @@ public class InputFileManager {
             MappingManager mm = MappingManager.getMappingManager();
 
             SheetParser parser = new EverestParser(wb, getTimestamp(f), mm.loadColumnMap(mapName), mm.loadCagMap());
-            retList.add(new InputPair(getTimestamp(f), parser.parse()));
+            retList.add(new InputPair(f.getName(), getTimestamp(f), parser.parse()));
         }
 
         for (File f : newDealCentralFiles) {
             logger.info("Parsing deal central file: " + f);
             Workbook wb = WorkbookFactory.create(f);
             SheetParser parser = DCFileNameParser.getParser(f.getName(), wb, getTimestamp(f));
-            retList.add(new InputPair(getTimestamp(f), parser.parse()));
+            retList.add(new InputPair(f.getName(), getTimestamp(f), parser.parse()));
         }
 
         logger.info("Files parsed");

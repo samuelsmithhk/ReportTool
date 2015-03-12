@@ -80,7 +80,7 @@ public class DealProperty {
     public void addValue(DateTime timestamp, Value value) {
         logger.info("Adding value: " + value + " to DealProperty " + this);
         if (!values.containsKey(timestamp)) values.put(timestamp, value);
-        else throw new IllegalArgumentException("Value already exists for timestamp");
+        else logger.warn("Value ( " + value + ") already exists for timestamp");
     }
 
     @Override

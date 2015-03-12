@@ -22,6 +22,8 @@ public class Deal {
         Map<String, DealProperty> updated = deal.dealProperties;
 
         for (Map.Entry<String, DealProperty> dp : updated.entrySet()) {
+            logger.info("Deal property: " + dp.getKey());
+
             if (dealProperties.containsKey(dp.getKey()))
                 dealProperties.get(dp.getKey()).addValue(timestamp, dp.getValue().getLatestValue());
             else {

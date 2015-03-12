@@ -55,6 +55,7 @@ public class Cache {
 
             if (deals.containsKey(entry.getKey())) {
                 //update deal
+                logger.info("Updating deal " + entry.getKey());
                 deals.get(entry.getKey()).updateDeal(timestamp, deal);
             } else {
                 //new deal
