@@ -1,5 +1,19 @@
 function updateColumnsTable(query, sheetIndex, headerIndex) {
-    var newHtml = "<tr><th>Column</th><th>Rule</th></tr>";
+    var headerLocator = "sheet" + sheetIndex + "-header" + headerIndex;
+
+    var newHtml = '<button id="' + headerLocator + '-updateHeaderButton" class="button '
+        + headerLocator + '">Update Header</button>'
+        + '<button id="' + headerLocator + '-removeHeaderButton" class="button '
+        + headerLocator + '">Remove Header</button><br /><br />'
+        + '<label for="' + headerLocator + '-nameTextBox" class="'
+        + headerLocator + '">Header Name: </label>'
+        + '<input id="' + headerLocator + '-nameTextBox" class="'
+        + headerLocator + '"><br /><br />'
+        + '<button id="' + headerLocator + '-addColumnButton" class="button '
+        + headerLocator + ' addColumnButton">Add Column</button>'
+        + '<table id="' + headerLocator +'-columnsTable" class="'
+        + headerLocator +'"><tr><th>Column</th><th>Rule</th></tr>';
+
     var cols = query.sheets[sheetIndex].headers[headerIndex].columns;
 
     var odd = true;
@@ -13,7 +27,7 @@ function updateColumnsTable(query, sheetIndex, headerIndex) {
             odd = true;
         }
 
-        var colLocator = "sheet" + sheetIndex + "-header" + headerIndex + "-col" + colIndex;
+        var colLocator = headerLocator + "-col" + colIndex;
 
         newHtml += "><td>" + col.name + "</td><td>" + col.rule + "</td><td><button id=\"" + colLocator +
          "-editButton\">Edit</button></td><td><button id=\"" + colLocator
@@ -23,7 +37,22 @@ function updateColumnsTable(query, sheetIndex, headerIndex) {
 
     });
 
-    $("#sheet" + sheetIndex + "-header" + headerIndex + "-columnsTable").html(newHtml);
+    newHtml += "</table>"
+
+    $("#sheet" + sheetIndex + "HeadersAccordion div").html(newHtml);
+
+    $("#" + headerLocator + "-addColumnButton").button().click(function(){
+        switchToColumnEditor(currentQuery, sheetIndex, headerIndex);
+    });
+
+    $("#" + headerLocator + "-updateHeaderButton").button().click(function(){
+        alert("TODO: Update button");
+    });
+
+    $("#" + headerLocator + "-removeHeaderButton").button().click(function(){
+        alert("TODO: Remove button");
+    });
+
 
     $.each(cols, function(colIndex, col){
         var colLocator = "sheet" + sheetIndex + "-header" + headerIndex + "-col" + colIndex;
@@ -138,17 +167,19 @@ function switchToColumnEditor(query, sheetIndex, headerIndex, columnIndex) {
             }
         });
 
-        requestColumns();
+    requestColumns();
 
-        $("#sheet" + sheetIndex + "-header" + headerIndex + "-columnCreator").show();
+    if (!(typeof columnIndex === "undefined")) {
+        var col = query.sheets[sheetIndex].headers[headerIndex].columns[columnIndex];
 
+        var name = col.name;
+        var rule = col.rule;
 
-    var col = query.sheets[sheetIndex].headers[headerIndex].columns[columnIndex];
-
-    var name = col.name;
-    var rule = col.rule;
-
-    if (rule.trim() === "") { //this is a direct column with no mapping
-    } else if (rule.indexOf("~~") == -1) { //this is a direct column with mapping
+        if (rule.trim() === "") { //this is a direct column with no mapping
+        } else if (rule.indexOf("~~") == -1) { //this is a direct column with mapping
+        }
     }
+
+    $("#sheet" + sheetIndex + "-header" + headerIndex + "-columnCreator").show();
+
 }
