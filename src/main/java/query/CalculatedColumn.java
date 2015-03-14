@@ -188,7 +188,7 @@ public class CalculatedColumn implements SpecialColumn {
 
             double a, b;
 
-            if (firstHalf.startsWith("#")) a = Double.parseDouble(firstHalf.substring(1));
+            if (firstHalf.startsWith("##")) a = Double.parseDouble(firstHalf.substring(1));
             else if (firstHalf.startsWith("=")) {
                 String reference = firstHalf.substring(1);
                 if (query.calculatedColumns.containsKey(reference)) {
@@ -215,7 +215,7 @@ public class CalculatedColumn implements SpecialColumn {
                 a = (Double) dp1.getLatestValue().innerValue;
             }
 
-            if (secondHalf.startsWith("#")) b = Double.parseDouble(secondHalf.substring(1));
+            if (secondHalf.startsWith("##")) b = Double.parseDouble(secondHalf.substring(1));
             else if (secondHalf.startsWith("=")) {
                 String reference = secondHalf.substring(1);
                 if (query.calculatedColumns.containsKey(reference)) {
@@ -290,7 +290,7 @@ public class CalculatedColumn implements SpecialColumn {
 
             String str1, str2;
 
-            if (firstHalf.startsWith("#")) str1 = firstHalf.substring(1);
+            if (firstHalf.startsWith("##")) str1 = firstHalf.substring(1);
             else if (firstHalf.startsWith("=")) {
                 String reference = firstHalf.substring(1);
                 if (query.calculatedColumns.containsKey(reference)) {
@@ -311,7 +311,7 @@ public class CalculatedColumn implements SpecialColumn {
                 str1 = (String) dp.getLatestValue().innerValue;
             }
 
-            if (secondHalf.startsWith("#")) str2 = secondHalf.substring(1);
+            if (secondHalf.startsWith("##")) str2 = secondHalf.substring(1);
             else if (secondHalf.startsWith("=")) {
                 String reference = secondHalf.substring(1);
                 if (query.calculatedColumns.containsKey(reference)) {
