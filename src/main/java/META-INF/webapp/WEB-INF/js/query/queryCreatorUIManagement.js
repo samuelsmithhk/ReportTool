@@ -1,14 +1,49 @@
+function createHeadersUIForSheet(query, sheetIndex) {
+    var newHtml = '<div id="sheet' + sheetIndex + '-headersAccordion" class="headerAccordion">';
+
+    $.each(query.sheets[sheetIndex].headers, function(headerIndex, header){
+        newHtml += '<h3 id="headerIndex-' + headerIndex + '">' + header.name + '</h3>';
+        newHtml += '<div id="sheet' + sheetIndex + '-header' + headerIndex + '-accDiv"></div>';
+    });
+
+    newHtml += '</div><br /><button id="sheet' + sheetIndex + '-addHeaderButton" class="button">Add Header</button>';
+
+    $("#sheet" + sheetIndex + "-headers").html(newHtml);
+
+    $("#sheet" + sheetIndex + "-headersAccordion").accordion({
+        heightStyle : "content",
+        create : function(event, ui){
+            updateColumnsTable(query, sheetIndex, 0);
+        },
+        activate: function(event, ui){
+            var headerIndex = ui.newHeader.attr("id").substring(12);
+            updateColumnsTable(query, sheetIndex, parseInt(headerIndex));
+        }
+    });
+
+    $("#sheet" + sheetIndex + "-addHeaderButton").button().click(function(){
+        var header = initNewHeader("Header " + getNumberOfHeaders(query, sheetIndex), []);
+        query.sheets[sheetIndex].headers.push(header);
+        createHeadersUIForSheet(query, sheetIndex);
+    });
+
+
+}
+
 function updateColumnsTable(query, sheetIndex, headerIndex) {
     var headerLocator = "sheet" + sheetIndex + "-header" + headerIndex;
 
-    var newHtml = '<button id="' + headerLocator + '-updateHeaderButton" class="button '
-        + headerLocator + '">Update Header</button>'
+    var newHtml = '<button id="' + headerLocator +'-moveHeaderUp" class="button '
+        + headerLocator + '">Move Header Up</button><button id="' + headerLocator
+        + '-moveHeaderDown" class="button ' + headerLocator + '">Move Header Down</button>'
         + '<button id="' + headerLocator + '-removeHeaderButton" class="button '
         + headerLocator + '">Remove Header</button><br /><br />'
         + '<label for="' + headerLocator + '-nameTextBox" class="'
         + headerLocator + '">Header Name: </label>'
         + '<input id="' + headerLocator + '-nameTextBox" class="'
-        + headerLocator + '"><br /><br />'
+        + headerLocator + '">&nbsp;&nbsp;<button id="'
+         + headerLocator + '-saveHeaderNameButton" class="button '
+                + headerLocator + '">Save Header Name</button><br /><br />'
         + '<button id="' + headerLocator + '-addColumnButton" class="button '
         + headerLocator + ' addColumnButton">Add Column</button>'
         + '<table id="' + headerLocator +'-columnsTable" class="'
@@ -39,18 +74,28 @@ function updateColumnsTable(query, sheetIndex, headerIndex) {
 
     newHtml += "</table>"
 
-    $("#sheet" + sheetIndex + "HeadersAccordion div").html(newHtml);
+    $("#" + headerLocator + '-accDiv').html(newHtml);
+    $("#" + headerLocator + "-nameTextBox").val(query.sheets[sheetIndex].headers[headerIndex].name);
+
+    $("#" + headerLocator + "-moveHeaderUp").button().click(function(){
+        alert("TODO: Move header up");
+    });
+
+    $("#" + headerLocator + "-moveHeaderDown").button().click(function() {
+        alert("TODO: Move header down");
+    });
+
+    $("#" + headerLocator + "-removeHeaderButton").button().click(function(){
+        alert("TODO: Remove button");
+    });
 
     $("#" + headerLocator + "-addColumnButton").button().click(function(){
         switchToColumnEditor(currentQuery, sheetIndex, headerIndex);
     });
 
-    $("#" + headerLocator + "-updateHeaderButton").button().click(function(){
-        alert("TODO: Update button");
-    });
-
-    $("#" + headerLocator + "-removeHeaderButton").button().click(function(){
-        alert("TODO: Remove button");
+    $("#" + headerLocator + "-saveHeaderNameButton").button().click(function(){
+        query.sheets[sheetIndex].headers[headerIndex].name = $("#" + headerLocator + "-nameTextBox").val();
+        createHeadersUIForSheet(query, sheetIndex);
     });
 
 
@@ -71,11 +116,17 @@ function updateColumnsTable(query, sheetIndex, headerIndex) {
 
 
         $("#" + colLocator + "-moveUpButton").click(function(){
-            alert("move up clicked");
+            if (colIndex > 0) {
+                shiftColumnUp(currentQuery, sheetIndex, headerIndex, colIndex);
+                updateColumnsTable(currentQuery, sheetIndex, headerIndex);
+            }
         });
 
         $("#" + colLocator + "-moveDownButton").click(function(){
-            alert("move down clicked");
+            if (colIndex < (getNumberOfColumns(currentQuery, sheetIndex, headerIndex) - 1)) {
+                shiftColumnDown(currentQuery, sheetIndex, headerIndex, colIndex);
+                updateColumnsTable(currentQuery, sheetIndex, headerIndex);
+            }
         });
     });
 }
@@ -106,40 +157,50 @@ function switchToColumnEditor(query, sheetIndex, headerIndex, columnIndex) {
         + '<label for="param2RawValueTextBox">Raw Value: </label><input id="param2RawValueTextBox"></div>'
         + '<div id="secondParamRange" class="hidden"><label for="valueRange">Range: </label><input id="valueRange">'
         + '</div></td></tr></table></div> <br /><br />'
-        + '<button id="sheet0-header0-saveColumnButton" class="saveColumnButton button">Save Column</button>'
+        + '<button id="saveColumnButton" class="button">Save Column</button>'
         + '<button id="cancelColumnButton" class="button">Cancel Column</button></div>';
 
-        $("#sheet" + sheetIndex + "HeadersAccordion div").html(columnEditorHtml);
+    $("#sheet" + sheetIndex + "-header" + headerIndex + '-accDiv').html(columnEditorHtml);
 
-        $("#columnTypeButtonSet").buttonset().change(function(){setColumnCreatorForType()});
+    $("#directColumnOption").prop("checked", true);
 
-        $(".button").button();
+    $("#columnTypeButtonSet").buttonset().change(function(){setColumnCreatorForType()});
 
-        $("#operatorSelect").on("change", function(){
-            changeOperatorTypeInColumnCreator();
-        });
+    $(".button").button();
 
-        $(".paramSelectColumn").on("change", function(){
-            changeParamSelectBoxInColumnCreator($(this));
-        });
+    $("#operatorSelect").on("change", function(){
+        changeOperatorTypeInColumnCreator();
+    });
 
-        $(".saveColumnButton").click(function() {
-            if(validateSaveColumn()) {
-                var r = confirm("Do you want to save column?");
-                if (r) {
-                    if (typeof columnIndex === "undefined") {
-                        var column = createColumn();
-                        addColumnToHeader(currentQuery, sheetIndex, headerIndex, column);
-                        updateColumnsTable(currentQuery, sheetIndex, headerIndex);
-                    } else {
-                        editColumn(currentQuery, sheetIndex, headerIndex, columnIndex);
-                        updateColumnsTable(currentQuery, sheetIndex, headerIndex);
-                        $(".sheet" + sheetIndex + "-header" + headerIndex).show();
-                        $("#sheet" + sheetIndex + "-header" + headerIndex + "-columnCreator").hide();
-                    }
+    $(".paramSelectColumn").on("change", function(){
+        changeParamSelectBoxInColumnCreator($(this));
+    });
+
+    $("#saveColumnButton").click(function() {
+        if(validateSaveColumn()) {
+            var r = confirm("Do you want to save column?");
+            if (r) {
+                if (typeof columnIndex === "undefined") {
+                    var column = createColumn();
+                    addColumnToHeader(currentQuery, sheetIndex, headerIndex, column);
+                    updateColumnsTable(currentQuery, sheetIndex, headerIndex);
+                } else {
+                    editColumn(currentQuery, sheetIndex, headerIndex, columnIndex);
+                    updateColumnsTable(currentQuery, sheetIndex, headerIndex);
+                    $(".sheet" + sheetIndex + "-header" + headerIndex).show();
+                    $("#sheet" + sheetIndex + "-header" + headerIndex + "-columnCreator").hide();
                 }
             }
-        });
+        }
+    });
+
+    $("#cancelColumnButton").click(function(){
+        var r = confirm("Are you sure you want to cancel?");
+        if (r) {
+            clearColumnEditor();
+            updateColumnsTable(currentQuery, sheetIndex, headerIndex);
+        }
+    });
 
 
 
@@ -256,4 +317,16 @@ function changeParamSelectBoxInColumnCreator(hasChanged) {
         inputToUpdate.attr("disabled", true);
         inputToUpdate.val("SELECT BLANK ABOVE");
     }
+}
+
+function clearColumnEditor() {
+    $("#directColumnOption").prop("checked", true);
+    $("#calculatedColumnOption").prop("checked", false);
+
+    $("#overwriteNameTextBox").val("");
+    $("#columnNameTextBox").val("");
+    $("#param1RawValueTextBox").val("");
+    $("#param2RawValueTextBox").val("");
+    $("#historicDays").val("");
+    $("#valueRange").val("");
 }

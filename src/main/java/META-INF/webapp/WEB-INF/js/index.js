@@ -3,7 +3,6 @@ $(document).ready(function(){
     $("#tabbedPanel").tabs();
 
     $("#sheetsTabs").tabs();
-    $("#sheet0HeadersAccordion").accordion();
 
     $.ajax({
         type : "GET",

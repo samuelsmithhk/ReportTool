@@ -42,6 +42,28 @@ function createColumn() {
     }
 }
 
+function shiftColumnUp(query, sheetIndex, headerIndex, colIndex) {
+    var temp = query.sheets[sheetIndex].headers[headerIndex].columns[colIndex - 1];
+    query.sheets[sheetIndex].headers[headerIndex].columns[colIndex - 1] =
+        query.sheets[sheetIndex].headers[headerIndex].columns[colIndex];
+    query.sheets[sheetIndex].headers[headerIndex].columns[colIndex] = temp;
+}
+
+function shiftColumnDown(query, sheetIndex, headerIndex, colIndex) {
+    var temp = query.sheets[sheetIndex].headers[headerIndex].columns[colIndex + 1];
+    query.sheets[sheetIndex].headers[headerIndex].columns[colIndex + 1] =
+        query.sheets[sheetIndex].headers[headerIndex].columns[colIndex];
+    query.sheets[sheetIndex].headers[headerIndex].columns[colIndex] = temp;
+}
+
+function getNumberOfColumns(query, sheetIndex, headerIndex) {
+    return query.sheets[sheetIndex].headers[headerIndex].columns.length;
+}
+
+function getNumberOfHeaders(query, sheetIndex) {
+    return query.sheets[sheetIndex].headers.length;
+}
+
 function removeColumn(query, sheetIndex, headerIndex, columnIndex) {
     query.sheets[sheetIndex].headers[headerIndex].columns.splice(columnIndex, 1);
 }

@@ -6,9 +6,10 @@ $(document).ready(function(){
 
      $("#addQueryButton").click(function(){
 
-            var header = initNewHeader("Header 1", []);
-            var sheet = initNewSheet("Sheet 1", false, [header]);
-            currentQuery = initNewQuery("Query 1", false, false, [sheet]);
+            var header = initNewHeader("Header 0", []);
+            var sheet = initNewSheet("Sheet 0", false, [header]);
+            currentQuery = initNewQuery("Query 0", false, false, [sheet]);
+            createHeadersUIForSheet(currentQuery, 0);
             displayAddQueryWindow();
         });
 
