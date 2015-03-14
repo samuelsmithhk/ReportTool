@@ -78,15 +78,29 @@ function updateColumnsTable(query, sheetIndex, headerIndex) {
     $("#" + headerLocator + "-nameTextBox").val(query.sheets[sheetIndex].headers[headerIndex].name);
 
     $("#" + headerLocator + "-moveHeaderUp").button().click(function(){
-        alert("TODO: Move header up");
+        if (headerIndex > 0) {
+            shiftHeaderUp(query, sheetIndex, headerIndex);
+            createHeadersUIForSheet(query, sheetIndex);
+        }
     });
 
     $("#" + headerLocator + "-moveHeaderDown").button().click(function() {
-        alert("TODO: Move header down");
+        if (headerIndex < (getNumberOfHeaders(query, sheetIndex) - 1)) {
+            shiftHeaderDown(query, sheetIndex, headerIndex);
+            createHeadersUIForSheet(query, sheetIndex);
+        }
     });
 
     $("#" + headerLocator + "-removeHeaderButton").button().click(function(){
-        alert("TODO: Remove button");
+        if (getNumberOfHeaders(query, sheetIndex) <= 1) {
+            alert("Unable to remove header as it is the only one for this sheet");
+        } else {
+            var r = confirm("Are you sure you want to remove this header?");
+            if (r) {
+                removeHeader(query, sheetIndex, headerIndex);
+                createHeadersUIForSheet(query, sheetIndex);
+            }
+        }
     });
 
     $("#" + headerLocator + "-addColumnButton").button().click(function(){

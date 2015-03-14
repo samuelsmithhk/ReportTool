@@ -183,7 +183,9 @@ function createQueryList(queryListString) {
     });
 
     $("#queriesAccordion").html(htmlValue);
-    $("#queriesAccordion").accordion();
+    $("#queriesAccordion").accordion({
+        heightStyle: "content"
+    });
     $(".executeButton").button();
 
     $(".executeButton").click(function(){

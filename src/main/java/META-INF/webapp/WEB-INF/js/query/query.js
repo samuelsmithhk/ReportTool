@@ -56,6 +56,18 @@ function shiftColumnDown(query, sheetIndex, headerIndex, colIndex) {
     query.sheets[sheetIndex].headers[headerIndex].columns[colIndex] = temp;
 }
 
+function shiftHeaderUp(query, sheetIndex, headerIndex) {
+    var temp = query.sheets[sheetIndex].headers[headerIndex - 1];
+    query.sheets[sheetIndex].headers[headerIndex - 1] = query.sheets[sheetIndex].headers[headerIndex];
+    query.sheets[sheetIndex].headers[headerIndex] = temp;
+}
+
+function shiftHeaderDown(query, sheetIndex, headerIndex) {
+    var temp = query.sheets[sheetIndex].headers[headerIndex + 1];
+    query.sheets[sheetIndex].headers[headerIndex + 1] = query.sheets[sheetIndex].headers[headerIndex];
+    query.sheets[sheetIndex].headers[headerIndex] = temp;
+}
+
 function getNumberOfColumns(query, sheetIndex, headerIndex) {
     return query.sheets[sheetIndex].headers[headerIndex].columns.length;
 }
@@ -66,6 +78,10 @@ function getNumberOfHeaders(query, sheetIndex) {
 
 function removeColumn(query, sheetIndex, headerIndex, columnIndex) {
     query.sheets[sheetIndex].headers[headerIndex].columns.splice(columnIndex, 1);
+}
+
+function removeHeader(query, sheetIndex, headerIndex) {
+    query.sheets[sheetIndex].headers.splice(headerIndex, 1);
 }
 
 function editColumn(query, sheetIndex, headerIndex, columnIndex) {
