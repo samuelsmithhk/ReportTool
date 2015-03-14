@@ -68,6 +68,18 @@ function shiftHeaderDown(query, sheetIndex, headerIndex) {
     query.sheets[sheetIndex].headers[headerIndex] = temp;
 }
 
+function moveSheetLeft(query, sheetIndex) {
+    var temp = query.sheets[sheetIndex - 1];
+    query.sheets[sheetIndex - 1] = query.sheets[sheetIndex];
+    query.sheets[sheetIndex] = temp;
+}
+
+function moveSheetRight(query, sheetIndex) {
+    var temp = query.sheets[sheetIndex + 1];
+    query.sheets[sheetIndex + 1] = query.sheets[sheetIndex];
+    query.sheets[sheetIndex] = temp;
+}
+
 function getNumberOfColumns(query, sheetIndex, headerIndex) {
     return query.sheets[sheetIndex].headers[headerIndex].columns.length;
 }
@@ -76,12 +88,20 @@ function getNumberOfHeaders(query, sheetIndex) {
     return query.sheets[sheetIndex].headers.length;
 }
 
+function getNumberOfSheets(query) {
+    return query.sheets.length;
+}
+
 function removeColumn(query, sheetIndex, headerIndex, columnIndex) {
     query.sheets[sheetIndex].headers[headerIndex].columns.splice(columnIndex, 1);
 }
 
 function removeHeader(query, sheetIndex, headerIndex) {
     query.sheets[sheetIndex].headers.splice(headerIndex, 1);
+}
+
+function removeSheet(query, sheetIndex) {
+    query.sheets.splice(sheetIndex, 1);
 }
 
 function editColumn(query, sheetIndex, headerIndex, columnIndex) {

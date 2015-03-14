@@ -1,3 +1,73 @@
+function createSheetsUIForQuery(query) {
+    var newHtml = '<div id="sheetsTabs"><ul>';
+
+    $.each(query.sheets, function(sheetIndex, sheet){
+        newHtml += '<li><a href="#sheet' + sheetIndex + '">' + sheet.name + '</a></li>';
+    });
+
+    newHtml += "</ul>";
+
+    $.each(query.sheets, function(sheetIndex, sheet){
+        newHtml += '<div id="sheet' + sheetIndex + '"><button id="sheet' + sheetIndex
+        + '-moveSheetLeftButton" class="button">Move Sheet Left</button><button id="sheet'
+        + sheetIndex + '-moveSheetRightButton" class="button">Move Sheet Right</button><br /><br />'
+        + '<label for="sheet' + sheetIndex
+        + '-nameTextBox">Sheet Name: </label><input id="sheet' + sheetIndex + '-nameTextBox"/>&nbsp;'
+        + '<button id="sheet' + sheetIndex + '-saveSheetNameButton" class="button">Save Sheet Name</button>'
+        + '<br /><br /><div id="sheet' + sheetIndex + '-headers"></div><br />'
+        + '<input type="checkbox" id="sheet' + sheetIndex + '-hideOutputCB">Hide this sheet in output?<br /><br />'
+        + '<button id="sheet' + sheetIndex + '-removeSheetButton" class="button">Remove Sheet</button></div>';
+    });
+
+    newHtml += "</div>"
+
+    $("#sheets").html(newHtml);
+    $("#sheetsTabs").tabs({
+        create : function(event, ui) {
+            createHeadersUIForSheet(query, 0);
+        },
+        activate : function(event, ui) {
+            var sheetIndex = parseInt(ui.newTab.find("a").attr("href").substring(6));
+            createHeadersUIForSheet(query, sheetIndex);
+        }
+    });
+
+    $.each(query.sheets, function(sheetIndex, sheet){
+        $("#sheet" + sheetIndex + "-nameTextBox").val(sheet.name);
+
+        $("#sheet" + sheetIndex + "-moveSheetLeftButton").button().click(function(){
+            if (sheetIndex > 0) {
+                moveSheetLeft(query, sheetIndex);
+                createSheetsUIForQuery(query);
+            }
+        });
+
+        $("#sheet" + sheetIndex + "-moveSheetRightButton").button().click(function(){
+            if (sheetIndex < (getNumberOfSheets(query) - 1)) {
+                moveSheetRight(query, sheetIndex);
+                createSheetsUIForQuery(query);
+            }
+        });
+
+        $("#sheet" + sheetIndex + "-saveSheetNameButton").button().click(function(){
+            query.sheets[sheetIndex].name = $("#sheet" + sheetIndex + "-nameTextBox").val();
+            createSheetsUIForQuery(query, sheetIndex);
+        });
+
+        $("#sheet" + sheetIndex + "-removeSheetButton").button().click(function(){
+            if (getNumberOfSheets(query) <= 1) {
+                alert("Unable to remove sheet, as at least one sheet is required");
+            } else {
+                var r = confirm("Do you want to remove this sheet?");
+                if (r) {
+                    removeSheet(query, sheetIndex);
+                    createSheetsUIForQuery(query, sheetIndex);
+                }
+            }
+        });
+    });
+}
+
 function createHeadersUIForSheet(query, sheetIndex) {
     var newHtml = '<div id="sheet' + sheetIndex + '-headersAccordion" class="headerAccordion">';
 
@@ -16,8 +86,8 @@ function createHeadersUIForSheet(query, sheetIndex) {
             updateColumnsTable(query, sheetIndex, 0);
         },
         activate: function(event, ui){
-            var headerIndex = ui.newHeader.attr("id").substring(12);
-            updateColumnsTable(query, sheetIndex, parseInt(headerIndex));
+            var headerIndex = parseInt(ui.newHeader.attr("id").substring(12));
+            updateColumnsTable(query, sheetIndex, headerIndex);
         }
     });
 

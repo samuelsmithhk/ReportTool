@@ -2,8 +2,6 @@ $(document).ready(function(){
 
     $("#tabbedPanel").tabs();
 
-    $("#sheetsTabs").tabs();
-
     $.ajax({
         type : "GET",
         url : "getAllQueries",
