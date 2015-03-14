@@ -3,6 +3,8 @@ package managers;
 import files.TemplateFileManager;
 import org.apache.poi.ss.usermodel.Workbook;
 
+import java.util.List;
+
 public class TemplateManager {
 
     private final TemplateFileManager tfm;
@@ -26,4 +28,7 @@ public class TemplateManager {
         return tfm.getTemplate(templateName);
     }
 
+    public List<String> getTemplateList() {
+        return tfm.getAllTemplates();
+    }
 }

@@ -1,7 +1,8 @@
-function initNewQuery(name, template, timestamp, sheets) {
+function initNewQuery(name, template, timestamp, sheets, templateFile) {
     var query = {};
     query.name = name;
     query.template = template;
+    query.templateFile = templateFile;
     query.timestamp = timestamp;
     query.sheets = sheets;
     return query;

@@ -25,12 +25,12 @@
         <label for="queryNameTextBox">Query Name: </label>
         <input id="queryNameTextBox" /> <br /><br />
 
-        <input type="checkbox" value="outputTimestamp"> Include timestamp in output filename?<br /><br />
+        <input type="checkbox" id="outputTimestampCB"> Include timestamp in output filename?<br /><br />
 
-        <input type="checkbox" value="useTemplate"> Load an excel file as a template for creating output?<br />
+        <input type="checkbox" id="useTemplateCB"> Load an excel file as a template for creating output?<br />
         <label for="templateSelect">Template to use: &nbsp;&nbsp;</label>
         <select id="templateSelect" disabled>
-            <option>SELECT USE TEMPLATE</option>
+            <option value="NOTLOADED">SELECT USE TEMPLATE</option>
         </select><br /><br />
 
         <div id="sheets"></div><br />

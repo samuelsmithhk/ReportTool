@@ -1,3 +1,39 @@
+function initQueryCheckboxes(query) {
+    $("#outputTimestampCB").prop("selected", query.timestamp);
+
+    $("#outTimestampCB").change(function(){
+        query.timestamp = $(this).is(":checked");
+    });
+
+    $("#useTemplateCB").prop("selected", query.template);
+
+    $("#useTemplateCB").change(function(){
+        query.template = $(this).is(":checked");
+
+        if ($(this).is(":checked")) {
+            var temp = "<option>LOADING</option>";
+            $("#templateSelect").html(temp);
+            $("#templateSelect").prop("disabled", true);
+
+            $.ajax({
+                type : "GET",
+                url : "/getAllTemplates"
+            }).done(function(response){
+                var templates = JSON.parse(response);
+                var newHtml = "";
+                $.each(templates, function(templateIndex, template) {
+                    newHtml += '<option val="' + template + '">' + template + '</option>';
+                });
+
+                $("#templateSelect").html(newHtml);
+                $("#templateSelect").prop("disabled", false);
+            });
+        } else {
+            $("#templateSelect").prop("disabled", true);
+        }
+    });
+}
+
 function createSheetsUIForQuery(query) {
     var newHtml = '<div id="sheetsTabs"><ul>';
 
@@ -64,6 +100,12 @@ function createSheetsUIForQuery(query) {
                     createSheetsUIForQuery(query, sheetIndex);
                 }
             }
+        });
+
+        $("#sheet" + sheetIndex + "-hideOutputCB").prop("checked", query.sheets[sheetIndex].hidden)
+
+        $("#sheet" + sheetIndex + "-hideOutputCB").change(function(){
+            query.sheets[sheetIndex].hidden = $(this).is(":checked");
         });
     });
 }

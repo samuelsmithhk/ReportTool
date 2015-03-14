@@ -1,14 +1,14 @@
 package files;
+import com.google.common.collect.Lists;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class TemplateFileManager {
 
@@ -38,4 +38,25 @@ public class TemplateFileManager {
         }
     }
 
+    public List<String> getAllTemplates() {
+        logger.info("Retrieving all templates from the filesystem");
+
+        File dir = new File(templateDirectory);
+        File[] templates = dir.listFiles(new FilenameFilter() {
+            @Override
+            public boolean accept(File dir, String name) {
+                return name.endsWith(".xlsm") || name.endsWith(".xlsx") || name.endsWith(".xls");
+            }
+        });
+
+        if (templates.length == 0) return new ArrayList<String>();
+
+        List<String> retList = Lists.newArrayList();
+
+        for (File f : templates) {
+            retList.add(f.getName());
+        }
+
+        return retList;
+    }
 }
