@@ -13,24 +13,29 @@ $(document).ready(function(){
     });
 });
 
-function requestColumns() {
+function requestColumns(dropDownToUpdate, valueToSelect) {
     $.ajax({
         type : "GET",
         url : "getAllColumns"
     }).done(function(response){
         var columns = JSON.parse(response);
-        addColumnsToSelects(columns);
+        addColumnsToSelects(columns, dropDownToUpdate, valueToSelect);
     });
 }
 
-function addColumnsToSelects(columnsToAdd) {
+function addColumnsToSelects(columnsToAdd, dropDownToUpdate, valueToSelect) {
     var htmlValue = "<option value=\"RAWVAL\"></option>";
 
     $.each(columnsToAdd, function(index, column) {
         htmlValue += "<option value=\"" + column + "\">" + column + "</option>";
     });
 
-    $(".columnSelectBox").html(htmlValue);
+    if (!(typeof dropDownToUpdate === "undefined")) {
+        $("#" + dropDownToUpdate).html(htmlValue);
+        $("#" + dropDownToUpdate).val(valueToSelect);
+    } else {
+        $(".columnSelectBox").html(htmlValue);
+    }
 }
 
 function displayAddQueryWindow() {

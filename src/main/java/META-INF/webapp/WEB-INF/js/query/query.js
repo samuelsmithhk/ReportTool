@@ -42,6 +42,14 @@ function createColumn() {
     }
 }
 
+function removeColumn(query, sheetIndex, headerIndex, columnIndex) {
+    query.sheets[sheetIndex].headers[headerIndex].columns.splice(columnIndex, 1);
+}
+
+function editColumn(query, sheetIndex, headerIndex, columnIndex) {
+    query.sheets[sheetIndex].headers[headerIndex].columns[columnIndex] = createColumn();
+}
+
 function createDirectColumn() {
     var value = $("#directColumnList").val();
     var override = $("#overwriteNameTextBox").val();

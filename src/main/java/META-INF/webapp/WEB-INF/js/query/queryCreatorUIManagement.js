@@ -57,13 +57,18 @@ function updateColumnsTable(query, sheetIndex, headerIndex) {
     $.each(cols, function(colIndex, col){
         var colLocator = "sheet" + sheetIndex + "-header" + headerIndex + "-col" + colIndex;
 
-        $("#" + colLocator + "-removeButton").click(function(){
-            alert("remove clicked");
-        });
-
         $("#" + colLocator + "-editButton").click(function(){
             switchToColumnEditor(query, sheetIndex, headerIndex, colIndex);
         });
+
+        $("#" + colLocator + "-removeButton").click(function(){
+            var r = confirm("Do you want to remove this column?");
+            if (r) {
+                removeColumn(query, sheetIndex, headerIndex, colIndex);
+                updateColumnsTable(currentQuery, sheetIndex, headerIndex);
+            }
+        });
+
 
         $("#" + colLocator + "-moveUpButton").click(function(){
             alert("move up clicked");
@@ -73,9 +78,6 @@ function updateColumnsTable(query, sheetIndex, headerIndex) {
             alert("move down clicked");
         });
     });
-}
-
-function switchToColumnListViewer() {
 }
 
 function switchToColumnEditor(query, sheetIndex, headerIndex, columnIndex) {
@@ -109,65 +111,37 @@ function switchToColumnEditor(query, sheetIndex, headerIndex, columnIndex) {
 
         $("#sheet" + sheetIndex + "HeadersAccordion div").html(columnEditorHtml);
 
-        $("#columnTypeButtonSet").buttonset().change(function(){
-                if ($("#directColumnOption").is(":checked")) {
-                    $("#directColumn").show();
-                    $("#calculatedColumn").hide();
-                } else {
-                    $("#directColumn").hide();
-                    $("#calculatedColumn").show();
-                }
-            });
+        $("#columnTypeButtonSet").buttonset().change(function(){setColumnCreatorForType()});
 
         $(".button").button();
-        $("#operatorSelect").on("change", function(){
-                var val = $(this).val();
 
-                if (val === "h") {
-                    $("#secondParamHistoric").show();
-                    $("#secondParamNormal").hide();
-                    $("#secondParamRange").hide();
-                } else if (val === "a" || val === "s" || val === "m" || val === "d" || val === "c") {
-                    $("#secondParamNormal").show();
-                    $("#secondParamHistoric").hide();
-                    $("#secondParamRange").hide();
-                } else { //val === ag || av
-                    $("#secondParamRange").show();
-                    $("#secondParamHistoric").hide();
-                    $("#secondParamNormal").hide();
-                }
-            });
+        $("#operatorSelect").on("change", function(){
+            changeOperatorTypeInColumnCreator();
+        });
 
         $(".paramSelectColumn").on("change", function(){
-                var value = $(this).val();
-                var whichParam = $(this).attr("id").substring(5, 6);
-                var inputToUpdate = $("#param" + whichParam + "RawValueTextBox");
+            changeParamSelectBoxInColumnCreator($(this));
+        });
 
-                if (value === "RAWVAL") {
-                    inputToUpdate.removeAttr("disabled");
-                    inputToUpdate.val("");
-                } else {
-                    inputToUpdate.attr("disabled", true);
-                    inputToUpdate.val("SELECT BLANK ABOVE");
-                }
-            });
         $(".saveColumnButton").click(function() {
-            var sheetIndex = $(this).attr("id").substring(5, 6);
-            var headerIndex = $(this).attr("id").substring(13, 14);
-
             if(validateSaveColumn()) {
                 var r = confirm("Do you want to save column?");
                 if (r) {
-                 var column = createColumn();
-                 addColumnToHeader(currentQuery, sheetIndex, headerIndex, column);
-                 updateColumnsTable(currentQuery, sheetIndex, headerIndex);
-                 $(".sheet" + sheetIndex + "-header" + headerIndex).show();
-                 $("#sheet" + sheetIndex + "-header" + headerIndex + "-columnCreator").hide();
-             }
+                    if (typeof columnIndex === "undefined") {
+                        var column = createColumn();
+                        addColumnToHeader(currentQuery, sheetIndex, headerIndex, column);
+                        updateColumnsTable(currentQuery, sheetIndex, headerIndex);
+                    } else {
+                        editColumn(currentQuery, sheetIndex, headerIndex, columnIndex);
+                        updateColumnsTable(currentQuery, sheetIndex, headerIndex);
+                        $(".sheet" + sheetIndex + "-header" + headerIndex).show();
+                        $("#sheet" + sheetIndex + "-header" + headerIndex + "-columnCreator").hide();
+                    }
+                }
             }
         });
 
-    requestColumns();
+
 
     if (!(typeof columnIndex === "undefined")) {
         var col = query.sheets[sheetIndex].headers[headerIndex].columns[columnIndex];
@@ -176,10 +150,110 @@ function switchToColumnEditor(query, sheetIndex, headerIndex, columnIndex) {
         var rule = col.rule;
 
         if (rule.trim() === "") { //this is a direct column with no mapping
+            $("#directColumnOption").prop("checked", true);
+            $("#calculatedColumnOption").prop("checked", false);
+            setColumnCreatorForType();
+            requestColumns("directColumnList", col.name);
         } else if (rule.indexOf("~~") == -1) { //this is a direct column with mapping
+            $("#directColumnOption").prop("checked", true);
+            $("#calculatedColumnOption").prop("checked", false);
+            setColumnCreatorForType();
+            requestColumns("directColumnList", col.rule);
+            $("#overwriteNameTextBox").val(col.name)
+        } else {
+            $("#directColumnOption").prop("checked", false);
+            $("#calculatedColumnOption").prop("checked", true);
+            setColumnCreatorForType();
+
+            var rule = col.rule;
+            rule = rule.replace("~~", "");
+
+            var pos = rule.indexOf("~~");
+            var param1 = rule.substring(0, pos).trim();
+            rule = rule.substring(pos);
+
+            rule = rule.replace("~~", "");
+
+            pos = rule.indexOf("~~");
+            var operator = rule.substring(0, pos).trim();
+            rule = rule.substring(pos);
+
+            rule = rule.replace("~~", "");
+
+            pos = rule.indexOf("~~");
+            var param2 = rule.substring(0, pos).trim();
+
+            $("#operatorSelect").val(operator);
+            changeOperatorTypeInColumnCreator();
+
+            if (operator === "h") {
+                requestColumns("param1SelectColumn", param1);
+                $("#historicDays").val(param2);
+            } else if (operator === "a" || operator === "s" || operator === "d" || operator === "m" || operator === "c") {
+                if (param1.indexOf("##") != -1) {
+                    requestColumns("param1SelectColumn", "RAWVAL");
+                    $("#param1RawValueTextBox").val(param1.substring(2));
+                } else {
+                    requestColumns("param1SelectColumn", param1);
+                }
+
+                if (param2.indexOf("##") != -1) {
+                    requestColumns("param2SelectColumn", "RAWVAL");
+                    $("#param2RawValueTextBox").val(param1.substring(2));
+                } else {
+                    requestColumns("param2SelectColumn", param2);
+                }
+            } else if (operator === "ag" || operator === "av") {
+                requestColumns("param1SelectColumn", param1);
+                $("#valueRange").val(param2);
+            }
         }
+    } else {
+        requestColumns();
     }
 
     $("#sheet" + sheetIndex + "-header" + headerIndex + "-columnCreator").show();
 
+}
+
+function setColumnCreatorForType() {
+    if ($("#directColumnOption").is(":checked")) {
+        $("#directColumn").show();
+        $("#calculatedColumn").hide();
+    } else {
+        $("#directColumn").hide();
+        $("#calculatedColumn").show();
+    }
+}
+
+function changeOperatorTypeInColumnCreator() {
+    var val = $("#operatorSelect").val();
+
+    if (val === "h") {
+        $("#secondParamHistoric").show();
+        $("#secondParamNormal").hide();
+        $("#secondParamRange").hide();
+    } else if (val === "a" || val === "s" || val === "m" || val === "d" || val === "c") {
+        $("#secondParamNormal").show();
+        $("#secondParamHistoric").hide();
+        $("#secondParamRange").hide();
+    } else { //val === ag || av
+        $("#secondParamRange").show();
+        $("#secondParamHistoric").hide();
+        $("#secondParamNormal").hide();
+    }
+}
+
+function changeParamSelectBoxInColumnCreator(hasChanged) {
+    var value = hasChanged.val();
+    var whichParam = hasChanged.attr("id").substring(5, 6);
+    var inputToUpdate = $("#param" + whichParam + "RawValueTextBox");
+
+    if (value === "RAWVAL") {
+        inputToUpdate.removeAttr("disabled");
+        inputToUpdate.val("");
+    } else {
+        inputToUpdate.attr("disabled", true);
+        inputToUpdate.val("SELECT BLANK ABOVE");
+    }
 }
