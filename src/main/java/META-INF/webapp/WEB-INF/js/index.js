@@ -29,7 +29,9 @@ function addColumnsToSelects(columnsToAdd, dropDownToUpdate, valueToSelect) {
 
     if (!(typeof dropDownToUpdate === "undefined")) {
         $("#" + dropDownToUpdate).html(htmlValue);
-        $("#" + dropDownToUpdate).val(valueToSelect);
+            if (!(typeof dropDownToUpdate === "undefined")) {
+                $("#" + dropDownToUpdate).val(valueToSelect);
+            }
     } else {
         $(".columnSelectBox").html(htmlValue);
     }

@@ -1,3 +1,36 @@
+function validateSaveQuery(query) {
+
+    if (typeof query.name === "undefined" || query.name.trim() === "") {
+        alert("Enter a query name");
+        return false;
+    }
+
+    var broke = false;
+    $.each(query.sheets, function(sheetIndex, sheet){
+        if (typeof sheet.name === "undefined" || sheet.name.trim() === "") {
+            alert("A sheet is missing its name");
+            broke = true;
+            return false;
+        }
+
+        $.each(sheet.headers, function(headerIndex, header){
+            if (typeof header.name === "undefined" || header.name.trim() === "") {
+                alert("A header in " + sheet.name + " is missing its name");
+                broke = true;
+                return false;
+            }
+
+            if (header.columns.length <= 0) {
+                alert(header.name + " has no specified columns. Requires at least one");
+                broke = true
+                return false;
+            }
+        });
+    });
+
+    return !broke;
+}
+
 function validateSaveColumn() {
     if ($("#directColumnOption").is(":checked")) {
         return validateDirectColumnSave();

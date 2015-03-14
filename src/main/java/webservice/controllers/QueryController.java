@@ -65,4 +65,13 @@ public class QueryController {
             logger.info("Returned failure message to " + request.getRemoteAddr());
         }
     }
+
+    @RequestMapping(value = "/saveQuery", method = RequestMethod.POST)
+    public void saveQuery(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        logger.info(request.getRemoteAddr() + " is attempting to save a query");
+
+        if (qm == null) qm = QueryManager.getQueryManager();
+        String queryJSON = request.getParameter("query");
+        logger.info(queryJSON);
+    }
 }

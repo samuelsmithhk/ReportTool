@@ -51,6 +51,13 @@ function createSheetsUIForQuery(query) {
         + '-nameTextBox">Sheet Name: </label><input id="sheet' + sheetIndex + '-nameTextBox"/>&nbsp;'
         + '<button id="sheet' + sheetIndex + '-saveSheetNameButton" class="button">Save Sheet Name</button>'
         + '<br /><br /><div id="sheet' + sheetIndex + '-headers"></div><br />'
+        + '<label for="sheet' + sheetIndex + '-filterByColumnSelect">Filter Column:</label><select id="sheet'
+        + sheetIndex + '-filterByColumnSelect"></select>&nbsp;&nbsp;<label for="sheet' + sheetIndex
+        + '-filterByValueTextBox">Filter Value: </label><input id="sheet' + sheetIndex
+        + '-filterByValueTextBox"/><br /><br /><label for="sheet' + sheetIndex
+        + '-sortBySelect">Sort By: </label><select id="sheet' + sheetIndex + '-sortBySelect"></select><br /><br />'
+        + '<label for="sheet' + sheetIndex + '-groupBySelect">Group By: </label><select id="sheet'
+        + sheetIndex + '-groupBySelect"></select><br /><br />'
         + '<input type="checkbox" id="sheet' + sheetIndex + '-hideOutputCB">Hide this sheet in output?<br /><br />'
         + '<button id="sheet' + sheetIndex + '-removeSheetButton" class="button">Remove Sheet</button></div>';
     });
@@ -107,7 +114,28 @@ function createSheetsUIForQuery(query) {
         $("#sheet" + sheetIndex + "-hideOutputCB").change(function(){
             query.sheets[sheetIndex].hidden = $(this).is(":checked");
         });
+
+        requestColumns("sheet" + sheetIndex + "-filterByColumnSelect");
     });
+}
+
+function updateGroupByAndSortByColumns(query, sheetIndex) {
+    var currentSortBy = $("#sheet" + sheetIndex + "-sortBySelect").val();
+    var currentGroupBy = $("#sheet" + sheetIndex + "-groupBySelect").val();
+
+    var newHtml = '<option id="RAWVAL"></option>';
+
+    $.each(query.sheets[sheetIndex].headers, function(headerIndex, header){
+        $.each(header.columns, function(colIndex, column){
+            newHtml += '<option value="' + column.name + '">' + column.name + '</option>';
+        });
+    });
+
+    $("#sheet" + sheetIndex + "-sortBySelect").html(newHtml);
+    $("#sheet" + sheetIndex + "-groupBySelect").html(newHtml);
+
+    $("#sheet" + sheetIndex + "-sortBySelect").val(currentSortBy);
+    $("#sheet" + sheetIndex + "-groupBySelect").val(currentGroupBy);
 }
 
 function createHeadersUIForSheet(query, sheetIndex) {
@@ -316,6 +344,8 @@ function switchToColumnEditor(query, sheetIndex, headerIndex, columnIndex) {
                     $(".sheet" + sheetIndex + "-header" + headerIndex).show();
                     $("#sheet" + sheetIndex + "-header" + headerIndex + "-columnCreator").hide();
                 }
+
+                updateGroupByAndSortByColumns(query, sheetIndex);
             }
         }
     });
@@ -386,7 +416,7 @@ function switchToColumnEditor(query, sheetIndex, headerIndex, columnIndex) {
 
                 if (param2.indexOf("##") != -1) {
                     requestColumns("param2SelectColumn", "RAWVAL");
-                    $("#param2RawValueTextBox").val(param1.substring(2));
+                    $("#param2RawValueTextBox").val(param2.substring(2));
                 } else {
                     requestColumns("param2SelectColumn", param2);
                 }

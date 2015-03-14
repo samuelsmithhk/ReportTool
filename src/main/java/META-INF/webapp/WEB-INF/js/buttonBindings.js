@@ -27,4 +27,51 @@ $(document).ready(function(){
             hideAddQueryWindow();
         }
     });
+
+    $("#saveQueryButton").click(function(){
+        currentQuery.name = $("#queryNameTextBox").val();
+
+        $.each(currentQuery.sheets, function(sheetIndex, sheet){
+            var filterColumn = $("#sheet" + sheetIndex + "-filterColumnSelect").val();
+            var filterValue = $("#sheet" + sheetIndex + "-filterValueTextBox").val();
+            var sortBy = $("#sheet" + sheetIndex + "-sortBySelect").val();
+            var groupBy = $("#sheet" + sheetIndex + "-groupBySelect").val();
+
+            if (filterColumn === "RAWVAL") {
+                sheet.filterColumn = "";
+                sheet.filterValue = "";
+            } else {
+                sheet.filterColumn = filterColumn;
+                sheet.filterValue = filterValue;
+            }
+
+            if (sortBy === "RAWVAL") {
+                sheet.sortBy = "";
+            } else {
+                sheet.sortBy = sortBy;
+            }
+
+            if (groupBy === "RAWVAL") {
+                sheet.groupBy = "";
+            } else {
+                sheet.groupBy = groupBy;
+            }
+        });
+
+        if (validateSaveQuery(currentQuery)) {
+            var r = confirm("Are you sure you want to save this query?");
+            if (r) {
+                var toSave = convertQueryObject(currentQuery);
+                $.ajax({
+                    url : "saveQuery",
+                    method : "POST",
+                    data : {
+                        "query" : JSON.stringify(toSave)
+                    }
+                }).done(function(response){
+                    alert("saved");
+                });
+            }
+        }
+    });
 });

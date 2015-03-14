@@ -8,11 +8,15 @@ function initNewQuery(name, template, timestamp, sheets, templateFile) {
     return query;
 }
 
-function initNewSheet(name, hidden, headers) {
+function initNewSheet(name, hidden, headers, filterColumn, filterValue, sortBy, groupBy) {
     var sheet = {};
     sheet.name = name;
     sheet.hidden = hidden;
     sheet.headers = headers;
+    sheet.filterColumn = filterColumn;
+    sheet.filterValue = filterValue;
+    sheet.sortBy = sortBy;
+    sheet.groupBy = groupBy;
 
     return sheet;
 }
@@ -157,4 +161,91 @@ function createCacheColumn() {
         rule += secondParam + "~~";
         return initNewColumn(name, rule);
     }
+}
+
+function convertQueryObject(toBeConverted) {
+    var retQuery = {};
+    retQuery.queryName = toBeConverted.name;
+    retQuery.sheets = [];
+    retQuery.mappedColumns = [];
+    retQuery.calculatedColumns = [];
+
+    retQuery.outputTimestamp = toBeConverted.timestamp;
+    if (toBeConverted.template) {
+        retQuery.template = toBeConverted.templateFile;
+    }
+
+    $.each(toBeConverted.sheets, function(sheetIndex, sheet) {
+        var convertedSheet = {};
+        convertedSheet.sheetName = sheet.name;
+        convertedSheet.headers = [];
+        convertedSheet.headerGroups = [];
+
+        $.each(sheet.headers, function(headerIndex, header) {
+            convertedSheet.headers.push(header.name);
+            var convertedHeaderGroup = [];
+            $.each(header.columns, function(columnIndex, column){
+                if (column.rule.trim() === "") {
+                    convertedHeaderGroup.push(column.name)
+                } else if (column.rule.indexOf("~~") == -1) {
+                    var mappedColumn = {};
+                    mappedColumn.reference = "mc" + retQuery.mappedColumns.length;
+                    mappedColumn.original = column.rule;
+                    mappedColumn.header = column.name;
+
+                    retQuery.mappedColumns.push(mappedColumn);
+                    convertedHeaderGroup.push(mappedColumn.reference);
+                } else {
+                    var calculatedColumn = {};
+                    calculatedColumn.reference = "cc" + retQuery.calculatedColumns.length;
+                    calculatedColumn.header = column.name;
+                    calculatedColumn.condition = {};
+
+                    var rule = column.rule;
+                    rule = rule.replace("~~", "");
+
+                    var pos = rule.indexOf("~~");
+                    calculatedColumn.condition.firstHalf = rule.substring(0, pos).trim();
+                    rule = rule.substring(pos);
+
+                    var pos = rule.indexOf("~~");
+                    var operator = rule.substring(0, pos).trim();
+
+                    if (operator === "h") {
+                        calculatedColumn.condition.operator = "HISTORIC";
+                    } else if (operator === "a") {
+                        calculatedColumn.condition.operator = "ADD";
+                    } else if (operator === "s") {
+                        calculatedColumn.condition.operator = "SUBTRACT";
+                    } else if (operator === "m") {
+                        calculatedColumn.condition.operator = "MULTIPLY";
+                    } else if (operator === "d") {
+                        calculatedColumn.condition.operator = "DIVIDE";
+                    } else if (operator === "c") {
+                        calculatedColumn.condition.operator = "CONCAT";
+                    } else if (operator === "av") {
+                        calculatedColumn.condition.operator = "AVERAGE";
+                    } else if (operator === "ag") {
+                        calculatedColumn.condition.operator = "AGGREGATE";
+                    }
+                    rule = rule.substring(pos);
+
+                    var pos = rule.indexOf("~~");
+                    calculatedColumn.condition.secondHalf = rule.substring(0, pos).trim();
+
+                    retQuery.calculatedColumns.push(calculatedColumn);
+                }
+            });
+            convertedSheet.headerGroups.push(convertedHeaderGroup);
+        });
+
+        convertedSheet.filterColumn = sheet.filterColumn;
+        convertedSheet.filterValue = sheet.filterValue;
+        convertedSheet.groupBy = sheet.groupBy;
+        convertedSheet.sortBy = sheet.sortBy;
+
+        retQuery.sheets.push(convertedSheet);
+    });
+
+    return retQuery;
 }
