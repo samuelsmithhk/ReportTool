@@ -55,4 +55,8 @@ public class QueryManager {
         if (!(currentQueries.containsKey(queryName))) throw new Exception("Query " + queryName + " does not exist");
         return currentQueries.get(queryName);
     }
+
+    public synchronized void saveQuery(Query newQuery) {
+        qfm.saveQuery(newQuery);
+    }
 }

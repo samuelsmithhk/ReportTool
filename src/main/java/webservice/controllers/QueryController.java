@@ -72,6 +72,9 @@ public class QueryController {
 
         if (qm == null) qm = QueryManager.getQueryManager();
         String queryJSON = request.getParameter("query");
-        logger.info(queryJSON);
+        Query newQuery = gson.fromJson(queryJSON, Query.class);
+        qm.saveQuery(newQuery);
+        response.getWriter().write("saved");
+        logger.info("Query successfully saved, and " + request.getRemoteAddr() + " has been informed");
     }
 }

@@ -17,12 +17,17 @@ public class QueryFileManager {
 
     private final String queryDirectory;
 
+    private final Gson gson;
+
     private boolean hasUpdate;
 
     public QueryFileManager(String queryDirectory) {
         logger.info("Creating Query File Manager");
         this.queryDirectory = queryDirectory;
         hasUpdate = true;
+        GsonBuilder builder = new GsonBuilder();
+        builder.registerTypeAdapter(Query.class, new Query.QuerySerializer());
+        gson = builder.create();
     }
 
     public synchronized Map<String, Query> loadQueries() {
@@ -61,6 +66,19 @@ public class QueryFileManager {
 
         hasUpdate = false;
         return queries;
+    }
+
+    public synchronized void saveQuery(Query newQuery) {
+        String json = gson.toJson(newQuery);
+
+        PrintWriter out;
+        try {
+            out = new PrintWriter(queryDirectory + newQuery.name + ".query");
+            out.print(json);
+            out.close();
+        } catch (FileNotFoundException e) {
+            logger.error("Error saving cache file: " + e.getLocalizedMessage());
+        }
     }
 
     public boolean hasUpdate() {

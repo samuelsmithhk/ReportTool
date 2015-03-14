@@ -210,6 +210,7 @@ function convertQueryObject(toBeConverted) {
 
                     var pos = rule.indexOf("~~");
                     var operator = rule.substring(0, pos).trim();
+                    alert(operator);
 
                     if (operator === "h") {
                         calculatedColumn.condition.operator = "HISTORIC";
