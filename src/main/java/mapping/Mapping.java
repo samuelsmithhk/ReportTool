@@ -26,8 +26,7 @@ public class Mapping {
     public Map.Entry<String, String> getMapping(String header, String value) {
         String retHeader = header, retValue = value;
 
-        if (headerMap.containsKey(header)) {
-            retHeader = headerMap.get(header);
+        if (headerMap.containsValue(retHeader)) {
 
             if (valueMap.containsKey(retHeader)) {
                 List<Map.Entry<String, String>> values = valueMap.get(retHeader);
