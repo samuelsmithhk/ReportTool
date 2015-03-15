@@ -208,6 +208,8 @@ function convertQueryObject(toBeConverted) {
                     calculatedColumn.condition.firstHalf = rule.substring(0, pos).trim();
                     rule = rule.substring(pos);
 
+                    rule = rule.replace("~~", "");
+
                     var pos = rule.indexOf("~~");
                     var operator = rule.substring(0, pos).trim();
                     alert(operator);

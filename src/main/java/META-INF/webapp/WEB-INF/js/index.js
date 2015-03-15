@@ -1,14 +1,17 @@
 $(document).ready(function(){
 
     $("#tabbedPanel").tabs();
+    requestQueries();
+});
 
+function requestQueries() {
     $.ajax({
         type : "GET",
         url : "getAllQueries",
     }).done(function(response){
         createQueryList(response);
     });
-});
+}
 
 function requestColumns(dropDownToUpdate, valueToSelect) {
     $.ajax({
@@ -58,7 +61,7 @@ function hideAddQueryWindow() {
 function createQueryList(queryListString) {
     var queryList = JSON.parse(queryListString);
 
-    var htmlValue = ""
+    var htmlValue = '<div id="queriesAccordion">';
 
     $.each(queryList, function(index, query){
         //alert(JSON.stringify(query))
@@ -182,7 +185,8 @@ function createQueryList(queryListString) {
         htmlValue += partialHtml;
     });
 
-    $("#queriesAccordion").html(htmlValue);
+    htmlValue += "</div>"
+    $("#queryList").html(htmlValue);
     $("#queriesAccordion").accordion({
         heightStyle: "content"
     });

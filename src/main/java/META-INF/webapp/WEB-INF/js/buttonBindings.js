@@ -37,7 +37,7 @@ $(document).ready(function(){
             var sortBy = $("#sheet" + sheetIndex + "-sortBySelect").val();
             var groupBy = $("#sheet" + sheetIndex + "-groupBySelect").val();
 
-            if (filterColumn === "RAWVAL") {
+            if (filterColumn === "RAWVAL" || typeof filterColumn === "undefined") {
                 sheet.filterColumn = "";
                 sheet.filterValue = "";
             } else {
@@ -45,13 +45,13 @@ $(document).ready(function(){
                 sheet.filterValue = filterValue;
             }
 
-            if (sortBy === "RAWVAL") {
+            if (sortBy === "RAWVAL" || typeof sortBy === "undefined") {
                 sheet.sortBy = "";
             } else {
                 sheet.sortBy = sortBy;
             }
 
-            if (groupBy === "RAWVAL") {
+            if (groupBy === "RAWVAL" || typeof groupBy === "undefined") {
                 sheet.groupBy = "";
             } else {
                 sheet.groupBy = groupBy;
@@ -69,8 +69,10 @@ $(document).ready(function(){
                         "query" : JSON.stringify(toSave)
                     }
                 }).done(function(response){
-                    alert("saved");
+                    requestQueries();
                 });
+
+                hideAddQueryWindow();
             }
         }
     });

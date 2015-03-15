@@ -76,6 +76,7 @@ public class QueryFileManager {
             out = new PrintWriter(queryDirectory + newQuery.name + ".query");
             out.print(json);
             out.close();
+            hasUpdate = true;
         } catch (FileNotFoundException e) {
             logger.error("Error saving cache file: " + e.getLocalizedMessage());
         }
