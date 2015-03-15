@@ -2,6 +2,7 @@ package managers;
 
 import export.SheetGenerator;
 import files.ExportFileManager;
+import query.Query;
 import query.QueryResult;
 
 public class ExportManager {
@@ -24,7 +25,15 @@ public class ExportManager {
         this.efm = efm;
     }
 
-    public void exportQuery(QueryResult qr) throws Exception {
+    public synchronized void exportQuery(QueryResult qr) throws Exception {
         efm.writeExport(qr.queryName, SheetGenerator.generateSheet(qr), qr.hasTemplate, qr.outputTimestamp);
+    }
+
+    public synchronized String getLatestExportNameForQuery(Query query) {
+        return efm.getLatestExportForQuery(query).getName();
+    }
+
+    public synchronized String getLatestExportPathForQuery(Query query) {
+        return efm.getLatestExportForQuery(query).getAbsolutePath();
     }
 }
