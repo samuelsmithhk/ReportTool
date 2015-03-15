@@ -46,6 +46,8 @@ public class JobInstance implements Comparable<JobInstance> {
         for (Query q : jobToExecute.queries) {
             qm.executeQuery(q);
 
+            //TODO: Script call will go here to run excel macro
+
             EmailAttachment at = new EmailAttachment();
             at.setPath(em.getLatestExportPathForQuery(q));
             at.setDisposition(EmailAttachment.ATTACHMENT);
@@ -66,6 +68,7 @@ public class JobInstance implements Comparable<JobInstance> {
         for (String address : jobToExecute.emailTo) email.addTo(address);
 
         email.send();
+        logger.info("Emails sent, job complete");
     }
 
     @Override
