@@ -1,11 +1,22 @@
+function createEditorWindow(query) {
+    displayAddQueryWindow();
+    $("#queryNameTextBox").val(query.name);
+    createSheetsUIForQuery(query);
+    initQueryCheckboxes(query);
+}
+
 function initQueryCheckboxes(query) {
-    $("#outputTimestampCB").prop("selected", query.timestamp);
+    $("#outputTimestampCB").prop("checked", query.timestamp);
 
     $("#outTimestampCB").change(function(){
         query.timestamp = $(this).is(":checked");
     });
 
-    $("#useTemplateCB").prop("selected", query.template);
+    $("#useTemplateCB").prop("checked", query.template);
+
+    if (query.template) {
+        loadTemplates(query);
+    }
 
     $("#useTemplateCB").change(function(){
         query.template = $(this).is(":checked");
@@ -15,21 +26,30 @@ function initQueryCheckboxes(query) {
             $("#templateSelect").html(temp);
             $("#templateSelect").prop("disabled", true);
 
-            $.ajax({
-                type : "GET",
-                url : "/getAllTemplates"
-            }).done(function(response){
-                var templates = JSON.parse(response);
-                var newHtml = "";
-                $.each(templates, function(templateIndex, template) {
-                    newHtml += '<option val="' + template + '">' + template + '</option>';
-                });
-
-                $("#templateSelect").html(newHtml);
-                $("#templateSelect").prop("disabled", false);
-            });
+            loadTemplates(query);
         } else {
             $("#templateSelect").prop("disabled", true);
+        }
+    });
+}
+
+function loadTemplates(query) {
+    $.ajax({
+        type : "GET",
+        url : "/getAllTemplates"
+    }).done(function(response){
+        var templates = JSON.parse(response);
+        var newHtml = "";
+        $.each(templates, function(templateIndex, template) {
+            newHtml += '<option val="' + template + '">' + template + '</option>';
+        });
+
+        $("#templateSelect").html(newHtml);
+        $("#templateSelect").prop("disabled", false);
+
+        if (!(typeof query.templateFile === "undefined" || query.templateFile.trim() === ""
+                || query.templateFile.trim() === "null")) {
+            $("#templateSelect").val(query.template);
         }
     });
 }
@@ -109,13 +129,18 @@ function createSheetsUIForQuery(query) {
             }
         });
 
-        $("#sheet" + sheetIndex + "-hideOutputCB").prop("checked", query.sheets[sheetIndex].hidden)
+        $("#sheet" + sheetIndex + "-hideOutputCB").prop("checked", sheet.hidden);
 
         $("#sheet" + sheetIndex + "-hideOutputCB").change(function(){
             query.sheets[sheetIndex].hidden = $(this).is(":checked");
         });
 
-        requestColumns("sheet" + sheetIndex + "-filterByColumnSelect");
+        requestColumns("sheet" + sheetIndex + "-filterByColumnSelect", sheet.filterColumn);
+        updateGroupByAndSortByColumns(query, sheetIndex);
+
+        $("#sheet" + sheetIndex + "-filterByValueTextBox").val(sheet.filterValue);
+        $("#sheet" + sheetIndex + "-sortBySelect").val(sheet.sortBy);
+        $("#sheet" + sheetIndex + "-groupBySelect").val(sheet.groupBy);
     });
 }
 
@@ -166,8 +191,6 @@ function createHeadersUIForSheet(query, sheetIndex) {
         query.sheets[sheetIndex].headers.push(header);
         createHeadersUIForSheet(query, sheetIndex);
     });
-
-
 }
 
 function updateColumnsTable(query, sheetIndex, headerIndex) {

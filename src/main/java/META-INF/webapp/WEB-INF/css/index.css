@@ -40,7 +40,6 @@ table tr td {
         border-radius: 5px;
         background:#eee;
         width:750px;
-        height: 90%;
         position:absolute;
         z-index:5000;
         display:none;

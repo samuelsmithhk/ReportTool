@@ -71,7 +71,8 @@ function createQueryList(queryListString) {
 
         partialHtml += "<h3>" + name + "</h3><div>";
 
-        partialHtml += "<button id=\"exe-" + name + "\" class=\"executeButton\">Execute Query</button><br />"
+        partialHtml += '<button id="exe-' + name + '" class="executeButton">Execute Query</button>&nbsp;&nbsp;'
+        + '<button id="edit-'+ name + '" class="editQueryButton">Edit Query</button><br />';
 
 
         if (query.template != null)
@@ -190,15 +191,41 @@ function createQueryList(queryListString) {
     $("#queriesAccordion").accordion({
         heightStyle: "content"
     });
-    $(".executeButton").button();
 
-    $(".executeButton").click(function(){
+    $(".editQueryButton").button().click(function(){
+        var queryName = $(this).attr("id");
+        queryName = queryName.substring(5);
+
+        var r = confirm("Do you want to edit " + queryName);
+        if (r) {
+            $.ajax({
+                type : "GET",
+                url : "getQuery",
+                data : {
+                    "queryName" : queryName
+                }
+            }).done(function(data){
+                var unprocessedQuery = JSON.parse(data);
+
+                if (unprocessedQuery.result == false) {
+                    alert("Unable to retrieve query for editing");
+                    return;
+                }
+
+                var query = convertQueryObjectToUI(unprocessedQuery);
+                createEditorWindow(query);
+            });
+        }
+    });
+
+    $(".executeButton").button().click(function(){
         var queryName = $(this).attr("id");
         queryName = queryName.substring(4);
 
         var r = confirm("Do you want to execute " + queryName);
-        if (r == true) {
+        if (r) {
             $(".executeButton").attr("disabled", true);
+            $(".editQueryButton").attr("disabled", true);
             $.ajax({
                 type : "POST",
                 url : "executeQuery",

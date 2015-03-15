@@ -178,6 +178,7 @@ function convertQueryObject(toBeConverted) {
     $.each(toBeConverted.sheets, function(sheetIndex, sheet) {
         var convertedSheet = {};
         convertedSheet.sheetName = sheet.name;
+        convertedSheet.hidden = sheet.hidden;
         convertedSheet.headers = [];
         convertedSheet.headerGroups = [];
 
@@ -194,7 +195,7 @@ function convertQueryObject(toBeConverted) {
                     mappedColumn.header = column.name;
 
                     retQuery.mappedColumns.push(mappedColumn);
-                    convertedHeaderGroup.push(mappedColumn.reference);
+                    convertedHeaderGroup.push("$" + mappedColumn.reference);
                 } else {
                     var calculatedColumn = {};
                     calculatedColumn.reference = "cc" + retQuery.calculatedColumns.length;
@@ -237,6 +238,7 @@ function convertQueryObject(toBeConverted) {
                     calculatedColumn.condition.secondHalf = rule.substring(0, pos).trim();
 
                     retQuery.calculatedColumns.push(calculatedColumn);
+                    convertedHeaderGroup.push("=" + calculatedColumn);
                 }
             });
             convertedSheet.headerGroups.push(convertedHeaderGroup);
@@ -251,4 +253,128 @@ function convertQueryObject(toBeConverted) {
     });
 
     return retQuery;
+}
+
+function convertQueryObjectToUI(toBeConverted) {
+    var retQuery = {};
+
+    retQuery.name = toBeConverted.queryName;
+
+    if (toBeConverted.outputTimestamp === "false") {
+        retQuery.timestamp = false;
+    } else if (toBeConverted.outputTimestamp === "true") {
+        retQuery.timestamp = true;
+    } else {
+        retQuery.timestamp = toBeConverted.outputTimestamp;
+    }
+
+    retQuery.sheets = [];
+
+    retQuery.templateFile = toBeConverted.template;
+    if (typeof retQuery.templateFile === "undefined" || retQuery.templateFile.trim() === ""
+            || retQuery.templateFile.trim() === "null") {
+        retQuery.template = false;
+    } else {
+        retQuery.template = true;
+    }
+
+    $.each(toBeConverted.sheets, function(sheetIndex, sheet) {
+        var convertedSheet = {};
+        convertedSheet.name = sheet.sheetName;
+        convertedSheet.filterColumn = sheet.filterColumn;
+        convertedSheet.filterValue = sheet.filterValue;
+        convertedSheet.groupBy = sheet.groupBy;
+        convertedSheet.sortBy = sheet.sortBy;
+        convertedSheet.headers = [];
+
+        if (sheet.hidden === "true") {
+            convertedSheet.hidden = true;
+        } else if (sheet.hidden === "false") {
+            convertedSheet.hidden = false;
+        } else {
+            convertedSheet.hidden = sheet.hidden;
+        }
+
+        $.each(sheet.headers, function(headerIndex, header){
+            var convertedHeader = {};
+            convertedHeader.name = header;
+            convertedHeader.columns = [];
+
+            $.each(sheet.headerGroups[headerIndex], function(columnIndex, column) {
+                var convertedColumn = processColumn(toBeConverted, column);
+                convertedHeader.columns.push(convertedColumn);
+            });
+
+            convertedSheet.headers.push(convertedHeader);
+        });
+
+        retQuery.sheets.push(convertedSheet);
+    });
+
+    return retQuery;
+}
+
+function processColumn(query, column) {
+    if (column.indexOf("=") == 0) {
+        return processCalculatedColumn(query, column);
+    } else if (column.indexOf("$") == 0) {
+        return processMappedColumn(query, column);
+    } else {
+        var retColumn = {};
+        retColumn.name = column;
+        retColumn.rule = "";
+        return retColumn;
+    }
+}
+
+function processCalculatedColumn(query, column) {
+    var retColumn = {};
+
+    $.each(query.calculatedColumns, function(ccI, cc){
+        if (cc.reference === column.substring(1)) {
+            retColumn.name = cc.header;
+            retColumn.rule = processRule(cc.condition);
+            return retColumn;
+        }
+    });
+
+    return retColumn;
+}
+
+function processRule(condition) {
+    var rule = "~~" + condition.firstHalf + "~~ ";
+
+    if (condition.operator === "HISTORIC") {
+        rule += "h ~~" + condition.secondHalf + "~~";
+    } else if (condition.operator === "ADD") {
+        rule += "a ~~" + condition.secondHalf + "~~";
+    } else if (condition.operator === "SUBTRACT") {
+        rule += "s ~~" + condition.secondHalf + "~~";
+    } else if (condition.operator === "MULTIPLY") {
+        rule += "m ~~" + condition.secondHalf + "~~";
+    } else if (condition.operator === "DIVIDE") {
+        rule += "d ~~" + condition.secondHalf + "~~";
+    } else if (condition.operator === "CONCAT") {
+        rule += "c ~~" + condition.secondHalf + "~~";
+    } else if (condition.operator === "AVERAGE") {
+        rule += "av ~~" + condition.secondHalf + "~~";
+    } else if (condition.operator === "AGGREGATE") {
+        rule += "ag ~~" + condition.secondHalf + "~~";
+    }
+
+    return rule;
+}
+
+function processMappedColumn(query, column) {
+    var retColumn = {};
+
+    $.each(query.mappedColumns, function(mcI, mc) {
+        if (mc.reference === column.substring(1)) {
+            retColumn.name = mc.header;
+            retColumn.rule = mc.original;
+            return retColumn;
+        }
+    });
+
+    return retColumn;
 }

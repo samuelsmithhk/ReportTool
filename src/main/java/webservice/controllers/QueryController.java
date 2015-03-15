@@ -48,6 +48,25 @@ public class QueryController {
         }
     }
 
+    @RequestMapping(value = "/getQuery", method = RequestMethod.GET)
+    public void getQuery(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        String queryName = request.getParameter("queryName");
+        logger.info(request.getRemoteAddr() + " is requesting query " + queryName);
+
+        if (qm == null) qm = QueryManager.getQueryManager();
+
+        try {
+            Query toReturn = qm.getQueryByName(queryName);
+            String returnJSON = gson.toJson(toReturn);
+            response.getWriter().write(returnJSON);
+            logger.info("Sent query " + toReturn + " to user " + request.getRemoteAddr());
+        } catch (Exception e) {
+            logger.error("ERROR when trying to get query: " + e.getMessage());
+            response.getWriter().write("{\"result\":false");
+            logger.info("Returned failure message to " + request.getRemoteAddr());
+        }
+    }
+
     @RequestMapping(value = "/executeQuery", method = RequestMethod.POST)
     public void executeQuery(HttpServletRequest request, HttpServletResponse response) throws Exception {
         String queryName = request.getParameter("queryName");
