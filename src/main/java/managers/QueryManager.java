@@ -47,7 +47,10 @@ public class QueryManager {
         InputManager im = InputManager.getInputManager();
         im.loadNewInputsIfAny();
         QueryResult qr = QueryExecutor.executeQuery(q);
-        ExportManager.getExportManager().exportQuery(qr);
+        ExportManager em = ExportManager.getExportManager();
+        em.exportQuery(qr);
+
+        if (q.hasTemplate) em.runMacroOnQuery(q);
     }
 
     public Query getQueryByName(String queryName) throws Exception {

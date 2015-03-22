@@ -5,6 +5,8 @@ import files.ExportFileManager;
 import query.Query;
 import query.QueryResult;
 
+import java.io.IOException;
+
 public class ExportManager {
 
     private static ExportManager em;
@@ -35,5 +37,9 @@ public class ExportManager {
 
     public synchronized String getLatestExportPathForQuery(Query query) {
         return efm.getLatestExportForQuery(query).getAbsolutePath();
+    }
+
+    public synchronized void runMacroOnQuery(Query query) throws IOException {
+        Runtime.getRuntime().exec( "wscript runmacro.vbs " + query.name);
     }
 }
