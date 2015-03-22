@@ -19,6 +19,12 @@ public class Schedule implements Runnable {
     @Override
     public void run() {
         while(!Thread.currentThread().isInterrupted()) {
+
+            if (jobs.peek() == null) {
+                logger.info("No jobs left in schedule, terminating loop");
+                break;
+            }
+
             try {
                 DateTime timeNow = new DateTime();
 
