@@ -16,9 +16,9 @@ import java.util.List;
 public class HttpServer {
 
     private static final String logPath = "logs/web-logs/yyyy_mm_dd.log";
-    private static final String webXML = "META-INF/webapp/WEB-INF/web.xml";
+    private static final String webXML = "webapp/WEB-INF/web.xml";
     private static final String onlyInIDE = "webservice.ide";
-    private static final String projectPathRelativeWebApp = "src/main/java/META-INF/webapp";
+    private static final String projectPathRelativeWebApp = "webapp";
 
     private final Server server;
     private final int port;
@@ -47,8 +47,12 @@ public class HttpServer {
         WebAppContext ctx = new WebAppContext();
         ctx.setContextPath("/");
 
-        if(isRunningInShadedJar()) ctx.setWar(getShadedWarUrl());
-        else ctx.setWar(projectPathRelativeWebApp);
+        //if(isRunningInShadedJar()) ctx.setWar(getShadedWarUrl());
+        //else ctx.setWar(projectPathRelativeWebApp);
+
+        String war = Thread.currentThread().getContextClassLoader().getResource(webXML).toString();
+        war = war.substring(0, war.length() - 15);
+        ctx.setWar(war);
 
         List<Handler> handlers = Lists.newArrayList();
 

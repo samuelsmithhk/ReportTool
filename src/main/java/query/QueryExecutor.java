@@ -5,6 +5,7 @@ import com.google.common.collect.Maps;
 import deal.Deal;
 import deal.DealProperty;
 import managers.CacheManager;
+import org.joda.time.LocalDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,16 +17,19 @@ public class QueryExecutor {
 
     private static transient Logger logger = LoggerFactory.getLogger(QueryExecutor.class);
 
-    public static QueryResult executeQuery(Query query) {
+    public static QueryResult executeQuery(Query query) throws Exception {
         QueryExecutor qe = new QueryExecutor();
 
         QueryResult.QueryResultBuilder qrb = new QueryResult.QueryResultBuilder(query);
+        CacheManager cm = CacheManager.getCacheManager();
+        LocalDate snapshotDate = cm.getSnapshotDate();
 
         for (Query.QuerySheet sheet : query.sheets) {
             Map<String, Deal> filteredDeals;
             try {
-                filteredDeals = qe.filterDeals(sheet.filterColumn, sheet.filterValue);
-                List<QueryResultDeal> selectedColumns = qe.selectColumns(query, sheet.headers, filteredDeals);
+                filteredDeals = qe.filterDeals(sheet.filterColumn, sheet.filterValue, snapshotDate);
+                List<QueryResultDeal> selectedColumns = qe.selectColumns(query, sheet.headers, filteredDeals,
+                        snapshotDate);
                 List<Group> groupedValues;
                 try {
                     groupedValues = qe.groupValues(query, sheet.groupBy, selectedColumns, sheet.sortBy);
@@ -51,7 +55,8 @@ public class QueryExecutor {
 
     private QueryExecutor() {}
 
-    public Map<String, Deal> filterDeals(String filterColumn, String filterValue) throws Exception {
+    public Map<String, Deal> filterDeals(String filterColumn, String filterValue, LocalDate snapshotDate)
+            throws Exception {
         logger.info("Filtering deals");
 
         CacheManager cm = CacheManager.getCacheManager();
@@ -68,8 +73,8 @@ public class QueryExecutor {
 
             if (deal.dealProperties.containsKey(filterColumn)) {
                 DealProperty dp = deal.dealProperties.get(filterColumn);
-                DealProperty.Value latestValue = dp.getLatestValue();
-                if (QueryUtils.parseValue(latestValue).equals(filterValue))
+                DealProperty.Value latestValue = dp.getSnapshotValue(snapshotDate);
+                if ((latestValue != null) && (QueryUtils.parseValue(latestValue).equals(filterValue)))
                     retMap.put(entry.getKey(), entry.getValue());
             }
         }
@@ -78,13 +83,15 @@ public class QueryExecutor {
     }
 
     public List<QueryResultDeal> selectColumns(Query query, List<Query.QuerySheet.Header> headers,
-                                               Map<String, Deal> filteredDeals) throws Exception {
+                                               Map<String, Deal> filteredDeals,
+                                               LocalDate snapshotDate) throws Exception {
+
         logger.info("Selecting columns");
         List<QueryResultDeal> retList = Lists.newArrayList();
 
         for (Map.Entry<String, Deal> toBeConverted : filteredDeals.entrySet()) {
             retList.add(new QueryResultDeal(query, toBeConverted.getKey(),
-                    toBeConverted.getValue().dealProperties, headers));
+                    toBeConverted.getValue().dealProperties, headers, snapshotDate));
         }
 
 

@@ -20,7 +20,6 @@ public class ReportToolRunner {
     public static void main(String[] args) {
         try {
             ReportToolRunner rtr = new ReportToolRunner();
-            rtr.run();
         } catch (Exception e) {
             e.printStackTrace();
             System.exit(1);
@@ -28,7 +27,20 @@ public class ReportToolRunner {
     }
 
     private ReportToolRunner() throws Exception {
-        logger.info("Initializing ReportToolRunner");
+        logger.info("Initializing mains.ReportToolRunner");
+
+        HttpServer server = new HttpServer(8088);
+        server.start();
+
+        init();
+
+        ScheduleManager sm = ScheduleManager.getScheduleManager();
+        sm.startSchedule();
+    }
+
+    private void init() throws Exception {
+        logger.info("Running mains.ReportToolRunner");
+
         Map<String, String> properties = loadProperties();
 
         CacheFileManager cfm = new CacheFileManager(properties.get("cacheDirectory"),
@@ -47,17 +59,6 @@ public class ReportToolRunner {
                 (new ScheduleFileManager(properties.get("scheduleDirectory")));
         ExportManager.initExportManager
                 (new ExportFileManager(properties.get("exportDirectory")));
-
-    }
-
-    private void run() throws Exception {
-        logger.info("Running ReportToolRunner");
-
-        ScheduleManager sm = ScheduleManager.getScheduleManager();
-        sm.startSchedule();
-
-        HttpServer server = new HttpServer(8088);
-        server.start();
     }
 
     private Map<String, String> loadProperties() {

@@ -17,7 +17,6 @@ public class Deal {
     }
 
     public void updateDeal(DateTime timestamp, Deal deal) {
-        logger.info("Updating deal " + this);
 
         Map<String, DealProperty> updated = deal.dealProperties;
 

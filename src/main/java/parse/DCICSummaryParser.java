@@ -58,7 +58,6 @@ public class DCICSummaryParser extends AbstractParser {
         Row currentRow;
 
         while (rCount < 999) {
-            logger.info("Parsing row " + rCount);
 
             currentRow = sheet.getRow(rCount);
 
@@ -118,7 +117,6 @@ public class DCICSummaryParser extends AbstractParser {
             rCount++;
         }
 
-        logger.info("Parsed from sheet: " + parsedDeals);
 
         return parsedDeals;
     }

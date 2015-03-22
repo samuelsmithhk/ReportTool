@@ -212,8 +212,8 @@ function createQueryList(queryListString) {
                     return;
                 }
 
-                var query = convertQueryObjectToUI(unprocessedQuery);
-                createEditorWindow(query);
+                 currentQuery = convertQueryObjectToUI(unprocessedQuery);
+                createEditorWindow();
             });
         }
     });

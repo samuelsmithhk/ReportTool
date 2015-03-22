@@ -33,6 +33,11 @@ public class Schedule implements Runnable {
                 Thread.currentThread().interrupt();
             } catch (Exception e) {
                 logger.error("Error executing query: " + e.getMessage(), e);
+                try {
+                    Thread.sleep(60000);
+                } catch (InterruptedException e1) {
+                    Thread.currentThread().interrupt();
+                }
             }
         }
     }

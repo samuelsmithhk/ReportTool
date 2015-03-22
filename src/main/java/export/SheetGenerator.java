@@ -3,7 +3,6 @@ package export;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import files.TemplateFileManager;
 import managers.TemplateManager;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.usermodel.Font;
@@ -95,6 +94,7 @@ public class SheetGenerator {
 
             for (QueryResultDeal d : g.groupValues) {
                 Row currentRow = sheet.createRow(r);
+                if (GeneratorUtils.checkIfBlankDeal(d)) continue;
                 List<String> values = GeneratorUtils.getValuesInHeaderOrder(headers, d);
 
                 n = 0;
@@ -123,6 +123,13 @@ public class SheetGenerator {
     }
 
     public static class GeneratorUtils {
+
+        public static boolean checkIfBlankDeal(QueryResultDeal d) {
+            for (String s : d.dealProperties.values())
+                if (s != null && !s.trim().equals(""))
+                    return false;
+            return true;
+        }
 
         static Set<Query.QuerySheet.Header> getHeadersFromQueryResultSheet(QueryResult.QueryResultSheet deals) {
             List<Group> values = deals.valuesGrouped;
@@ -213,7 +220,6 @@ public class SheetGenerator {
             style.setTopBorderColor(IndexedColors.BLACK.getIndex());
             return style;
         }
-
     }
 
 }

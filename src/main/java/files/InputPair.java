@@ -14,8 +14,6 @@ public class InputPair {
     private final String filename;
 
     public InputPair(String filename, DateTime timestamp, Map<String, Deal> dealMap) {
-        Logger logger = LoggerFactory.getLogger(InputPair.class);
-        logger.info("Creating input pair for " + timestamp + " and " + dealMap);
         this.timestamp = timestamp;
         this.dealMap = dealMap;
         this.filename = filename;

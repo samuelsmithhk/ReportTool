@@ -1,8 +1,8 @@
-function createEditorWindow(query) {
+function createEditorWindow() {
     displayAddQueryWindow();
-    $("#queryNameTextBox").val(query.name);
-    createSheetsUIForQuery(query);
-    initQueryCheckboxes(query);
+    $("#queryNameTextBox").val(currentQuery.name);
+    createSheetsUIForQuery(currentQuery);
+    initQueryCheckboxes(currentQuery);
 }
 
 function initQueryCheckboxes(query) {
@@ -27,9 +27,14 @@ function initQueryCheckboxes(query) {
             $("#templateSelect").prop("disabled", true);
 
             loadTemplates(query);
+            query.templateFile = $("#templateSelect").val();
         } else {
             $("#templateSelect").prop("disabled", true);
         }
+    });
+
+    $("#templateSelect").on("change", function(){
+        query.templateFile = $(this).val();
     });
 }
 

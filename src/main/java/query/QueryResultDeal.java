@@ -3,6 +3,7 @@ package query;
 import cache.Cache;
 import com.google.common.collect.Maps;
 import deal.DealProperty;
+import org.joda.time.LocalDate;
 
 import java.util.List;
 import java.util.Map;
@@ -16,22 +17,23 @@ public class QueryResultDeal {
     private final Query query;
 
     public QueryResultDeal(Query query, String dealName, Map<String, DealProperty> dpToConvert,
-                           List<Query.QuerySheet.Header> selectedColumns) throws Exception {
+                           List<Query.QuerySheet.Header> selectedColumns, LocalDate snapshotDate) throws Exception {
         this.dealName = dealName;
         this.query = query;
-
-        this.dealProperties = convertDealProperties(dpToConvert, selectedColumns);
+        this.dealProperties = convertDealProperties(dpToConvert, selectedColumns, snapshotDate);
     }
 
     public Map<Header, String> convertDealProperties(Map<String, DealProperty> toConvert,
-                                                     List<Query.QuerySheet.Header> cols) throws Exception {
+                                                     List<Query.QuerySheet.Header> cols,
+                                                     LocalDate snapshotDate) throws Exception {
 
         Map<Header, String> retMap = Maps.newLinkedHashMap();
 
         for (Query.QuerySheet.Header col : cols) {
             for (String sub : col.subs) {
                 if (toConvert.containsKey(sub))
-                    retMap.put(new Header(col.header, sub), QueryUtils.parseValue(toConvert.get(sub).getLatestValue()));
+                    retMap.put(new Header(col.header, sub), QueryUtils.parseValue(toConvert.get(sub)
+                            .getSnapshotValue(snapshotDate)));
                 else if ((sub.startsWith("=")) || (sub.startsWith("$"))) {
                     try {
                         SpecialColumn sc = query.getSpecialColumn(sub);

@@ -95,7 +95,6 @@ public class EverestParser extends AbstractParser {
             rCount++;
         }
 
-        logger.info("Parsed from workbook: " + parsedDeals);
         return parsedDeals;
     }
 

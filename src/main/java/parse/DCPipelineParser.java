@@ -77,7 +77,6 @@ public class DCPipelineParser extends AbstractParser {
             rCount++;
         }
 
-        logger.info("Parsed from workbook: " + parsedDeals);
         return parsedDeals;
     }
 }

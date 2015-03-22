@@ -4,6 +4,8 @@ import cache.Cache;
 import deal.Deal;
 import files.CacheFileManager;
 import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
+import org.joda.time.format.DateTimeFormat;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,5 +53,12 @@ public class CacheManager {
 
     public Deal getDeal(String dealName) throws Cache.CacheException {
         return cache.getDeal(dealName);
+    }
+
+    public LocalDate getSnapshotDate() {
+        String cacheName = cfm.getLatestCache();
+        cacheName = cacheName.substring(cacheName.length() - 20, cacheName.length() - 12);
+        return LocalDate.parse(cacheName,
+                DateTimeFormat.forPattern("yyyyMMdd"));
     }
 }

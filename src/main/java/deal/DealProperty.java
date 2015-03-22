@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,7 +58,27 @@ public class DealProperty {
         logger.info("Getting value at timestamp: " + timestamp);
 
         if (values.containsKey(timestamp)) return values.get(timestamp);
+
         throw new IllegalArgumentException("No value for given timestamp");
+    }
+
+    public Value getSnapshotValue(LocalDate snapshot) {
+        int snapshotYear = snapshot.getYear();
+        int snapshotMonth = snapshot.getMonthOfYear();
+        int snapshotDay = snapshot.getDayOfMonth();
+
+        for (DateTime key : values.keySet()) {
+            int keyYear = key.getYear();
+            int keyMonth = key.getMonthOfYear();
+            int keyDay = key.getDayOfMonth();
+
+            if (snapshotYear == keyYear)
+                if (snapshotMonth == keyMonth)
+                    if (snapshotDay == keyDay)
+                        return values.get(key);
+        }
+
+        return null;
     }
 
     public Value getValueMinusXDays(int days) {
