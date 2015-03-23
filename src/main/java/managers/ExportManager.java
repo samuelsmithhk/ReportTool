@@ -2,12 +2,16 @@ package managers;
 
 import export.SheetGenerator;
 import files.ExportFileManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import query.Query;
 import query.QueryResult;
 
 import java.io.IOException;
 
 public class ExportManager {
+
+    private final Logger logger = LoggerFactory.getLogger(ExportManager.class);
 
     private static ExportManager em;
 
@@ -40,6 +44,8 @@ public class ExportManager {
     }
 
     public synchronized void runMacroOnQuery(Query query) throws IOException {
-        Runtime.getRuntime().exec( "wscript runmacro.vbs " + query.name);
+        String os = System.getProperty("os.name");
+        if (os.contains("Windows")) Runtime.getRuntime().exec( "wscript runmacro.vbs " + query.name);
+        else logger.warn("Warning, cannot run vbscript for macro as not on Windows operating system");
     }
 }
