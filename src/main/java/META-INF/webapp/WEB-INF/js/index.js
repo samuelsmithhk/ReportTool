@@ -71,8 +71,13 @@ function createQueryList(queryListString) {
 
         partialHtml += "<h3>" + name + "</h3><div>";
 
-        partialHtml += '<button id="exe-' + name + '" class="executeButton">Execute Query</button>&nbsp;&nbsp;'
-        + '<button id="edit-'+ name + '" class="editQueryButton">Edit Query</button><br />';
+        //partialHtml += '<button id="exe-' + name + '" class="executeButton">Execute Query</button>&nbsp;&nbsp;'
+        //+ '<button id="edit-'+ name + '" class="editQueryButton">Edit Query</button><br />';
+
+        partialHtml += '<button id="edit-' + name + '" class="editQueryButton">Edit Query</button>&nbsp;&nbsp;'
+        + 'Enter <b>email address</b> to send executed query to: <input id="email-' + name
+        + '"/>&nbsp;<em>(leave box blank to not email query result)</em>&nbsp;&nbsp;<button id="exe-'
+        + name + '" class="executeButton">Execute Query</button><br />';
 
 
         if (query.template != null)
@@ -222,7 +227,28 @@ function createQueryList(queryListString) {
         var queryName = $(this).attr("id");
         queryName = queryName.substring(4);
 
-        var r = confirm("Do you want to execute " + queryName);
+        var emailTextValue = $("#email-" + queryName).val();
+        var emailAddress = "";
+
+        if (typeof emailTextValue === "undefined" || emailTextValue.trim() === "") {
+            emailAddress = "N/A";
+        } else {
+            var re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+            if (re.test(emailTextValue)) {
+                emailAddress = emailTextValue;
+            } else {
+                alert("Invalid email address");
+                return;
+            }
+        }
+
+        var r;
+        if (emailAddress === "N/A") {
+            r = confirm("Do you want to execute without emailing result?");
+        } else {
+            r = confirm("Do you want to execute and send result to " + emailAddress + "?");
+        }
+
         if (r) {
             $(".executeButton").attr("disabled", true);
             $(".editQueryButton").attr("disabled", true);
@@ -230,7 +256,8 @@ function createQueryList(queryListString) {
                 type : "POST",
                 url : "executeQuery",
                 data : {
-                    "queryName" : queryName
+                    "queryName" : queryName,
+                    "emailAddress" : emailAddress
                     }
             }).done(function(data) {
                 var result = JSON.parse(data);
@@ -238,9 +265,11 @@ function createQueryList(queryListString) {
                 if (result.result == true) {
                     alert("Successfully executed " + result.queryName);
                     $(".executeButton").removeAttr("disabled");
+                    $(".editQueryButton").removeAttr("disabled");
                 } else {
                     alert("Failed to execute " + result.queryName);
                     $(".executeButton").removeAttr("disabled");
+                    $(".editQueryButton").removeAttr("disabled");
                 }
             });
         }

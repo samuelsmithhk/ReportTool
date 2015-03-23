@@ -2,11 +2,8 @@ package scheduler;
 
 import com.google.common.collect.Lists;
 import com.google.gson.*;
-import managers.ExportManager;
+import export.Email;
 import managers.QueryManager;
-import org.apache.commons.mail.DefaultAuthenticator;
-import org.apache.commons.mail.EmailAttachment;
-import org.apache.commons.mail.MultiPartEmail;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,35 +34,9 @@ public class JobInstance implements Comparable<JobInstance> {
 
     public void execute() throws Exception {
         logger.info("Executing " + this);
-
-        MultiPartEmail email = new MultiPartEmail();
-
         QueryManager qm = QueryManager.getQueryManager();
-        ExportManager em = ExportManager.getExportManager();
-
-        for (Query q : jobToExecute.queries) {
-            qm.executeQuery(q);
-
-            EmailAttachment at = new EmailAttachment();
-            at.setPath(em.getLatestExportPathForQuery(q));
-            at.setDisposition(EmailAttachment.ATTACHMENT);
-            at.setDescription(q.name);
-            at.setName(em.getLatestExportNameForQuery(q));
-
-            email.attach(at);
-        }
-
-        email.setHostName("smtp.googlemail.com");
-        email.setSmtpPort(587);
-        email.setAuthenticator(new DefaultAuthenticator("reporttooltest@gmail.com", "kkrkkrkkr"));
-        email.setSSLOnConnect(true);
-        email.setFrom("reporttooltest@gmail.com");
-        email.setSubject(jobToExecute.subject);
-        email.setMsg(jobToExecute.message);
-
-        for (String address : jobToExecute.emailTo) email.addTo(address);
-
-        email.send();
+        for (Query q : jobToExecute.queries) qm.executeQuery(q);
+        Email.sendEmail(jobToExecute.queries, jobToExecute.emailTo, jobToExecute.subject, jobToExecute.message);
         logger.info("Emails sent, job complete");
     }
 

@@ -1,8 +1,10 @@
 package webservice.controllers;
 
+import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import export.Email;
 import managers.QueryManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +18,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.security.InvalidKeyException;
+import java.util.ArrayList;
 import java.util.List;
 
 @Controller
@@ -75,6 +78,22 @@ public class QueryController {
         if (qm == null) qm = QueryManager.getQueryManager();
         try {
             qm.executeQuery(queryName);
+
+            String emailAddress = request.getParameter("emailAddress");
+
+            if (!(emailAddress.equals("N/A"))) {
+                Query q = qm.getQueryByName(queryName);
+                List<Query> queries = Lists.newArrayList();
+                queries.add(q);
+
+                List<String> addresses = Lists.newArrayList();
+                addresses.add(emailAddress);
+
+                Email.sendEmail(queries, addresses, "Report for " + q.name,
+                        "This is an automated message, do not respond");
+
+                logger.info("Email sent");
+            }
 
             response.getWriter().write("{\"result\":true, \"queryName\":\"" + queryName + "\"}");
             logger.info("Returned success message to " + request.getRemoteAddr());
