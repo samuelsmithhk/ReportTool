@@ -1,5 +1,6 @@
 package managers;
 
+import com.google.common.collect.Lists;
 import export.SheetGenerator;
 import files.ExportFileManager;
 import org.slf4j.Logger;
@@ -7,8 +8,10 @@ import org.slf4j.LoggerFactory;
 import query.Query;
 import query.QueryResult;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URLDecoder;
+import java.util.List;
 
 public class ExportManager {
 
@@ -36,12 +39,22 @@ public class ExportManager {
         efm.writeExport(qr.queryName, SheetGenerator.generateSheet(qr), qr.hasTemplate, qr.outputTimestamp);
     }
 
-    public synchronized String getLatestExportNameForQuery(Query query) {
-        return efm.getLatestExportForQuery(query).getName();
+    public synchronized List<String> getLatestExportNameForQuery(Query query) {
+        List<String> retList = Lists.newLinkedList();
+        for (File f : efm.getLatestExportForQuery(query)) {
+            retList.add(f.getName());
+        }
+
+        return retList;
     }
 
-    public synchronized String getLatestExportPathForQuery(Query query) {
-        return efm.getLatestExportForQuery(query).getAbsolutePath();
+    public synchronized List<String> getLatestExportPathForQuery(Query query) {
+        List<String> retList = Lists.newLinkedList();
+        for (File f : efm.getLatestExportForQuery(query)) {
+            retList.add(f.getAbsolutePath());
+        }
+
+        return retList;
     }
 
     public synchronized void runMacroOnQuery(Query query) throws IOException {
@@ -55,7 +68,7 @@ public class ExportManager {
             StringBuilder sb = new StringBuilder(query.name);
 
             if (query.outputTimestamp)
-                sb.append(" - ").append(efm.getFileTimestamp(efm.getLatestExportForQuery(query)));
+                sb.append(" - ").append(efm.getFileTimestamp(efm.getLatestExportForQuery(query).get(0)));
 
             Runtime.getRuntime().exec( "wscript runmacro.vbs \"" + decodedPath + "\" " + sb.toString());
         }

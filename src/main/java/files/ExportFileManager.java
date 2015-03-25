@@ -1,5 +1,6 @@
 package files;
 
+import com.google.common.collect.Lists;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -9,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import query.Query;
 
 import java.io.*;
+import java.util.List;
 
 
 public class ExportFileManager {
@@ -29,8 +31,8 @@ public class ExportFileManager {
         try {
             String extension = hasTemplate ? ".xlsm" : ".xlsx";
             String timestamp = useTimestamp ?
-                    "-" + DateTime.now().toString(DateTimeFormat.forPattern("yyyyMMdd")) : "";
-            out = new FileOutputStream(new File(exportDirectory + filename + " - " + timestamp + extension));
+                    " - " + DateTime.now().toString(DateTimeFormat.forPattern("yyyyMMdd")) : "";
+            out = new FileOutputStream(new File(exportDirectory + filename + timestamp + extension));
             result.write(out);
             out.close();
         } catch (IOException e) {
@@ -39,7 +41,7 @@ public class ExportFileManager {
 
     }
 
-    public synchronized File getLatestExportForQuery(final Query query) {
+    public synchronized List<File> getLatestExportForQuery(final Query query) {
         logger.info("Getting filename of latest export for query " + query);
 
         File dir;
@@ -56,10 +58,15 @@ public class ExportFileManager {
         logger.info("Found " + files.length + " exports for query " + query);
 
         if (files.length == 0) return null;
+        List<File> retList = Lists.newLinkedList();
 
-        if (!query.outputTimestamp) return files[0];
+        if (!query.outputTimestamp) {
+            retList.add(files[0]);
+            return retList;
+        }
 
         File latestFile = files[0];
+        retList.add(latestFile);
         DateTime latestTimestamp = getFileTimestamp(latestFile);
 
         for (int i = 1; i < files.length; i++) {
@@ -69,11 +76,15 @@ public class ExportFileManager {
             if (currentTimestamp.isAfter(latestTimestamp)) {
                 latestFile = currentFile;
                 latestTimestamp = currentTimestamp;
+                retList.clear();
+                retList.add(latestFile);
+            } else if (currentTimestamp.isEqual(latestTimestamp)) {
+                retList.add(latestFile);
             }
         }
 
         logger.info("Latest version found: " + latestFile);
-        return latestFile;
+        return retList;
     }
 
 
@@ -85,7 +96,9 @@ public class ExportFileManager {
     public DateTime getFileTimestamp(String file) {
         logger.info("Parsing timestamp for string:" + file);
         DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyyMMdd");
-        return formatter.parseDateTime(file.substring((file.length() - 12), (file.length() - 5)));
+        int offset = 5;
+        if (file.endsWith(".pdf")) offset = 4;
+        return formatter.parseDateTime(file.substring((file.length() - 12), (file.length() - offset)));
     }
 
 }

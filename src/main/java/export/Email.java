@@ -15,13 +15,18 @@ public class Email {
         ExportManager em = ExportManager.getExportManager();
 
         for (Query q : queries) {
-            EmailAttachment at = new EmailAttachment();
-            at.setPath(em.getLatestExportPathForQuery(q));
-            at.setDisposition(EmailAttachment.ATTACHMENT);
-            at.setDescription(q.name);
-            at.setName(em.getLatestExportNameForQuery(q));
+            List<String> paths = em.getLatestExportPathForQuery(q);
+            List<String> names = em.getLatestExportNameForQuery(q);
 
-            email.attach(at);
+            for (int i = 0; i < paths.size(); i++) {
+                EmailAttachment at = new EmailAttachment();
+                at.setPath(paths.get(i));
+                at.setDisposition(EmailAttachment.ATTACHMENT);
+                at.setDescription(q.name);
+                at.setName(names.get(i));
+
+                email.attach(at);
+            }
         }
 
         for (String address : addresses) email.addTo(address);
