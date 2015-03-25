@@ -8,6 +8,7 @@ import query.Query;
 import query.QueryResult;
 
 import java.io.IOException;
+import java.net.URLDecoder;
 
 public class ExportManager {
 
@@ -44,8 +45,20 @@ public class ExportManager {
     }
 
     public synchronized void runMacroOnQuery(Query query) throws IOException {
+
         String os = System.getProperty("os.name");
-        if (os.contains("Windows")) Runtime.getRuntime().exec( "wscript runmacro.vbs " + query.name);
+        if (os.contains("Windows")) {
+            String path = ExportManager.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+            String decodedPath = URLDecoder.decode(path, "UTF-8");
+            decodedPath = decodedPath.replace("bin/reportTool.jar", "");
+
+            StringBuilder sb = new StringBuilder(query.name);
+
+            if (query.outputTimestamp)
+                sb.append(" - ").append(efm.getFileTimestamp(efm.getLatestExportForQuery(query)));
+
+            Runtime.getRuntime().exec( "wscript runmacro.vbs \"" + decodedPath + "\" " + sb.toString());
+        }
         else logger.warn("Warning, cannot run vbscript for macro as not on Windows operating system");
     }
 }

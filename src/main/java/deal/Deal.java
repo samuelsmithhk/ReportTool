@@ -1,14 +1,10 @@
 package deal;
 
 import org.joda.time.DateTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
 public class Deal {
-
-    private transient Logger logger = LoggerFactory.getLogger(Deal.class);
 
     public final Map<String, DealProperty> dealProperties; //key is column
 
@@ -21,8 +17,6 @@ public class Deal {
         Map<String, DealProperty> updated = deal.dealProperties;
 
         for (Map.Entry<String, DealProperty> dp : updated.entrySet()) {
-            logger.info("Deal property: " + dp.getKey());
-
             if (dealProperties.containsKey(dp.getKey()))
                 dealProperties.get(dp.getKey()).addValue(timestamp, dp.getValue().getLatestValue());
             else {

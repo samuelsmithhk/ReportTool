@@ -213,7 +213,6 @@ function convertQueryObject(toBeConverted) {
 
                     var pos = rule.indexOf("~~");
                     var operator = rule.substring(0, pos).trim();
-                    alert(operator);
 
                     if (operator === "h") {
                         calculatedColumn.condition.operator = "HISTORIC";
@@ -232,13 +231,13 @@ function convertQueryObject(toBeConverted) {
                     } else if (operator === "ag") {
                         calculatedColumn.condition.operator = "AGGREGATE";
                     }
-                    rule = rule.substring(pos);
+                    rule = rule.substring(pos + 2);
 
                     var pos = rule.indexOf("~~");
                     calculatedColumn.condition.secondHalf = rule.substring(0, pos).trim();
 
                     retQuery.calculatedColumns.push(calculatedColumn);
-                    convertedHeaderGroup.push("=" + calculatedColumn);
+                    convertedHeaderGroup.push("=" + calculatedColumn.reference);
                 }
             });
             convertedSheet.headerGroups.push(convertedHeaderGroup);

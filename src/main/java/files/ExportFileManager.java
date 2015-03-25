@@ -15,10 +15,11 @@ public class ExportFileManager {
 
     private final Logger logger = LoggerFactory.getLogger(ExportFileManager.class);
 
-    private final String exportDirectory;
+    private final String exportDirectory, processedMacroDirectory;
 
-    public ExportFileManager(String exportDirectory) {
+    public ExportFileManager(String exportDirectory, String processedMacroDirectory) {
         this.exportDirectory = exportDirectory;
+        this.processedMacroDirectory = processedMacroDirectory;
     }
 
     public synchronized void writeExport(String filename, Workbook result, boolean hasTemplate, boolean useTimestamp) {
@@ -28,8 +29,8 @@ public class ExportFileManager {
         try {
             String extension = hasTemplate ? ".xlsm" : ".xlsx";
             String timestamp = useTimestamp ?
-                    "-" + DateTime.now().toString(DateTimeFormat.forPattern("yyyyMMdd-HHmmss")) : "";
-            out = new FileOutputStream(new File(exportDirectory + filename + timestamp + extension));
+                    "-" + DateTime.now().toString(DateTimeFormat.forPattern("yyyyMMdd")) : "";
+            out = new FileOutputStream(new File(exportDirectory + filename + " - " + timestamp + extension));
             result.write(out);
             out.close();
         } catch (IOException e) {
@@ -41,7 +42,10 @@ public class ExportFileManager {
     public synchronized File getLatestExportForQuery(final Query query) {
         logger.info("Getting filename of latest export for query " + query);
 
-        File dir = new File(exportDirectory);
+        File dir;
+        if (query.hasTemplate) dir = new File(processedMacroDirectory);
+        else dir = new File(exportDirectory);
+
         File[] files = dir.listFiles(new FilenameFilter() {
             @Override
             public boolean accept(File dir, String name) {
@@ -53,7 +57,7 @@ public class ExportFileManager {
 
         if (files.length == 0) return null;
 
-        if (!query.hasTemplate) return files[0];
+        if (!query.outputTimestamp) return files[0];
 
         File latestFile = files[0];
         DateTime latestTimestamp = getFileTimestamp(latestFile);
@@ -80,8 +84,8 @@ public class ExportFileManager {
 
     public DateTime getFileTimestamp(String file) {
         logger.info("Parsing timestamp for string:" + file);
-        DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyyMMdd-HHmmss");
-        return formatter.parseDateTime(file.substring((file.length() - 20), (file.length() - 5)));
+        DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyyMMdd");
+        return formatter.parseDateTime(file.substring((file.length() - 12), (file.length() - 5)));
     }
 
 }

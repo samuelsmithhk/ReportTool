@@ -58,7 +58,7 @@ public class ReportToolRunner {
         ScheduleManager.initScheduleManager
                 (new ScheduleFileManager(properties.get("scheduleDirectory")));
         ExportManager.initExportManager
-                (new ExportFileManager(properties.get("exportDirectory")));
+                (new ExportFileManager(properties.get("exportDirectory"), properties.get("processedMacroDirectory")));
     }
 
     private Map<String, String> loadProperties() {
