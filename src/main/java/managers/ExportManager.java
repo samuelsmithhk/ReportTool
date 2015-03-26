@@ -57,7 +57,7 @@ public class ExportManager {
         return retList;
     }
 
-    public synchronized void runMacroOnQuery(Query query) throws IOException {
+    public synchronized void runMacroOnQuery(Query query) throws IOException, InterruptedException {
 
         String os = System.getProperty("os.name");
         if (os.contains("Windows")) {
@@ -70,7 +70,11 @@ public class ExportManager {
             if (query.outputTimestamp)
                 sb.append(" - ").append(efm.getFileTimestamp(efm.getLatestExportForQuery(query).get(0)));
 
-            Runtime.getRuntime().exec( "wscript runmacro.vbs \"" + decodedPath + "\" " + sb.toString());
+            Process p = Runtime.getRuntime().exec( "wscript runmacro.vbs \"" + decodedPath + "\" " + sb.toString());
+            logger.info("Running macro");
+            p.waitFor();
+            logger.info("Macro complete");
+
         }
         else logger.warn("Warning, cannot run vbscript for macro as not on Windows operating system");
     }

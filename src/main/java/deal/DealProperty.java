@@ -82,7 +82,7 @@ public class DealProperty {
     }
 
     public Value getValueMinusXDays(int days) {
-        DateTime timestamp = values.lastKey().minusDays(days);
+       /* DateTime timestamp = values.lastKey().minusDays(days);
 
         if (values.firstKey().isAfter(timestamp)) return values.get(values.firstKey());
 
@@ -94,7 +94,10 @@ public class DealProperty {
         }
 
         logger.warn("No value found at minus x days, returning latest value");
-        return values.lastEntry().getValue();
+        return values.lastEntry().getValue();*/
+
+        LocalDate timestamp = LocalDate.now().minusDays(days);
+        return getSnapshotValue(timestamp);
 
     }
 
