@@ -41,7 +41,7 @@ public class CacheFileManager {
             byte[] encodedJSON = Files.readAllBytes(Paths.get(cacheAddress));
             String json = new String(encodedJSON, Charset.defaultCharset());
 
-            return Cache.createLoadedCache(json, getFileTimestamp(cacheAddress));
+            return Cache.createLoadedCache(json);
         } catch (IOException e) {
             logger.error("No existing cache file found at " + cacheAddress + " creating new cache");
             return Cache.createEmptyCache();
@@ -51,9 +51,9 @@ public class CacheFileManager {
     public void saveCache(Cache cache)  {
         logger.info("Saving cache");
 
-        String toSave = Cache.serializeCache(cache.getDeals(), cache.getCols());
+        String toSave = Cache.serializeCache(cache.getDeals(), cache.getCols(), cache.getLastUpdated());
 
-        String filename = cache.getLastUpdated().toString(DateTimeFormat.forPattern("yyyyMMddHHmmss"));
+        String filename = new DateTime().toString(DateTimeFormat.forPattern("yyyyMMddHHmmss"));
 
         PrintWriter out;
         try {

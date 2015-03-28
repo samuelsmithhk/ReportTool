@@ -11,12 +11,13 @@ public class InputPair {
 
     public final DateTime timestamp;
     public final Map<String, Deal> dealMap;
-    private final String filename;
+    public final String filename, directory;
 
-    public InputPair(String filename, DateTime timestamp, Map<String, Deal> dealMap) {
+    public InputPair(String directory, String filename, DateTime timestamp, Map<String, Deal> dealMap) {
         this.timestamp = timestamp;
         this.dealMap = dealMap;
         this.filename = filename;
+        this.directory = directory;
     }
 
     @Override

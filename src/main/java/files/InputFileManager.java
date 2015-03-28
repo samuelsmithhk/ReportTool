@@ -24,61 +24,46 @@ import java.util.List;
 public class InputFileManager {
 
     private final Logger logger = LoggerFactory.getLogger(InputFileManager.class);
-    private final String everestDirectory, dealCentralDirectory;
+    private final List<String> directories;
     private final CacheManager cm;
 
 
     public InputFileManager(String everestDirectory, String dealCentralDirectory) throws Exception {
         logger.info("Creating InputFileManager");
-        this.everestDirectory = everestDirectory;
-        this.dealCentralDirectory = dealCentralDirectory;
+        directories = Lists.newArrayList();
+        directories.add(everestDirectory);
+        directories.add(dealCentralDirectory);
         cm = CacheManager.getCacheManager();
     }
 
     public boolean newInputs() throws Exception {
         logger.info("Checking to see if there's any new input files");
-        if (newestTimestamp() == null) {
-            logger.info("No new input files");
-            return false;
+
+        for (String d : directories) {
+            if (cm.getLastUpdated(d) == null) {
+                logger.info("New input files");
+                return true;
+            }
+            if (cm.getLastUpdated(d).isBefore(newestTimestamp(d))) {
+                logger.info("New input files");
+                return true;
+            }
         }
 
-        if (cm.getLastUpdated() == null) {
-            logger.info("New input files");
-            return true;
-        }
-        if (cm.getLastUpdated().isBefore(newestTimestamp())) {
-            logger.info("New input files");
-            return true;
-        }
-
-        logger.info("No new input files newestTimestamp: " + newestTimestamp() +
-                " cacheLastUpdated: " + cm.getLastUpdated());
         return false;
     }
 
-    private DateTime newestTimestamp() throws IOException {
+    private DateTime newestTimestamp(String directory) throws IOException {
         logger.info("Getting the newest timestamp out of the input files");
 
-        File[] everestFiles = getFilesForDirectory(everestDirectory);
-        File[] dealCentralFiles = getFilesForDirectory(dealCentralDirectory);
+        File[] files = getFilesForDirectory(directory);
 
-        if ((everestFiles.length == 0) && (dealCentralFiles.length == 0)) return null;
+        if (files.length == 0) return null;
 
-        File latestEverest = everestFiles.length == 0 ? null : getNewestFileInFiles(everestFiles);
-        File latestDealCentral = dealCentralFiles.length == 0 ? null : getNewestFileInFiles(dealCentralFiles);
+        File latest = getNewestFileInFiles(files);
 
-        DateTime everestTimestamp = latestEverest == null ?
-                null : new DateTime(Files.readAttributes(latestEverest.toPath(),
-                                BasicFileAttributes.class).creationTime().toMillis());
-
-        DateTime dealCentralTimestamp = latestDealCentral == null ?
-                null : new DateTime(Files.readAttributes(latestDealCentral.toPath(),
+        return new DateTime(Files.readAttributes(latest.toPath(),
                 BasicFileAttributes.class).creationTime().toMillis());
-
-        if (everestTimestamp == null) return dealCentralTimestamp;
-        if (dealCentralTimestamp == null) return everestTimestamp;
-
-        return everestTimestamp.isAfter(dealCentralTimestamp) ? everestTimestamp : dealCentralTimestamp;
     }
 
     public File[] getFilesForDirectory(String directory) {
@@ -116,26 +101,28 @@ public class InputFileManager {
         logger.info("Parsing the new input files");
         List<InputPair> retList = Lists.newArrayList();
 
-        File[] newEverestFiles = getAllNewFilesForDirectory(everestDirectory);
-        File[] newDealCentralFiles = getAllNewFilesForDirectory(dealCentralDirectory);
+        //TODO: Get parser matching from config
+        for (String d : directories) {
+            File[] newFiles = getAllNewFilesForDirectory(d);
 
-        for (File f : newEverestFiles) {
-            logger.info("Parsing everest file: " + f);
-            Workbook wb = WorkbookFactory.create(f);
+            for (File f : newFiles) {
+                String fName = f.getName();
+                logger.info("Parsing file: " + fName);
+                Workbook wb = WorkbookFactory.create(f);
 
-            String mapName = f.getName().contains("NBFC") ? "everestNBFC" : "everestSpecial";
+                if (fName.contains("Deal_Pipeline") || fName.contains("IC_Summary")) {
+                    SheetParser parser = DCFileNameParser.getParser(f.getName(), wb, getTimestamp(f));
+                    retList.add(new InputPair(d, f.getName(), getTimestamp(f), parser.parse()));
+                } else if (fName.contains("NBFC") || fName.contains("Special")) {
+                    String mapName = f.getName().contains("NBFC") ? "everestNBFC" : "everestSpecial";
 
-            MappingManager mm = MappingManager.getMappingManager();
+                    MappingManager mm = MappingManager.getMappingManager();
 
-            SheetParser parser = new EverestParser(wb, getTimestamp(f), mm.loadColumnMap(mapName), mm.loadCagMap());
-            retList.add(new InputPair(f.getName(), getTimestamp(f), parser.parse()));
-        }
-
-        for (File f : newDealCentralFiles) {
-            logger.info("Parsing deal central file: " + f);
-            Workbook wb = WorkbookFactory.create(f);
-            SheetParser parser = DCFileNameParser.getParser(f.getName(), wb, getTimestamp(f));
-            retList.add(new InputPair(f.getName(), getTimestamp(f), parser.parse()));
+                    SheetParser parser = new EverestParser(wb, getTimestamp(f), mm.loadColumnMap(mapName),
+                            mm.loadCagMap());
+                    retList.add(new InputPair(d, f.getName(), getTimestamp(f), parser.parse()));
+                }
+            }
         }
 
         logger.info("Files parsed");
@@ -148,14 +135,14 @@ public class InputFileManager {
         return new DateTime(attr.creationTime().toMillis());
     }
 
-    private File[] getAllNewFilesForDirectory(String directory) throws Exception {
+    private File[] getAllNewFilesForDirectory(final String directory) throws Exception {
         logger.info("Getting all the new input files");
 
         File dir = new File(directory);
 
         File[] files = dir.listFiles(new FilenameFilter() {
 
-            DateTime cacheTimestamp = cm.getLastUpdated();
+            DateTime cacheTimestamp = cm.getLastUpdated(directory);
 
             @Override
             public boolean accept(File dir, String name) {

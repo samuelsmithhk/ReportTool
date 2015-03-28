@@ -36,7 +36,7 @@ public class InputManager {
 
             for (InputPair input : newInputs) {
                 logger.info("Processing update: " + input);
-                cm.processDealUpdate(input.timestamp, input.dealMap);
+                cm.processDealUpdate(input.directory, input.timestamp, input.dealMap);
             }
 
             if (newInputs.size() > 0) cm.saveCache();

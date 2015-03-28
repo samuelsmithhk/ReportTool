@@ -6,6 +6,7 @@ import com.google.gson.*;
 import deal.Deal;
 import deal.DealProperty;
 import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
@@ -22,29 +23,30 @@ public class Cache {
         return new Cache();
     }
 
-    public static Cache createLoadedCache(String cacheContents, DateTime cacheTimestamp) {
-        return new Cache(deserializeCacheContents(cacheContents), deserializeCacheColumns(cacheContents), cacheTimestamp);
+    public static Cache createLoadedCache(String cacheContents) {
+        Map<String, DateTime> lastUpdated = deserializeCacheTimestamps(cacheContents);
+        return new Cache(deserializeCacheContents(cacheContents), deserializeCacheColumns(cacheContents), lastUpdated);
     }
 
     private final Set<String> columnIndex;
     private final Map<String, Deal> deals;
-    private DateTime lastUpdated;
+    private Map<String, DateTime> lastUpdated;
 
     private Cache(){
         logger.info("Creating empty cache");
         this.deals = Maps.newHashMap();
         this.columnIndex = Sets.newTreeSet();
-        this.lastUpdated = null;
+        this.lastUpdated = Maps.newHashMap();
     }
 
-    private Cache(Map<String, Deal> deals, Set<String> columnIndex, DateTime lastUpdated) {
+    private Cache(Map<String, Deal> deals, Set<String> columnIndex, Map<String, DateTime> lastUpdated) {
         logger.info("Creating loaded cache with deals");
         this.deals = deals;
         this.columnIndex = columnIndex;
         this.lastUpdated = lastUpdated;
     }
 
-    public void processDealUpdate(DateTime timestamp, Map<String, Deal> newDeals) {
+    public void processDealUpdate(String directory, DateTime timestamp, Map<String, Deal> newDeals) {
         logger.info("Processing deal update with newDeals");
 
         for (Map.Entry<String, Deal> entry : newDeals.entrySet()) {
@@ -63,13 +65,24 @@ public class Cache {
             }
         }
 
-        if (lastUpdated == null) lastUpdated = timestamp;
-        else if (lastUpdated.isBefore(timestamp)) lastUpdated = timestamp;
+        if (lastUpdated.get(directory) == null) lastUpdated.put(directory, timestamp);
+        else if (lastUpdated.get(directory).isBefore(timestamp)) lastUpdated.put(directory, timestamp);
     }
 
-    public DateTime getLastUpdated() {
+    public DateTime getLastUpdated(String directory) {
+        return lastUpdated.get(directory);
+    }
+
+    public Map<String,DateTime> getLastUpdated() {
         return lastUpdated;
     }
+
+    public LocalDate getSnapshotDate() {
+        DateTime latest = null;
+        for (DateTime dt : lastUpdated.values()) if (latest == null || dt.isAfter(latest)) latest = dt;
+        return latest == null ? null : latest.toLocalDate();
+    }
+
 
     public Map<String, Deal> getDeals() {
         return deals;
@@ -84,12 +97,22 @@ public class Cache {
         else throw new CacheException("Deal does not exist in cache: " + dealName);
     }
 
-    public static String serializeCache(Map<String, Deal> deals, Set<String> columnIndex) {
+    public static String serializeCache(Map<String, Deal> deals, Set<String> columnIndex,
+                                        Map<String, DateTime> lastUpdated) {
 
         Gson gson = new Gson();
         String dealsJSON = "{\"deals\":" + gson.toJson(deals) + ",";
-        String colsJSON = "\"columnIndex\":" + gson.toJson(columnIndex) + "}";
-        return dealsJSON + colsJSON;
+        String colsJSON = "\"columnIndex\":" + gson.toJson(columnIndex) + ",";
+
+        StringBuilder sb = new StringBuilder("\"lastUpdated\":[");
+        for (Map.Entry<String, DateTime> entry : lastUpdated.entrySet())
+            sb.append("{\"directory\":\"").append(entry.getKey()).append("\",\"timestamp\":\"")
+                    .append(entry.getValue()).append("\"},");
+
+        sb.deleteCharAt(sb.lastIndexOf(","));
+        sb.append("]}");
+
+        return dealsJSON + colsJSON + sb.toString();
 
     }
 
@@ -161,15 +184,36 @@ public class Cache {
     public static Set<String> deserializeCacheColumns(String json) {
         Set<String> retSet = Sets.newTreeSet();
         JsonParser parser = new JsonParser();
-        JsonObject o = (JsonObject) parser.parse(json);
+        JsonObject o = parser.parse(json).getAsJsonObject();
 
-        JsonArray continueIndexJsonArray = o.get("columnIndex").getAsJsonArray();
+        JsonArray colIndexJsonArray = o.get("columnIndex").getAsJsonArray();
 
-        for (JsonElement col : continueIndexJsonArray) {
+        for (JsonElement col : colIndexJsonArray) {
             retSet.add(col.getAsString());
         }
 
         return retSet;
+    }
+
+    public static Map<String, DateTime> deserializeCacheTimestamps(String json) {
+        Map<String, DateTime> retMap = Maps.newHashMap();
+        JsonParser parser = new JsonParser();
+        JsonObject o = parser.parse(json).getAsJsonObject();
+
+        JsonArray luJsonArray = o.get("lastUpdated").getAsJsonArray();
+
+        for (JsonElement lu : luJsonArray) {
+            JsonObject luO = lu.getAsJsonObject();
+            String d = luO.get("directory").getAsString();
+            String timestampStr = luO.get("timestamp").getAsString();
+
+            DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZZ");
+            DateTime timestamp = formatter.parseDateTime(timestampStr);
+
+            retMap.put(d, timestamp);
+        }
+
+        return retMap;
     }
 
     public static Object parseInnerValue(DealProperty.Value.ValueType type, JsonElement innerValue) {
