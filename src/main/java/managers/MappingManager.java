@@ -36,4 +36,9 @@ public class MappingManager {
     public ICDateMapping loadICDateMap() throws Exception {
         return mfm.loadICDateMap();
     }
+
+    public ICDateMapping addNewICDate(String dealCode, String datestamp) throws Exception {
+        mfm.addNewICDate(dealCode, datestamp);
+        return loadICDateMap();
+    }
 }

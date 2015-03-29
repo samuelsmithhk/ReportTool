@@ -1,6 +1,8 @@
 package mapping;
 
 import com.google.common.collect.Maps;
+import managers.MappingManager;
+import org.joda.time.LocalDate;
 
 import java.util.Map;
 
@@ -8,11 +10,21 @@ public class ICDateMapping {
 
     private final Map<String, String> dateMap;
 
+    public boolean hasNewMapping;
+    public ICDateMapping newMapping;
+
     private ICDateMapping(ICDateMappingBuilder icdmb){ this.dateMap = icdmb.dateMap; }
 
-    public String getMapping(String dealCode) {
+    public String getMapping(String dealCode, LocalDate current) throws Exception {
+        //04/30/2014
         if (dateMap.containsKey(dealCode)) return dateMap.get(dealCode);
-        else return "";
+        else {
+            //save datetime to mapping file
+            String currentStr = current.toString("MM/dd/yyyy");
+            newMapping = MappingManager.getMappingManager().addNewICDate(dealCode, currentStr);
+            hasNewMapping = true;
+            return currentStr;
+        }
     }
 
     public static class ICDateMappingBuilder {

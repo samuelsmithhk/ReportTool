@@ -78,7 +78,7 @@ public class QueryFileManager {
             out.close();
             hasUpdate = true;
         } catch (FileNotFoundException e) {
-            logger.error("Error saving cache file: " + e.getLocalizedMessage());
+            logger.error("Error saving query file: " + e.getLocalizedMessage());
         }
     }
 

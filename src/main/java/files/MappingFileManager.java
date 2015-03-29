@@ -10,7 +10,9 @@ import mapping.Mapping;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -148,4 +150,25 @@ public class MappingFileManager {
         }
     }
 
+    private void saveJSONAsFile(String sheetType, String json) {
+
+        PrintWriter out;
+        try {
+            out = new PrintWriter(mappingDirectory + sheetType + ".json");
+            out.print(json);
+            out.close();
+        } catch (FileNotFoundException e) {
+            logger.error("Error saving mapping file: " + e.getLocalizedMessage());
+        }
+    }
+
+    public void addNewICDate(String dealCode, String datestamp) {
+        logger.info("Saving new date into the ic dates map");
+
+        StringBuilder sb = new StringBuilder(getFileAsJSON("icDates"));
+        sb.deleteCharAt(sb.lastIndexOf("}")).deleteCharAt(sb.lastIndexOf("]")).append(",{\"dealCode\":\"")
+                .append(dealCode).append("\",\"dateShown\":\"").append(datestamp).append("\"}]}");
+
+        saveJSONAsFile("icDates", sb.toString());
+    }
 }

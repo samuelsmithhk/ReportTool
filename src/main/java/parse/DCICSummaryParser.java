@@ -7,6 +7,7 @@ import mapping.ICDateMapping;
 import mapping.Mapping;
 import org.apache.poi.ss.usermodel.*;
 import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,7 +20,7 @@ public class DCICSummaryParser extends AbstractParser {
 
     private final Workbook workbook;
 
-    private final ICDateMapping icdm;
+    private ICDateMapping icdm;
 
     public DCICSummaryParser(Workbook workbook, DateTime timestamp, Mapping mapping, ICDateMapping icdm) {
         super(workbook.getCreationHelper().createFormulaEvaluator(), timestamp, mapping);
@@ -38,13 +39,13 @@ public class DCICSummaryParser extends AbstractParser {
             String csName = currentSheet.getSheetName();
 
             if (!(csName.contains("Summary")))
-                parsedDeals.putAll(parseSheet(workbook.getSheetAt(i)));
+                parsedDeals.putAll(parseSheet(workbook.getSheetAt(i), timestamp.toLocalDate()));
         }
 
         return parsedDeals;
     }
 
-    private Map<String, Deal> parseSheet(Sheet sheet) {
+    private Map<String, Deal> parseSheet(Sheet sheet, LocalDate parseDate) {
         logger.info("Parsing sheet: " + sheet.getSheetName());
         Map<String, Deal> parsedDeals = Maps.newHashMap();
 
@@ -104,7 +105,7 @@ public class DCICSummaryParser extends AbstractParser {
                 dealProperties.put(mappedHeader, currentVal);
 
                 if (mappedHeader.equals("Deal Code Name")) {
-                    dealProperties.put("Date Shown on IC Report", getDateShowedMapping(currentVal));
+                    dealProperties.put("Date Shown on IC Report", getDateShowedMapping(currentVal, parseDate));
                 }
 
                 if (headerIndex >= headers.size()) endOfRow = true;
@@ -121,8 +122,15 @@ public class DCICSummaryParser extends AbstractParser {
         return parsedDeals;
     }
 
-    public DealProperty getDateShowedMapping(DealProperty val) {
-        String result = icdm.getMapping(val.getLatestValue().innerValue.toString());
+    public DealProperty getDateShowedMapping(DealProperty val, LocalDate parseDate) {
+        String result = null;
+        try {
+            result = icdm.getMapping(val.getLatestValue().innerValue.toString(), parseDate);
+            if (icdm.hasNewMapping) icdm = icdm.newMapping;
+        } catch (Exception e) {
+            logger.error("Exception getting first shown date for ICSummary report for deal: " + e.getMessage(), e);
+            result = "";
+        }
         DealProperty.DealPropertyBuilder dpb = new DealProperty.DealPropertyBuilder();
         dpb.withValue(timestamp, new DealProperty.Value<String>(result, DealProperty.Value.ValueType.STRING));
         return dpb.build();
