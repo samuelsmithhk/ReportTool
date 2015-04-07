@@ -1,9 +1,13 @@
 package scheduler;
 
+import com.google.common.collect.Lists;
 import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Queue;
 
 public class Schedule implements Runnable {
@@ -46,5 +50,18 @@ public class Schedule implements Runnable {
                 }
             }
         }
+    }
+
+    public List<JobInstance> getJobInstancesForDate(LocalDate date) {
+        List<JobInstance> retList = Lists.newArrayList();
+
+        for (JobInstance job : jobs) {
+            LocalDate executionDate = job.executionTime.toLocalDate();
+            if (date.isEqual(executionDate)) retList.add(job);
+        }
+
+        Collections.sort(retList);
+
+        return retList;
     }
 }

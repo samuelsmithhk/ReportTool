@@ -25,6 +25,11 @@ public class RepeatsWeekly extends AbstractTimeRule {
     }
 
     @Override
+    public String getType() {
+        return "RepeatsWeekly";
+    }
+
+    @Override
     public Queue<DateTime> getDateTimes() {
         Queue<DateTime> retQueue = new PriorityQueue<DateTime>();
 
@@ -39,5 +44,13 @@ public class RepeatsWeekly extends AbstractTimeRule {
         }
 
         return purgeOldInstances(retQueue);
+    }
+
+    public int getEvery() {
+        return every;
+    }
+
+    public List<DAY> getDays() {
+        return days;
     }
 }

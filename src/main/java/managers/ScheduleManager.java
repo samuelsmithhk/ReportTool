@@ -1,6 +1,7 @@
 package managers;
 
 import files.ScheduleFileManager;
+import org.joda.time.LocalDate;
 import scheduler.JobInstance;
 import scheduler.Schedule;
 
@@ -23,6 +24,8 @@ public class ScheduleManager {
         return sm;
     }
 
+    private Schedule schedule;
+
     private ScheduleManager(ScheduleFileManager sfm) {
         this.sfm = sfm;
     }
@@ -41,7 +44,11 @@ public class ScheduleManager {
     }
 
     public void startSchedule() {
-        Schedule schedule = loadSchedule();
+        schedule = loadSchedule();
         new Thread(schedule).start();
+    }
+
+    public List<JobInstance> getJobsForDate(LocalDate date) {
+        return schedule.getJobInstancesForDate(date);
     }
 }

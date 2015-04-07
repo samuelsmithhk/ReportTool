@@ -22,6 +22,11 @@ public class RepeatsMonthly extends AbstractTimeRule {
     }
 
     @Override
+    public String getType() {
+        return "RepeatsMonthly";
+    }
+
+    @Override
     public Queue<DateTime> getDateTimes() {
         Queue<DateTime> retQueue = new PriorityQueue<DateTime>();
 
@@ -34,5 +39,21 @@ public class RepeatsMonthly extends AbstractTimeRule {
         }
         
         return purgeOldInstances(retQueue);
+    }
+
+    public int getEvery() {
+        return every;
+    }
+
+    public int getDayOfMonth() {
+        return dayOfMonth;
+    }
+
+    public LocalDate getUntil() {
+        return until;
+    }
+
+    public LocalTime getExecutionTime() {
+        return runAt;
     }
 }

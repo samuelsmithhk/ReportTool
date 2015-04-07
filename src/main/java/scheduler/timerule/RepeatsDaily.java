@@ -23,6 +23,11 @@ public class RepeatsDaily extends AbstractTimeRule {
     }
 
     @Override
+    public String getType() {
+        return "RepeatsDaily";
+    }
+
+    @Override
     public Queue<DateTime> getDateTimes() {
         Queue<DateTime> retQueue = new PriorityQueue<DateTime>();
 
@@ -34,5 +39,21 @@ public class RepeatsDaily extends AbstractTimeRule {
         }
 
         return purgeOldInstances(retQueue);
+    }
+
+    public int getEvery() {
+        return every;
+    }
+
+    public LocalDate getStartingFrom() {
+        return startingFrom;
+    }
+
+    public LocalDate getUntil() {
+        return until;
+    }
+
+    public LocalTime getExecutionTime() {
+        return runAt;
     }
 }

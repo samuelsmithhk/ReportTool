@@ -1,8 +1,29 @@
 $(document).ready(function(){
 
     $("#tabbedPanel").tabs();
+    $("#scheduleDatePicker").datepicker({
+        onSelect: function(dateText, inst){
+            requestJobsForDate(dateText);
+        }
+    });
     requestQueries();
 });
+
+function requestJobsForDate(dateText) {
+    $.ajax({
+        type : "GET",
+        url : "getJobsForDate",
+        data : {
+            "date" : dateText
+        }
+    }).done(function(response){
+        createJobList(response);
+    });
+}
+
+function createJobList(response) {
+
+}
 
 function requestQueries() {
     $.ajax({

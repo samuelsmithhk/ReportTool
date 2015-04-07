@@ -40,6 +40,72 @@ public class JobInstance implements Comparable<JobInstance> {
         logger.info("Emails sent, job complete");
     }
 
+    public static class JobInstanceSerializer implements JsonSerializer<JobInstance> {
+
+        @Override
+        public JsonElement serialize(JobInstance jobInstance, Type type, JsonSerializationContext jsonSerializationContext) {
+            StringBuilder sb = new StringBuilder("{");
+            Job job = jobInstance.jobToExecute;
+
+            sb.append("\"executionTime\":\"").append(jobInstance.executionTime.toString())
+                    .append("\",\"job\":{\"jobName\":\"").append(job.jobName).append("\",\"subject\":\"")
+                    .append(job.subject).append("\",\"message\":\"").append(job.message).append("\",\"emailTo\":[");
+
+            for (String address : job.emailTo) sb.append("\"").append(address).append("\",");
+            sb.deleteCharAt(sb.lastIndexOf(","));
+
+            sb.append("],\"queries\":[");
+
+            for (Query query : job.queries) sb.append("\"").append(query.name).append("\",");
+            sb.deleteCharAt(sb.lastIndexOf(","));
+
+            sb.append("],\"timeRule\":{");
+
+            ITimeRule timeRule = job.timeRule;
+            String timeRuleType = timeRule.getType();
+            sb.append("\"type\":\"").append(timeRuleType).append("\",");
+
+            if (timeRuleType.equals("NoRepeat")) {
+                NoRepeat noRepeat = (NoRepeat) timeRule;
+
+                sb.append("\"executionDate\":\"").append(noRepeat.getExecutionDate()).append("\",\"executionTime\":\"")
+                        .append(noRepeat.getExecutionTime()).append("\"");
+            } else if (timeRuleType.equals("RepeatsDaily")) {
+                RepeatsDaily repeatsDaily = (RepeatsDaily) timeRule;
+
+                sb.append("\"every\":\"").append(repeatsDaily.getEvery()).append("\",\"startingFrom\":")
+                        .append(repeatsDaily.getStartingFrom()).append("\",\"until\":\"")
+                        .append(repeatsDaily.getUntil()).append("\",\"executionTime\":\"")
+                        .append(repeatsDaily.getExecutionTime()).append("\"");
+
+            } else if (timeRuleType.equals("RepeatsMonthly")) {
+                RepeatsMonthly repeatsMonthly = (RepeatsMonthly) timeRule;
+
+                sb.append("\"every\":\"").append(repeatsMonthly.getEvery()).append("\",\"dayOfMonth\":\"")
+                        .append(repeatsMonthly.getDayOfMonth()).append("\",\"until\":\"")
+                        .append(repeatsMonthly.getUntil()).append("\",\"executionTime\":\"")
+                        .append(repeatsMonthly.getExecutionTime()).append("\"");
+
+            } else if (timeRuleType.equals("RepeatsWeekly")) {
+                RepeatsWeekly repeatsWeekly = (RepeatsWeekly) timeRule;
+
+                sb.append("\"every\":\"").append(repeatsWeekly.getEvery()).append("\",\"days\":[");
+
+                for (AbstractTimeRule.DAY day : repeatsWeekly.getDays()) {
+                    //TODO: Carry on from here!!!
+                }
+                sb.append("]");
+            }
+
+            sb.append("}");
+            sb.append("}");
+            sb.append("}");
+
+            JsonParser parser = new JsonParser();
+            return parser.parse(sb.toString());
+        }
+    }
+
     @Override
     public String toString() {
         return executionTime + " - " + jobToExecute;
