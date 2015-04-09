@@ -1,6 +1,7 @@
 package mains;
 
 import com.google.common.collect.Maps;
+import export.Email;
 import files.*;
 import managers.*;
 import org.slf4j.Logger;
@@ -59,6 +60,14 @@ public class ReportToolRunner {
                 (new ScheduleFileManager(properties.get("scheduleDirectory")));
         ExportManager.initExportManager
                 (new ExportFileManager(properties.get("exportDirectory"), properties.get("processedMacroDirectory")));
+
+        if (properties.get("emailAuthenticate").equals("true"))
+            Email.initEmail(properties.get("emailHost"), Integer.valueOf(properties.get("emailPort")),
+                    Boolean.valueOf(properties.get("emailSSL")), properties.get("emailFrom"),
+                    properties.get("emailUsername"), properties.get("emailPassword"));
+        else
+            Email.initEmail(properties.get("emailHost"), Integer.valueOf(properties.get("emailPort")),
+                    Boolean.valueOf(properties.get("emailSSL")), properties.get("emailFrom"));
     }
 
     private Map<String, String> loadProperties() {

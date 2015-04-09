@@ -36,7 +36,8 @@ public class JobInstance implements Comparable<JobInstance> {
         logger.info("Executing " + this);
         QueryManager qm = QueryManager.getQueryManager();
         for (Query q : jobToExecute.queries) qm.executeQuery(q);
-        Email.sendEmail(jobToExecute.queries, jobToExecute.emailTo, jobToExecute.subject, jobToExecute.message);
+        Email.getEmail().sendEmail(jobToExecute.queries, jobToExecute.emailTo, jobToExecute.subject,
+                jobToExecute.message);
         logger.info("Emails sent, job complete");
     }
 

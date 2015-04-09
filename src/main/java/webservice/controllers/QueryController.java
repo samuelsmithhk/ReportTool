@@ -89,7 +89,7 @@ public class QueryController {
                 List<String> addresses = Lists.newArrayList();
                 addresses.add(emailAddress);
 
-                Email.sendEmail(queries, addresses, "Report for " + q.name,
+                Email.getEmail().sendEmail(queries, addresses, "Report for " + q.name,
                         "This is an automated message, do not respond");
 
                 logger.info("Email sent");
