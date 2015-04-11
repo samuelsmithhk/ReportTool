@@ -82,7 +82,14 @@ public class QueryFileManager {
         }
     }
 
+    public void removeQuery(String queryName) {
+        File toRemove = new File(queryDirectory + queryName + ".query");
+        if (toRemove.delete()) hasUpdate = true;
+    }
+
     public boolean hasUpdate() {
         return hasUpdate;
     }
+
+
 }

@@ -71,12 +71,12 @@ public class QueryController {
     }
 
     @RequestMapping(value = "/executeQuery", method = RequestMethod.POST)
-    public void executeQuery(HttpServletRequest request, HttpServletResponse response) throws Exception {
+    public void executeQuery(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String queryName = request.getParameter("queryName");
         logger.info(request.getRemoteAddr() + " is attempting to execute query " + queryName);
 
-        if (qm == null) qm = QueryManager.getQueryManager();
         try {
+            if (qm == null) qm = QueryManager.getQueryManager();
             qm.executeQuery(queryName);
 
             String emailAddress = request.getParameter("emailAddress");
@@ -97,9 +97,9 @@ public class QueryController {
 
             response.getWriter().write("{\"result\":true, \"queryName\":\"" + queryName + "\"}");
             logger.info("Returned success message to " + request.getRemoteAddr());
-        } catch (InvalidKeyException e) {
+        } catch (Exception e) {
             logger.warn("Error hit when executing query " + queryName + ": " + e.getMessage(), e);
-            response.getWriter().write("{\"result\":false, \"queryName\":\"" + queryName + "\"}");
+            response.getWriter().write("{\"result\":\"false\", \"queryName\":\"" + queryName + "\"}");
             logger.info("Returned failure message to " + request.getRemoteAddr());
         }
     }
@@ -114,5 +114,20 @@ public class QueryController {
         qm.saveQuery(newQuery);
         response.getWriter().write("saved");
         logger.info("Query successfully saved, and " + request.getRemoteAddr() + " has been informed");
+    }
+
+    @RequestMapping(value = "/removeQuery", method = RequestMethod.POST)
+    public void removeQuery(HttpServletRequest request, HttpServletResponse response) {
+        String queryName = request.getParameter("queryName");
+        logger.info(request.getRemoteAddr() + " is attempting to remove query " + queryName);
+
+        try {
+            if (qm == null) qm = QueryManager.getQueryManager();
+            qm.removeQuery(queryName);
+            response.getWriter().write("removed");
+            logger.info("Completed removal of query " + queryName);
+        } catch (Exception e) {
+            logger.info("Unable to remove query: " + e.getMessage(), e);
+        }
     }
 }

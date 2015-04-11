@@ -62,4 +62,8 @@ public class QueryManager {
     public synchronized void saveQuery(Query newQuery) {
         qfm.saveQuery(newQuery);
     }
+
+    public synchronized void removeQuery(String queryName) {
+        qfm.removeQuery(queryName);
+    }
 }

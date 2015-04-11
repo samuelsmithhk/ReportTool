@@ -204,10 +204,12 @@ function createQueryList(queryListString) {
                     });
 
                     partialHtml += "</table>";
-                }
+        }
+
+        partialHtml += '<button id="remove-' + name + '" class="removeQueryButton">Remove Query</button>';
 
 
-        partialHtml += "</div>"
+        partialHtml += "</div>";
 
         htmlValue += partialHtml;
     });
@@ -242,6 +244,24 @@ function createQueryList(queryListString) {
                 createEditorWindow();
             });
         }
+    });
+
+    $(".removeQueryButton").button().click(function(){
+        var queryName = $(this).attr("id");
+        queryName = queryName.substring(7);
+
+        var r = confirm("Do you want to remove " + queryName + "?");
+        if (r) {
+        }
+            $.ajax({
+                type : "POST",
+                url : "removeQuery",
+                data : {
+                    "queryName" : queryName
+                }
+            }).done(function(data){
+                requestQueries();
+            });
     });
 
     $(".executeButton").button().click(function(){
