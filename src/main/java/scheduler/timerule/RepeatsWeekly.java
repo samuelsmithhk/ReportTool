@@ -53,4 +53,16 @@ public class RepeatsWeekly extends AbstractTimeRule {
     public List<DAY> getDays() {
         return days;
     }
+
+    public LocalTime getExecutionTime() {
+        return runAt;
+    }
+
+    public LocalDate getStartingFrom() {
+        return startingFrom;
+    }
+
+    public LocalDate getUntil() {
+        return until;
+    }
 }

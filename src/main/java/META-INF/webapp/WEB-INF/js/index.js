@@ -22,7 +22,74 @@ function requestJobsForDate(dateText) {
 }
 
 function createJobList(response) {
+    var schedule = JSON.parse(response);
 
+    $("#jobList").html("");
+
+    var newHtml = "<table><tr><th>Job Name</th><th>Queries</th><th>Email Spec</th><th>Time Rule</th></tr>";
+
+    var odd = true;
+
+    $.each(schedule, function(index, job){
+        var jobName = job.job.jobName;
+        var queries = job.job.queries;
+
+        var subject = job.job.subject;
+        var message = job.job.message;
+        var emailTo = job.job.emailTo;
+
+
+
+        var emailSpec = "<p><b>Addresses: </b>" + emailTo + "<p><b>Subject:</b> " + subject
+            + "<br /><b>Message: </b>" + message;
+
+        var executionTime = job.executionTime;
+        var type = job.job.timeRule.type;
+        var timeRule = "Execution Time: <b>" + executionTime + "</b>";
+
+
+        if (type === "RepeatsDaily") {
+            var every = job.job.timeRule.every;
+            var startingFrom = job.job.timeRule.startingFrom;
+            var until = job.job.timeRule.until;
+
+            timeRule += "<br />Runs every <b>" + every + "</b> days<br />Starting from: <b>"
+                + startingFrom + "</b><br/>Until: <b>" + until + "</b>";
+
+        } else if (type === "RepeatsWeekly") {
+            var days = job.job.timeRule.days;
+            var every = job.job.timeRule.every;
+            var startingFrom = job.job.timeRule.startingFrom;
+            var until = job.job.timeRule.until;
+
+            timeRule += "<br /><br />Runs on these days: <b>" + days + "</b><br />Every <b>" + every
+                + "</b> weeks<br />Starting from: <b>" + startingFrom + "</b><br />Until: <b>" + until + "</b>";
+
+        } else if (type === "RepeatsMonthly") {
+            var date = job.job.timeRule.dayOfMonth;
+            var every = job.job.timeRule.every;
+            var until = job.job.timeRule.until;
+
+            timeRule += "<br /><br />Runs on the <b>" + date + "</b> of the month<br /> Every <b>"
+                + every + "</b> months<br />Until <b>" + until + "</b>";
+        }
+
+        newHtml += "<tr";
+
+        if (odd) {
+            newHtml += ' class="odd"><td>' + jobName + '</td><td>' + queries + '</td><td>' + emailSpec
+            + '</td><td>' + timeRule + '</td></tr>';
+            odd = false;
+        } else {
+            newHtml += '><td>' + jobName + '</td><td>' + queries + '</td><td>' + emailSpec
+            + '</td><td>' + timeRule + '</td></tr>';
+            odd = true;
+        }
+
+    });
+
+    newHtml += "</table>";
+    $("#jobList").html(newHtml);
 }
 
 function requestQueries() {

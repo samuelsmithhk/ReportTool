@@ -92,10 +92,11 @@ public class JobInstance implements Comparable<JobInstance> {
 
                 sb.append("\"every\":\"").append(repeatsWeekly.getEvery()).append("\",\"days\":[");
 
-                for (AbstractTimeRule.DAY day : repeatsWeekly.getDays()) {
-                    //TODO: Carry on from here!!!
-                }
-                sb.append("]");
+                for (AbstractTimeRule.DAY day : repeatsWeekly.getDays()) sb.append("\"").append(day).append("\",");
+                sb.deleteCharAt(sb.lastIndexOf(","));
+                sb.append("],\"executionTime\":\"").append(repeatsWeekly.getExecutionTime())
+                        .append("\",\"startingFrom\":\"").append(repeatsWeekly.getStartingFrom())
+                        .append("\",\"until\":\"").append(repeatsWeekly.getUntil()).append("\"");
             }
 
             sb.append("}");
