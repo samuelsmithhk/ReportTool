@@ -173,7 +173,7 @@ function createQueryList(queryListString) {
         else
             partialHtml += "<p><b>Does not</b> use a template.<br />";
 
-        if (query.outputTimestamp == true)
+        if (query.outputTimestamp === "true" || query.outputTimestamp == true)
             partialHtml += "Outputs <b>include a timestamp</b>.</p>";
         else
             partialHtml += "Outputs <b>do not include a timestamp</b>.</p>";

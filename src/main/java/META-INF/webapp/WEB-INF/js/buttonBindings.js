@@ -31,6 +31,10 @@ $(document).ready(function(){
     $("#saveQueryButton").click(function(){
         currentQuery.name = $("#queryNameTextBox").val();
 
+        currentQuery.timestamp = $("#outputTimestampCB").is(':checked');
+        currentQuery.template = $("#useTemplateCB").is(":checked");
+        currentQuery.templateFile = $("#templateSelect").val();
+
         $.each(currentQuery.sheets, function(sheetIndex, sheet){
             var filterColumn = $("#sheet" + sheetIndex + "-filterColumnSelect").val();
             var filterValue = $("#sheet" + sheetIndex + "-filterValueTextBox").val();

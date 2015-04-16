@@ -96,9 +96,11 @@ public class ExportFileManager {
     public DateTime getFileTimestamp(String file) {
         logger.info("Parsing timestamp for string:" + file);
         DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyyMMdd");
-        int offset = 5;
-        if (file.endsWith(".pdf")) offset = 4;
-        return formatter.parseDateTime(file.substring((file.length() - 12), (file.length() - offset)));
+
+        boolean testIfPDF = file.endsWith(".pdf");
+        int start = testIfPDF ? file.length() - 12 : file.length() - 13;
+        int end = testIfPDF ? file.length() - 4 : file.length() - 5;
+        return formatter.parseDateTime(file.substring(start, end));
     }
 
 }
