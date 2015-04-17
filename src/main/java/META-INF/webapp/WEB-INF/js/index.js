@@ -74,22 +74,34 @@ function createJobList(response) {
                 + every + "</b> months<br />Until <b>" + until + "</b>";
         }
 
-        newHtml += "<tr";
+        newHtml += '<tr id="' + jobName + '"';
 
         if (odd) {
-            newHtml += ' class="odd"><td>' + jobName + '</td><td>' + queries + '</td><td>' + emailSpec
+            newHtml += ' class="odd scheduleRow"><td>' + jobName + '</td><td>' + queries + '</td><td>' + emailSpec
             + '</td><td>' + timeRule + '</td></tr>';
             odd = false;
         } else {
-            newHtml += '><td>' + jobName + '</td><td>' + queries + '</td><td>' + emailSpec
+            newHtml += 'class="scheduleRow"><td>' + jobName + '</td><td>' + queries + '</td><td>' + emailSpec
             + '</td><td>' + timeRule + '</td></tr>';
             odd = true;
         }
-
     });
 
     newHtml += "</table>";
     $("#jobList").html(newHtml);
+
+    $(".scheduleRow").click(function(){
+        $.ajax({
+            type : "GET",
+            url : "getJobByName",
+            data : {
+                "jobName" : $(this).attr("id")
+            }
+        }).done(function(response){
+            var responseObj = JSON.parse(response);
+            createJobView(responseObj);
+        });
+    });
 }
 
 function requestQueries() {

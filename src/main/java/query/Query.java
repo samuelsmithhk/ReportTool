@@ -397,7 +397,6 @@ public class Query {
                     .append("}");
 
             JsonParser parser = new JsonParser();
-            System.out.println(sb.toString());
             return parser.parse(sb.toString());
         }
 

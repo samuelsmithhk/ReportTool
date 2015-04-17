@@ -25,6 +25,11 @@ table tr td {
     color: black;
 }
 
+.scheduleRow:hover {
+    cursor: pointer;
+    background-color: #dadeed;
+}
+
 #dialogUnderlay {
         width:100%;
         height:100%;

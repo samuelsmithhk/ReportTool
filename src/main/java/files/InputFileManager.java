@@ -28,11 +28,9 @@ public class InputFileManager {
     private final CacheManager cm;
 
 
-    public InputFileManager(String everestDirectory, String dealCentralDirectory) throws Exception {
+    public InputFileManager(String... directoryStrings) throws Exception {
         logger.info("Creating InputFileManager");
-        directories = Lists.newArrayList();
-        directories.add(everestDirectory);
-        directories.add(dealCentralDirectory);
+        directories = Lists.newArrayList(directoryStrings);
         cm = CacheManager.getCacheManager();
     }
 

@@ -5,6 +5,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import managers.ScheduleManager;
+import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -17,7 +18,9 @@ import scheduler.JobInstance;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.lang.reflect.Type;
+import java.util.Collections;
 import java.util.List;
 
 @Controller
@@ -30,6 +33,7 @@ public class ScheduleController {
     public ScheduleController() {
         GsonBuilder builder = new GsonBuilder();
         builder.registerTypeAdapter(JobInstance.class, new JobInstance.JobInstanceSerializer());
+        builder.registerTypeAdapter(JobInstance.Job.class, new JobInstance.Job.JobSerializer());
         gson = builder.create();
     }
 
@@ -46,6 +50,29 @@ public class ScheduleController {
 
         response.getWriter().write(gson.toJson(jobsForDate, listAllJobs));
         logger.info("Jobs for date " + dateString + " served to " + request.getRemoteAddr());
+    }
+
+    @RequestMapping(value = "/getJobByName", method = RequestMethod.GET)
+    public void getJobByName(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String jobName = request.getParameter("jobName");
+        logger.info(request.getRemoteAddr() + " is requesting job by name " + jobName);
+
+        try {
+            JobInstance.Job job = ScheduleManager.getScheduleManager().getJobByName(jobName);
+            if (job != null) {
+                List<DateTime> jobExecutionTimes = job.getExecutionTimes();
+                Collections.sort(jobExecutionTimes);
+
+                String jobJson = "{\"job\":" + gson.toJson(job) + "}";
+                String dtJson = "{\"executionTimes\":" + gson.toJson(jobExecutionTimes) + "}";
+                String json = "{" + jobJson + ", " + dtJson + "}";
+                response.getWriter().write(json);
+            }
+
+        } catch (Exception e) {
+            logger.error("Error getting job by name for schedule: " + e.getMessage(), e);
+            response.getWriter().write("\"error\"");
+        }
     }
 
 }

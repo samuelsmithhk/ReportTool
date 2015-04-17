@@ -25,13 +25,14 @@ public class ScheduleManager {
     }
 
     private Schedule schedule;
+    List<JobInstance.Job> jobs;
 
     private ScheduleManager(ScheduleFileManager sfm) {
         this.sfm = sfm;
     }
 
     private Schedule loadSchedule() {
-        List<JobInstance.Job> jobs = sfm.loadJobs();
+        jobs = sfm.loadJobs();
 
         Queue<JobInstance> masterQueue = new PriorityQueue<JobInstance>();
 
@@ -50,5 +51,10 @@ public class ScheduleManager {
 
     public List<JobInstance> getJobsForDate(LocalDate date) {
         return schedule.getJobInstancesForDate(date);
+    }
+
+    public JobInstance.Job getJobByName(String jobName) {
+        for (JobInstance.Job job : jobs) if (job.getName().equals(jobName)) return job;
+        return null;
     }
 }
