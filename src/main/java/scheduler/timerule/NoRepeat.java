@@ -13,7 +13,6 @@ public class NoRepeat extends AbstractTimeRule {
     private DateTime executionDateTime;
 
     public NoRepeat(String date, String time) {
-        super(new ArrayList<DateTime>());
         executionDateTime = mergeDateTime(parseDate(date), parseTime(time));
     }
 

@@ -27,11 +27,6 @@ public abstract class AbstractTimeRule implements ITimeRule {
         exclude = new ArrayList<DateTime>();
     }
 
-    public AbstractTimeRule(List<DateTime> exclude) {
-        this.exclude = exclude;
-    }
-
-
     public LocalDate parseDate(String date) {
         DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyyMMdd");
         return dtf.parseLocalDate(date);
@@ -60,7 +55,7 @@ public abstract class AbstractTimeRule implements ITimeRule {
         return retList;
     }
 
-    public DAY parseDay(String day) throws Exception {
+    public DAY parseDay(String day)  {
         day = day.trim().toLowerCase();
         if (day.equals("mon")) return DAY.MON;
         if (day.equals("tue")) return DAY.TUE;
@@ -69,12 +64,12 @@ public abstract class AbstractTimeRule implements ITimeRule {
         if (day.equals("fri")) return DAY.FRI;
         if (day.equals("sat")) return DAY.SAT;
         if (day.equals("sun")) return DAY.SUN;
-        throw new Exception("Unable to parse day: " + day);
+        return DAY.MON;
     }
 
     @Override
     public void addExclusion(String instance) {
-        DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd hh:mm");
+        DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm");
         DateTime exclusion = dtf.parseDateTime(instance);
         exclude.add(exclusion);
     }

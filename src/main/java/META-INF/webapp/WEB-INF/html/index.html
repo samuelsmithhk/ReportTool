@@ -12,6 +12,7 @@
     <script src="/js/query/query.js"></script>
     <script src="/js/query/queryCreatorUIManagement.js"></script>
     <script src="/js/schedule/scheduleUIManagement.js"></script>
+    <script src="/js/schedule/jobValidation.js"></script>
 
     <link href="c/jquery-ui.min.css" rel="stylesheet">
     <link href="c/jquery-ui.structure.min.css" rel="stylesheet">
@@ -43,7 +44,7 @@
         <button id="cancelQueryButton" class="button">Cancel Query</button>
     </div>
 
-    <div id ="scheduleDialog" class="dialogBox">
+    <div id="scheduleDialog" class="dialogBox">
         <h2><span id="jobNameLabel">Job Name</span></h2>
 
         <div id="jobExecutionTimes">No execution times</div>
@@ -53,6 +54,124 @@
         <button id="closeJobViewerButton" class="button">Close</button>
 
         <span id="dateText" style="display:none"></span>
+    </div>
+
+    <div id="jobDialog" class="dialogBox">
+        <label for="jobNameTextBox">Job Name: </label>
+        <input id="jobNameTextBox" /><br /><br />
+
+        <p>Select queries (use ctrl/command to select multiple): </p>
+        <select id="querySelectBox" multiple size="5">
+            <option value="notloaded">NOTLOADED</option>
+        </select>
+
+        <h2>Email Rules</h2>
+        <label for="emailToTextBox">Send email to (use , between addresses):</label>
+        <input id="emailToTextBox" /><br />
+        <label for="subjectTextBox">Subject:</label>
+        <input id="subjectTextBox" /><br />
+        <label for="messageTextBox">Message: </label>
+        <input id="messageTextBox" /><br /><br />
+
+        <h2>Schedule Rules</h2>
+
+        <input type="radio" id="radioOnce" name="scheduleRuleRadio" checked="checked"><label for="radioOnce">Execute Once</label>
+        <input type="radio" id="radioDaily" name="scheduleRuleRadio"><label for="radioDaily">Repeat Daily</label>
+        <input type="radio" id="radioWeekly" name="scheduleRuleRadio"><label for="radioWeekly">Repeat Weekly</label>
+        <input type="radio" id="radioMonthly" name="scheduleRuleRadio"><label for="radioMonthly">Repeat Monthly</label>
+
+        <div id="onceOptions"><br />
+            <label for="onceDateTextBox">Date (yyyyMMdd): </label>
+            <input id="onceDateTextBox" /> <br />
+
+            <label for="onceTimeTextBox">Time (hhmm): </label>
+            <input id="onceTimeTextBox" /> <br />
+        </div>
+
+        <div id="dailyOptions" class="hidden">
+            <p>Repeats every <input id="dailyEveryTextBox" size="2"/> days</p>
+
+            <label for="dailyStartTextBox">Starting from (yyyyMMdd): </label>
+            <input id="dailyStartTextBox" /><br />
+
+            <label for="dailyEndTextBox">Until (yyyyMMdd): </label>
+            <input id="dailyEndTextBox" /><br />
+
+            <label for="dailyTimeTextBox">Time (hhmm): </label>
+            <input id="dailyTimeTextBox" />
+        </div>
+
+        <div id="weeklyOptions" class="hidden">
+            <p>Repeats every <input id="weeklyEveryTextBox" size="2"/> weeks</p>
+
+            <label for="weeklyDays">Runs on days: </label>
+            <select id="weeklyDays" multiple>
+                <option value="MON">Monday</option>
+                <option value="TUE">Tuesday</option>
+                <option value="WED">Wednesday</option>
+                <option value="THU">Thursday</option>
+                <option value="FRI">Friday</option>
+                <option value="SAT">Saturday</option>
+                <option value="SUN">Sunday</option>
+            </select><br /><br />
+
+            <label for="weeklyTimeTextBox">Run at time (hhmm): </label>
+            <input id="weeklyTimeTextBox" size="4"/><br />
+
+            <label for="weeklyStartTextBox">Starting from (yyyyMMdd): </label>
+            <input id="weeklyStartTextBox" /><br />
+
+            <label for="weeklyEndTextBox">Until (yyyyMMdd): </label>
+            <input id="weeklyEndTextBox" />
+        </div>
+
+        <div id="monthlyOptions" class="hidden">
+            <p>Repeats every <input id="monthlyEveryTextBox" size="2"/> months</p>
+
+            <input type="radio" id="radioMonthlyDate" name="radioMonthlyOption" checked="checked"><label for="radioMonthlyDate">Date</label>
+            <input type="radio" id="radioMonthlyDay" name="radioMonthlyOption"><label for="radioMonthlyDay">Day</label>
+
+            <div id="monthlyDate">
+                <label for="monthlyDateTextBox">Date (d or dd): </label>
+                <input id="monthlyDateTextBox" size="2"/><br /><br />
+            </div>
+
+            <div id="monthlyDay" class="hidden">
+                <p>Runs on the
+                    <select id="monthlyDaySelectOne">
+                        <option value="first">first</option>
+                        <option value="second">second</option>
+                        <option value="third">third</option>
+                        <option value="fourth">fourth</option>
+                        <option value="last">last</option>
+                    </select>
+
+                    <select id="monthlyDaySelectTwo">
+                        <option value="MON">Monday</option>
+                        <option value="TUE">Tuesday</option>
+                        <option value="WED">Wednesday</option>
+                        <option value="THU">Thursday</option>
+                        <option value="FRI">Friday</option>
+                        <option value="SAT">Saturday</option>
+                        <option value="SUN">Sunday</option>
+                    </select>
+
+                    of the month
+                </p>
+            </div>
+
+
+            <label for="monthlyEndTextBox">Until (yyyyMMdd): </label>
+            <input id="monthlyEndTextBox" /><br />
+
+            <label for="monthlyTimeTextBox">Run at time (hhmm): </label>
+            <input id="monthlyTimeTextBox" />
+        </div>
+
+        <br /><br />
+
+        <button id="saveJobButton" class="button">Save Job</button>
+        <button id="cancelJobButton" class="button">Cancel</button>
     </div>
 </div>
 
@@ -69,6 +188,9 @@
 
     </div>
     <div id="scheduleTab">
+        <h2>Schedule</h2>
+
+        <button id="newJobButton" class="button">Create new Job</button><br /><br />
         <div id="scheduleDatePicker"></div>
         <div id="jobList"></div>
     </div>

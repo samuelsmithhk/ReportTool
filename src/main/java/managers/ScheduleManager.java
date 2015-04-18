@@ -1,10 +1,7 @@
 package managers;
 
 import files.ScheduleFileManager;
-import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 import scheduler.JobInstance;
 import scheduler.Schedule;
 
@@ -81,6 +78,11 @@ public class ScheduleManager {
 
     public void removeJob(String jobName) {
         sfm.removeJob(jobName);
+        schedule = loadSchedule(schedule);
+    }
+
+    public void saveJob(JobInstance.Job job) throws FileNotFoundException {
+        sfm.saveJob(job);
         schedule = loadSchedule(schedule);
     }
 }

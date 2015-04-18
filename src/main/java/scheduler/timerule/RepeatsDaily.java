@@ -5,7 +5,6 @@ import org.joda.time.Days;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
 
-import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Queue;
 
@@ -17,14 +16,6 @@ public class RepeatsDaily extends AbstractTimeRule {
 
 
     public RepeatsDaily(String startingFrom, int every, String until, String runAt) {
-        this.every = every;
-        this.startingFrom = parseDate(startingFrom);
-        this.until = parseDate(until);
-        this.runAt = parseTime(runAt);
-    }
-
-    public RepeatsDaily(String startingFrom, int every, String until, String runAt, List<DateTime> exclude) {
-        super(exclude);
         this.every = every;
         this.startingFrom = parseDate(startingFrom);
         this.until = parseDate(until);

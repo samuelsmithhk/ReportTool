@@ -9,21 +9,13 @@ import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Queue;
 
-public class RepeatsMonthly extends AbstractTimeRule {
+public class RepeatsMonthlyDate extends AbstractTimeRule {
 
     private int every, dayOfMonth;
     private LocalDate until;
     private LocalTime runAt;
 
-    public RepeatsMonthly(int every, int dayOfMonth, String until, String runAt) {
-        this.every = every;
-        this.dayOfMonth = dayOfMonth;
-        this.until = parseDate(until);
-        this.runAt = parseTime(runAt);
-    }
-
-    public RepeatsMonthly(int every, int dayOfMonth, String until, String runAt, List<DateTime> exclude) {
-        super(exclude);
+    public RepeatsMonthlyDate(int every, int dayOfMonth, String until, String runAt) {
         this.every = every;
         this.dayOfMonth = dayOfMonth;
         this.until = parseDate(until);
@@ -32,7 +24,7 @@ public class RepeatsMonthly extends AbstractTimeRule {
 
     @Override
     public String getType() {
-        return "RepeatsMonthly";
+        return "RepeatsMonthlyDate";
     }
 
     @Override

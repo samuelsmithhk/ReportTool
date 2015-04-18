@@ -70,12 +70,21 @@ function createJobList(dateText, response) {
             timeRule += "<br /><br />Runs on these days: <b>" + days + "</b><br />Every <b>" + every
                 + "</b> weeks<br />Starting from: <b>" + startingFrom + "</b><br />Until: <b>" + until + "</b>";
 
-        } else if (type === "RepeatsMonthly") {
+        } else if (type === "RepeatsMonthlyDate") {
             var date = job.job.timeRule.dayOfMonth;
             var every = job.job.timeRule.every;
             var until = job.job.timeRule.until;
 
             timeRule += "<br /><br />Runs on the <b>" + date + "</b> of the month<br /> Every <b>"
+                + every + "</b> months<br />Until <b>" + until + "</b>";
+
+        } else if (type === "RepeatsMonthlyDay") {
+            var one = job.job.timeRule.one;
+            var two = job.job.timeRule.two;
+            var every = job.job.timeRule.every;
+            var until = job.job.timeRule.until;
+
+            timeRule += "<br /><br />Runs on the <b>" + one + " " + two + "</b> of the month<br /> Every <b>"
                 + every + "</b> months<br />Until <b>" + until + "</b>";
         }
 
@@ -112,9 +121,19 @@ function createJobList(dateText, response) {
 function requestQueries() {
     $.ajax({
         type : "GET",
-        url : "getAllQueries",
+        url : "getAllQueries"
     }).done(function(response){
         createQueryList(response);
+    });
+}
+
+function requestQueryNames() {
+    $.ajax({
+        type : "GET",
+        url : "getAllQueryNames"
+    }).done(function(response){
+        var queryNames = JSON.parse(response);
+        addQueryNamesToSelect(queryNames);
     });
 }
 
@@ -126,6 +145,15 @@ function requestColumns(dropDownToUpdate, valueToSelect) {
         var columns = JSON.parse(response);
         addColumnsToSelects(columns, dropDownToUpdate, valueToSelect);
     });
+}
+
+function addQueryNamesToSelect(queryNames) {
+    var htmlValue = "";
+    $.each(queryNames, function(index, name){
+        htmlValue += '<option value="' + name + '">' + name + '</option>';
+    });
+
+    $("#querySelectBox").html(htmlValue);
 }
 
 function addColumnsToSelects(columnsToAdd, dropDownToUpdate, valueToSelect) {
@@ -157,6 +185,20 @@ function displayAddQueryWindow() {
     // assign values to the overlay and dialog box
     $('#dialogUnderlay').css({height:maskHeight, width:maskWidth}).show();
     $('#queriesDialog').css({top:dialogTop, left:dialogLeft}).show();
+}
+
+function displayNewJobWindow(){
+    // get the screen height and width
+    var maskHeight = $(document).height();
+    var maskWidth = $(window).width();
+
+    // calculate the values for center alignment
+    var dialogTop =  0;
+    var dialogLeft = (maskWidth/2) - ($('#queriesDialog').width()/2);
+
+    // assign values to the overlay and dialog box
+    $('#dialogUnderlay').css({height:maskHeight, width:maskWidth}).show();
+    $('#jobDialog').css({top:dialogTop, left:dialogLeft}).show();
 }
 
 function displayViewJobWindow() {

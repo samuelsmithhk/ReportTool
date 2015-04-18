@@ -51,6 +51,20 @@ public class QueryController {
         }
     }
 
+    @RequestMapping(value = "/getAllQueryNames", method = RequestMethod.GET)
+    public void getQueryNames(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        logger.info(request.getRemoteAddr() + " is requesting all query names");
+
+        try {
+            List<String> allQueryNames = QueryManager.getQueryManager().getQueryNames();
+            response.getWriter().write(gson.toJson(allQueryNames));
+            logger.info("All query names served to " + request.getRemoteAddr());
+        } catch (Exception e) {
+            logger.error("Error retrieving query names: " + e.getMessage(), e);
+            response.getWriter().write("error");
+        }
+    }
+
     @RequestMapping(value = "/getQuery", method = RequestMethod.GET)
     public void getQuery(HttpServletRequest request, HttpServletResponse response) throws Exception {
         String queryName = request.getParameter("queryName");

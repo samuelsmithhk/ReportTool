@@ -112,4 +112,19 @@ public class ScheduleController {
         }
     }
 
+    @RequestMapping(value = "saveJob", method = RequestMethod.POST)
+    public void saveJob(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        logger.info(request.getRemoteUser() + " is trying to save a job");
+
+        try {
+            JobInstance.Job job = gson.fromJson(request.getParameter("toBeSaved"), JobInstance.Job.class);
+            ScheduleManager.getScheduleManager().saveJob(job);
+            response.getWriter().write("saved");
+            logger.info("Successfully saved job " + job.getName());
+        } catch (Exception e) {
+            logger.error("Exception saving job: " + e.getMessage(), e);
+            response.getWriter().write("error");
+        }
+    }
+
 }

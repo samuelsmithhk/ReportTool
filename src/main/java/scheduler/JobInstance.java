@@ -2,7 +2,6 @@ package scheduler;
 
 import com.google.common.collect.Lists;
 import com.google.gson.*;
-import com.sun.istack.internal.NotNull;
 import export.Email;
 import managers.QueryManager;
 import org.joda.time.DateTime;
@@ -78,13 +77,22 @@ public class JobInstance implements Comparable<JobInstance> {
                         .append(repeatsDaily.getUntil()).append("\",\"executionTime\":\"")
                         .append(repeatsDaily.getExecutionTime()).append("\"");
 
-            } else if (timeRuleType.equals("RepeatsMonthly")) {
-                RepeatsMonthly repeatsMonthly = (RepeatsMonthly) timeRule;
+            } else if (timeRuleType.equals("RepeatsMonthlyDate")) {
+                RepeatsMonthlyDate repeatsMonthlyDate = (RepeatsMonthlyDate) timeRule;
 
-                sb.append("\"every\":\"").append(repeatsMonthly.getEvery()).append("\",\"dayOfMonth\":\"")
-                        .append(repeatsMonthly.getDayOfMonth()).append("\",\"until\":\"")
-                        .append(repeatsMonthly.getUntil()).append("\",\"executionTime\":\"")
-                        .append(repeatsMonthly.getExecutionTime()).append("\"");
+                sb.append("\"option\":\"date\",").append("\"every\":\"").append(repeatsMonthlyDate.getEvery())
+                        .append("\",\"dayOfMonth\":\"").append(repeatsMonthlyDate.getDayOfMonth())
+                        .append("\",\"until\":\"").append(repeatsMonthlyDate.getUntil())
+                        .append("\",\"executionTime\":\"").append(repeatsMonthlyDate.getExecutionTime()).append("\"");
+
+            } else if (timeRuleType.equals("RepeatsMonthlyDay")) {
+                RepeatsMonthlyDay repeatsMonthlyDay = (RepeatsMonthlyDay) timeRule;
+
+                sb.append("\"option\":\"day\",").append("\"every\":\"").append(repeatsMonthlyDay.getEvery())
+                        .append("\",\"one\":\"").append(repeatsMonthlyDay.getParam1()).append("\",\"two\":\"")
+                        .append(repeatsMonthlyDay.getParam2()).append("\",until\":\"")
+                        .append(repeatsMonthlyDay.getUntil()).append("\",\"executionTime\":\"")
+                        .append(repeatsMonthlyDay.getExecutionTime()).append("\"");
 
             } else if (timeRuleType.equals("RepeatsWeekly")) {
                 RepeatsWeekly repeatsWeekly = (RepeatsWeekly) timeRule;
@@ -235,7 +243,7 @@ public class JobInstance implements Comparable<JobInstance> {
                 return jb.build();
             }
 
-            private ITimeRule parseTimeObject(JsonObject o) {
+            private ITimeRule parseTimeObject(JsonObject o)  {
                 ITimeRule retRule;
 
                 String runType = o.get("runType").getAsString();
@@ -268,12 +276,24 @@ public class JobInstance implements Comparable<JobInstance> {
 
                         retRule = new RepeatsWeekly(every, days, runAt, startingFrom, until);
                     } else { //resolution.equals("monthly")
-                        int every = o.get("every").getAsInt();
-                        int dayOfMonth = o.get("date").getAsInt();
-                        String until = o.get("until").getAsString();
-                        String runAt = o.get("time").getAsString();
+                        String option = o.get("option").getAsString();
 
-                        retRule = new RepeatsMonthly(every, dayOfMonth, until, runAt);
+                        if (option.equals("date")) {
+                            int every = o.get("every").getAsInt();
+                            int dayOfMonth = o.get("date").getAsInt();
+                            String until = o.get("until").getAsString();
+                            String runAt = o.get("time").getAsString();
+
+                            retRule = new RepeatsMonthlyDate(every, dayOfMonth, until, runAt);
+                        } else { //monthly day
+                            int every = o.get("every").getAsInt();
+                            String one = o.get("one").getAsString();
+                            String two = o.get("two").getAsString();
+                            String until = o.get("until").getAsString();
+                            String runAt = o.get("time").getAsString();
+
+                            retRule = new RepeatsMonthlyDay(every, one, two, until, runAt);
+                        }
                     }
                 }
 
@@ -301,7 +321,7 @@ public class JobInstance implements Comparable<JobInstance> {
                 if (job.timeRule instanceof NoRepeat) {
                     NoRepeat noRepeat = (NoRepeat) job.timeRule;
                     String date = noRepeat.getExecutionDate().toString("yyyyMMdd");
-                    String time = noRepeat.getExecutionTime().toString("hhmm");
+                    String time = noRepeat.getExecutionTime().toString("HHmm");
 
                     sb.append("\"runType\":\"once\",\"date\":\"").append(date).append("\",\"time\":\"").append(time)
                             .append("\"");
@@ -311,7 +331,7 @@ public class JobInstance implements Comparable<JobInstance> {
                     String startsFrom = repeatsDaily.getStartingFrom().toString("yyyyMMdd");
                     String every = String.valueOf(repeatsDaily.getEvery());
                     String until = repeatsDaily.getUntil().toString("yyyyMMdd");
-                    String runAt = repeatsDaily.getExecutionTime().toString("hhmm");
+                    String runAt = repeatsDaily.getExecutionTime().toString("HHmm");
 
                     sb.append("\"runType\":\"repeats\",\"resolution\":\"daily\",\"startingFrom\":\"")
                             .append(startsFrom).append("\",\"every\":").append(every).append(",\"until\":\"")
@@ -320,7 +340,7 @@ public class JobInstance implements Comparable<JobInstance> {
                     RepeatsWeekly repeatsWeekly = (RepeatsWeekly) job.timeRule;
 
                     String every = String.valueOf(repeatsWeekly.getEvery());
-                    String time = repeatsWeekly.getExecutionTime().toString("hhmm");
+                    String time = repeatsWeekly.getExecutionTime().toString("HHmm");
                     String startingFrom = repeatsWeekly.getStartingFrom().toString("yyyyMMdd");
                     String until = repeatsWeekly.getUntil().toString("yyyyMMdd");
 
@@ -328,24 +348,36 @@ public class JobInstance implements Comparable<JobInstance> {
                             .append(",\"days\":").append(repeatsWeekly.getDays()).append(",\"time\":\"").append(time)
                             .append("\",\"startingFrom\":\"").append(startingFrom).append("\",\"until\":\"")
                             .append(until).append("\"");
-                } else if (job.timeRule instanceof RepeatsMonthly) {
-                    RepeatsMonthly repeatsMonthly = (RepeatsMonthly) job.timeRule;
+                } else if (job.timeRule instanceof RepeatsMonthlyDate) {
+                    RepeatsMonthlyDate repeatsMonthlyDate = (RepeatsMonthlyDate) job.timeRule;
 
-                    String every = String.valueOf(repeatsMonthly.getEvery());
-                    String date = String.valueOf(repeatsMonthly.getDayOfMonth());
-                    String time = repeatsMonthly.getExecutionTime().toString("hhmm");
-                    String until = repeatsMonthly.getUntil().toString("yyyyMMdd");
+                    String every = String.valueOf(repeatsMonthlyDate.getEvery());
+                    String date = String.valueOf(repeatsMonthlyDate.getDayOfMonth());
+                    String time = repeatsMonthlyDate.getExecutionTime().toString("HHmm");
+                    String until = repeatsMonthlyDate.getUntil().toString("yyyyMMdd");
 
-                    sb.append("\"runType\":\"repeats\",\"resolution\":\"monthly\",\"every\":").append(every)
-                            .append(",\"date\":").append(date).append(",\"time\":\"").append(time)
+                    sb.append("\"runType\":\"repeats\",\"resolution\":\"monthly\",\"option\":\"date\",\"every\":")
+                            .append(every).append(",\"date\":").append(date).append(",\"time\":\"").append(time)
                             .append("\",\"until\":\"").append(until).append("\"");
+                } else if (job.timeRule instanceof RepeatsMonthlyDay) {
+                    RepeatsMonthlyDay repeatsMonthlyDay = (RepeatsMonthlyDay) job.timeRule;
+
+                    String every = String.valueOf(repeatsMonthlyDay.getEvery());
+                    String one = repeatsMonthlyDay.getParam1();
+                    String two = repeatsMonthlyDay.getParam2().name();
+                    String time = repeatsMonthlyDay.getExecutionTime().toString("HHmm");
+                    String until = repeatsMonthlyDay.getUntil().toString("yyyyMMdd");
+
+                    sb.append("\"runType\":\"repeats\",\"resolution\":\"monthly\",\"option\":\"day\",\"every\":")
+                    .append(every).append(",\"one\":\"").append(one).append("\",\"two\":\"").append(two)
+                            .append("\",\"time\":\"").append(time).append("\",\"until\":\"").append(until).append("\"");
                 }
 
                 if (job.timeRule.getExclusions().size() != 0) {
                     sb.append(",\"exclude\":[");
 
                     for (DateTime dt : job.timeRule.getExclusions())
-                        sb.append("\"").append(dt.toString("yyyy-MM-dd hh:mm")).append("\",");
+                        sb.append("\"").append(dt.toString("yyyy-MM-dd HH:mm")).append("\",");
 
                     sb.deleteCharAt(sb.lastIndexOf(",")).append("]");
                 }

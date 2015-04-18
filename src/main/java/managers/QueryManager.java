@@ -1,5 +1,6 @@
 package managers;
 
+import com.google.common.collect.Lists;
 import files.QueryFileManager;
 import query.Query;
 import query.QueryExecutor;
@@ -33,6 +34,14 @@ public class QueryManager {
     public synchronized List<Query> getAllQueries() {
         if (qfm.hasUpdate()) currentQueries = qfm.loadQueries();
         return new ArrayList<Query>(currentQueries.values());
+    }
+
+    public synchronized List<String> getQueryNames() {
+        if (qfm.hasUpdate()) currentQueries = qfm.loadQueries();
+
+        List<String> retList = Lists.newArrayList();
+        for (Query q : currentQueries.values()) retList.add(q.name);
+        return retList;
     }
 
     public synchronized void executeQuery(String queryName) throws Exception {

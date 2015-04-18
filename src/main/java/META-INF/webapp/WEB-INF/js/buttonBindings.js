@@ -13,6 +13,11 @@ $(document).ready(function(){
         displayAddQueryWindow();
     });
 
+    $("#newJobButton").click(function(){
+        requestQueryNames();
+        displayNewJobWindow();
+    });
+
     $("#addSheetButton").click(function(){
         var numberOfSheets = getNumberOfSheets(currentQuery);
         var header = initNewHeader("Header 0", []);
@@ -88,6 +93,17 @@ $(document).ready(function(){
         }
     });
 
+    $("#cancelJobButton").click(function(){
+        var r = confirm("Are you sure you want to cancel?");
+        if (r) {
+            hideDialog();
+        }
+    });
+
+    $("#saveJobButton").click(function(){
+        validateAndSaveJob();
+    });
+
     $("#removeJobButton").click(function(){
         var toRemove = $("#jobNameLabel").html();
 
@@ -107,6 +123,45 @@ $(document).ready(function(){
                     alert("An error occurred trying to remove " + toRemove);
                 }
             });
+        }
+    });
+
+    $("input[type=radio][name=scheduleRuleRadio]").change(function(){
+        var option = $(this).attr('id');
+
+        if (option === "radioOnce") {
+            $("#onceOptions").removeClass("hidden");
+            $("#dailyOptions").addClass("hidden");
+            $("#weeklyOptions").addClass("hidden");
+            $("#monthlyOptions").addClass("hidden");
+        } else if (option === "radioDaily") {
+            $("#onceOptions").addClass("hidden");
+            $("#dailyOptions").removeClass("hidden");
+            $("#weeklyOptions").addClass("hidden");
+            $("#monthlyOptions").addClass("hidden");
+        } else if (option === "radioWeekly") {
+            $("#onceOptions").addClass("hidden");
+            $("#dailyOptions").addClass("hidden");
+            $("#weeklyOptions").removeClass("hidden");
+            $("#monthlyOptions").addClass("hidden");
+        } else if (option === "radioMonthly") {
+            $("#onceOptions").addClass("hidden");
+            $("#dailyOptions").addClass("hidden");
+            $("#weeklyOptions").addClass("hidden");
+            $("#monthlyOptions").removeClass("hidden");
+        }
+    });
+
+
+    $("input[type=radio][name=radioMonthlyOption]").change(function(){
+        var option = $(this).attr('id');
+
+        if (option === "radioMonthlyDate") {
+            $("#monthlyDate").removeClass("hidden");
+            $("#monthlyDay").addClass("hidden");
+        } else if (option === "radioMonthlyDay") {
+            $("#monthlyDate").addClass("hidden");
+            $("#monthlyDay").removeClass("hidden");
         }
     });
 });
