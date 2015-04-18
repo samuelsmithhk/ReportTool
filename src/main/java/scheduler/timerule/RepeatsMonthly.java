@@ -5,6 +5,7 @@ import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
 import org.joda.time.Months;
 
+import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Queue;
 
@@ -15,6 +16,14 @@ public class RepeatsMonthly extends AbstractTimeRule {
     private LocalTime runAt;
 
     public RepeatsMonthly(int every, int dayOfMonth, String until, String runAt) {
+        this.every = every;
+        this.dayOfMonth = dayOfMonth;
+        this.until = parseDate(until);
+        this.runAt = parseTime(runAt);
+    }
+
+    public RepeatsMonthly(int every, int dayOfMonth, String until, String runAt, List<DateTime> exclude) {
+        super(exclude);
         this.every = every;
         this.dayOfMonth = dayOfMonth;
         this.until = parseDate(until);
@@ -38,7 +47,7 @@ public class RepeatsMonthly extends AbstractTimeRule {
             retQueue.add(mergeDateTime(date, runAt));
         }
         
-        return purgeOldInstances(retQueue);
+        return purgeExcluded(purgeOldInstances(retQueue));
     }
 
     public int getEvery() {

@@ -9,6 +9,7 @@ import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
 
@@ -18,6 +19,16 @@ public abstract class AbstractTimeRule implements ITimeRule {
 
     public enum DAY {
         MON, TUE, WED, THU, FRI, SAT, SUN
+    }
+
+    private List<DateTime> exclude;
+
+    public AbstractTimeRule() {
+        exclude = new ArrayList<DateTime>();
+    }
+
+    public AbstractTimeRule(List<DateTime> exclude) {
+        this.exclude = exclude;
     }
 
 
@@ -61,6 +72,18 @@ public abstract class AbstractTimeRule implements ITimeRule {
         throw new Exception("Unable to parse day: " + day);
     }
 
+    @Override
+    public void addExclusion(String instance) {
+        DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd hh:mm");
+        DateTime exclusion = dtf.parseDateTime(instance);
+        exclude.add(exclusion);
+    }
+
+    @Override
+    public List<DateTime> getExclusions(){
+        return exclude;
+    }
+
     public Queue<DateTime> purgeOldInstances(Queue<DateTime> queue) {
         DateTime now = new DateTime();
 
@@ -69,6 +92,11 @@ public abstract class AbstractTimeRule implements ITimeRule {
             else break;
         }
 
+        return queue;
+    }
+
+    public Queue<DateTime> purgeExcluded(Queue<DateTime> queue) {
+        queue.removeAll(exclude);
         return queue;
     }
 }

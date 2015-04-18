@@ -2,6 +2,7 @@ package scheduler;
 
 import com.google.common.collect.Lists;
 import com.google.gson.*;
+import com.sun.istack.internal.NotNull;
 import export.Email;
 import managers.QueryManager;
 import org.joda.time.DateTime;
@@ -148,6 +149,10 @@ public class JobInstance implements Comparable<JobInstance> {
             return jobName;
         }
 
+        public void addExclusion(String instance) {
+            timeRule.addExclusion(instance);
+        }
+
         public static class JobBuilder {
             private String jobName, subject, message;
             private List<String> emailTo;
@@ -271,6 +276,12 @@ public class JobInstance implements Comparable<JobInstance> {
                         retRule = new RepeatsMonthly(every, dayOfMonth, until, runAt);
                     }
                 }
+
+                JsonArray excludeJson = o.getAsJsonArray("exclude");
+                if (excludeJson != null)
+                    for (JsonElement e : excludeJson) retRule.addExclusion(e.getAsString());
+
+
                 return retRule;
             }
 
@@ -278,9 +289,14 @@ public class JobInstance implements Comparable<JobInstance> {
             public JsonElement serialize(Job job, Type type, JsonSerializationContext jsonSerializationContext) {
                 StringBuilder sb = new StringBuilder("{\"jobName\":\"");
 
-                sb.append(job.jobName).append("\",\"emailTo\":").append(job.emailTo).append(",\"queries\":")
-                .append(job.queries).append(",subject\":\"").append(job.subject).append("\",\"message\":\"")
-                .append(job.message).append("\",\"scheduler\":{");
+                sb.append(job.jobName).append("\",\"emailTo\":[");
+
+                for (String s : job.emailTo) sb.append("\"").append(s).append("\",");
+                sb.deleteCharAt(sb.lastIndexOf(",")).append("],\"queries\":[");
+
+                for (Query q : job.queries) sb.append("\"").append(q.name).append("\",");
+                sb.deleteCharAt(sb.lastIndexOf(",")).append("],\"subject\":\"").append(job.subject)
+                        .append("\",\"message\":\"").append(job.message).append("\",\"scheduler\":{");
 
                 if (job.timeRule instanceof NoRepeat) {
                     NoRepeat noRepeat = (NoRepeat) job.timeRule;
@@ -299,7 +315,7 @@ public class JobInstance implements Comparable<JobInstance> {
 
                     sb.append("\"runType\":\"repeats\",\"resolution\":\"daily\",\"startingFrom\":\"")
                             .append(startsFrom).append("\",\"every\":").append(every).append(",\"until\":\"")
-                            .append(until).append("\",\"time\":\"").append(runAt).append("\"}}");
+                            .append(until).append("\",\"time\":\"").append(runAt).append("\"");
                 } else if (job.timeRule instanceof RepeatsWeekly) {
                     RepeatsWeekly repeatsWeekly = (RepeatsWeekly) job.timeRule;
 
@@ -311,7 +327,7 @@ public class JobInstance implements Comparable<JobInstance> {
                     sb.append("\"runType\":\"repeats\",\"resolution\":\"weekly\",\"every\":").append(every)
                             .append(",\"days\":").append(repeatsWeekly.getDays()).append(",\"time\":\"").append(time)
                             .append("\",\"startingFrom\":\"").append(startingFrom).append("\",\"until\":\"")
-                            .append(until).append("\"}}");
+                            .append(until).append("\"");
                 } else if (job.timeRule instanceof RepeatsMonthly) {
                     RepeatsMonthly repeatsMonthly = (RepeatsMonthly) job.timeRule;
 
@@ -320,10 +336,23 @@ public class JobInstance implements Comparable<JobInstance> {
                     String time = repeatsMonthly.getExecutionTime().toString("hhmm");
                     String until = repeatsMonthly.getUntil().toString("yyyyMMdd");
 
-                    sb.append("\"runType\":\"repeats\":\"resolution\":\"monthly\",\"every\":").append(every)
+                    sb.append("\"runType\":\"repeats\",\"resolution\":\"monthly\",\"every\":").append(every)
                             .append(",\"date\":").append(date).append(",\"time\":\"").append(time)
-                            .append("\",\"until\":\"").append("\"}}");
+                            .append("\",\"until\":\"").append(until).append("\"");
                 }
+
+                if (job.timeRule.getExclusions().size() != 0) {
+                    sb.append(",\"exclude\":[");
+
+                    for (DateTime dt : job.timeRule.getExclusions())
+                        sb.append("\"").append(dt.toString("yyyy-MM-dd hh:mm")).append("\",");
+
+                    sb.deleteCharAt(sb.lastIndexOf(",")).append("]");
+                }
+
+                sb.append("}}");
+
+                System.out.println(sb.toString());
 
                 JsonParser parser = new JsonParser();
                 return parser.parse(sb.toString());

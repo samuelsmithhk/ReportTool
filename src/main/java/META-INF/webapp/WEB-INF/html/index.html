@@ -11,6 +11,7 @@
     <script src="/js/query/queryValidation.js"></script>
     <script src="/js/query/query.js"></script>
     <script src="/js/query/queryCreatorUIManagement.js"></script>
+    <script src="/js/schedule/scheduleUIManagement.js"></script>
 
     <link href="c/jquery-ui.min.css" rel="stylesheet">
     <link href="c/jquery-ui.structure.min.css" rel="stylesheet">
@@ -40,6 +41,16 @@
 
         <button id="saveQueryButton" class="button">Save Query</button>
         <button id="cancelQueryButton" class="button">Cancel Query</button>
+    </div>
+
+    <div id ="scheduleDialog" class="dialogBox">
+        <h2><span id="jobNameLabel">Job Name</span></h2>
+
+        <div id="jobExecutionTimes">No execution times</div>
+
+        <button id="removeJobButton" class="button">Remove Job</button>
+        <button id="editJobButton" class="button">Edit Job</button>
+        <button id="closeJobViewerButton" class="button">Close</button>
     </div>
 </div>
 

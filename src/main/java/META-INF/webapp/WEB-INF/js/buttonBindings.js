@@ -24,7 +24,7 @@ $(document).ready(function(){
     $("#cancelQueryButton").click(function(){
         var r = confirm("Are you sure you want to cancel this query?");
         if (r) {
-            hideAddQueryWindow();
+            hideDialog();
         }
     });
 
@@ -78,6 +78,13 @@ $(document).ready(function(){
 
                 hideAddQueryWindow();
             }
+        }
+    });
+
+    $("#closeJobViewerButton").click(function(){
+        var r = confirm("Are you sure you want to close?");
+        if (r) {
+            hideDialog();
         }
     });
 });

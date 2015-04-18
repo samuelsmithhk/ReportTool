@@ -63,8 +63,13 @@ public class ScheduleController {
                 List<DateTime> jobExecutionTimes = job.getExecutionTimes();
                 Collections.sort(jobExecutionTimes);
 
-                String jobJson = "{\"job\":" + gson.toJson(job) + "}";
-                String dtJson = "{\"executionTimes\":" + gson.toJson(jobExecutionTimes) + "}";
+                StringBuilder sb = new StringBuilder("[");
+                for (DateTime dt : jobExecutionTimes)
+                    sb.append("\"").append(dt.toString("yyyy-MM-dd hh:mm")).append("\",");
+                sb.deleteCharAt(sb.lastIndexOf(",")).append("]");
+
+                String jobJson = "\"job\":" + gson.toJson(job);
+                String dtJson = "\"executionTimes\":" + sb.toString();
                 String json = "{" + jobJson + ", " + dtJson + "}";
                 response.getWriter().write(json);
             }
@@ -72,6 +77,21 @@ public class ScheduleController {
         } catch (Exception e) {
             logger.error("Error getting job by name for schedule: " + e.getMessage(), e);
             response.getWriter().write("\"error\"");
+        }
+    }
+
+    @RequestMapping(value = "removeJobInstance", method = RequestMethod.POST)
+    public void removeJobInstance(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String jobName = request.getParameter("jobName");
+        String instance = request.getParameter("instance");
+        logger.info(request.getRemoteAddr() + " is trying to remove instance " + instance + " of job " + jobName);
+
+        try {
+            ScheduleManager.getScheduleManager().removeJobInstance(jobName, instance);
+            getJobByName(request, response);
+        } catch (Exception e) {
+            logger.error("Error removing job instance: " + e.getMessage(), e);
+            response.getWriter().write("error");
         }
     }
 

@@ -24,6 +24,16 @@ public class RepeatsWeekly extends AbstractTimeRule {
         this.until = parseDate(until);
     }
 
+    public RepeatsWeekly(int every, List<String> days, String runAt, String startingFrom, String until,
+                         List<DateTime> exclude) {
+        super(exclude);
+        this.every = every;
+        this.days = parseDays(days);
+        this.runAt = parseTime(runAt);
+        this.startingFrom = parseDate(startingFrom);
+        this.until = parseDate(until);
+    }
+
     @Override
     public String getType() {
         return "RepeatsWeekly";
@@ -43,7 +53,7 @@ public class RepeatsWeekly extends AbstractTimeRule {
             }
         }
 
-        return purgeOldInstances(retQueue);
+        return purgeExcluded(purgeOldInstances(retQueue));
     }
 
     public int getEvery() {

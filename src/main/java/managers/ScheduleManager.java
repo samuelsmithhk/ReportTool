@@ -1,10 +1,14 @@
 package managers;
 
 import files.ScheduleFileManager;
+import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import scheduler.JobInstance;
 import scheduler.Schedule;
 
+import java.io.FileNotFoundException;
 import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Queue;
@@ -31,21 +35,25 @@ public class ScheduleManager {
         this.sfm = sfm;
     }
 
-    private Schedule loadSchedule() {
-        jobs = sfm.loadJobs();
+    private Schedule loadSchedule(Schedule currentSchedule) {
+        if (sfm.hasUpdate()) {
+            jobs = sfm.loadJobs();
 
-        Queue<JobInstance> masterQueue = new PriorityQueue<JobInstance>();
+            Queue<JobInstance> masterQueue = new PriorityQueue<JobInstance>();
 
-        for (JobInstance.Job j : jobs) {
-            Queue<JobInstance> instances = j.createJobInstances();
-            masterQueue.addAll(instances);
+            for (JobInstance.Job j : jobs) {
+                Queue<JobInstance> instances = j.createJobInstances();
+                masterQueue.addAll(instances);
+            }
+
+            return new Schedule(masterQueue);
         }
 
-        return new Schedule(masterQueue);
+        return currentSchedule;
     }
 
     public void startSchedule() {
-        schedule = loadSchedule();
+        schedule = loadSchedule(null);
         new Thread(schedule).start();
     }
 
@@ -55,6 +63,18 @@ public class ScheduleManager {
 
     public JobInstance.Job getJobByName(String jobName) {
         for (JobInstance.Job job : jobs) if (job.getName().equals(jobName)) return job;
+        return null;
+    }
+
+    public void removeJobInstance(String jobName, String instance) throws FileNotFoundException {
+        JobInstance.Job j = getJob(jobName);
+        j.addExclusion(instance);
+        sfm.saveJob(j);
+        schedule = loadSchedule(schedule);
+    }
+
+    public JobInstance.Job getJob(String jobName) {
+        for (JobInstance.Job j : jobs) if (j.getName().equals(jobName)) return j;
         return null;
     }
 }

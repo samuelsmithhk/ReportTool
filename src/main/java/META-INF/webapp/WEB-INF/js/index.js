@@ -154,7 +154,21 @@ function displayAddQueryWindow() {
     $('#queriesDialog').css({top:dialogTop, left:dialogLeft}).show();
 }
 
-function hideAddQueryWindow() {
+function displayViewJobWindow() {
+    // get the screen height and width
+    var maskHeight = $(document).height();
+    var maskWidth = $(window).width();
+
+    // calculate the values for center alignment
+    var dialogTop =  0;
+    var dialogLeft = (maskWidth/2) - ($('#queriesDialog').width()/2);
+
+    // assign values to the overlay and dialog box
+    $('#dialogUnderlay').css({height:maskHeight, width:maskWidth}).show();
+    $('#scheduleDialog').css({top:dialogTop, left:dialogLeft}).show();
+}
+
+function hideDialog() {
     $('#dialogUnderlay, .dialogBox').hide();
 }
 
