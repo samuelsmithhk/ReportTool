@@ -17,12 +17,17 @@ function requestJobsForDate(dateText) {
             "date" : dateText
         }
     }).done(function(response){
-        createJobList(response);
+        createJobList(dateText, response);
     });
 }
 
-function createJobList(response) {
+function createJobList(dateText, response) {
     var schedule = JSON.parse(response);
+
+    if (response === "error") {
+        alert("An exception occurred");
+        return;
+    }
 
     $("#jobList").html("");
 
@@ -99,7 +104,7 @@ function createJobList(response) {
             }
         }).done(function(response){
             var responseObj = JSON.parse(response);
-            createJobView(responseObj);
+            createJobView(dateText, responseObj);
         });
     });
 }

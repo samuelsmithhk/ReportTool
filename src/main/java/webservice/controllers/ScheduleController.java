@@ -4,6 +4,7 @@ package webservice.controllers;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import jdk.nashorn.internal.ir.RuntimeNode;
 import managers.ScheduleManager;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
@@ -89,8 +90,24 @@ public class ScheduleController {
         try {
             ScheduleManager.getScheduleManager().removeJobInstance(jobName, instance);
             getJobByName(request, response);
+            logger.info("Successfully completed removing job instance for " + request.getRemoteAddr());
         } catch (Exception e) {
             logger.error("Error removing job instance: " + e.getMessage(), e);
+            response.getWriter().write("error");
+        }
+    }
+
+    @RequestMapping(value = "removeJob", method = RequestMethod.POST)
+    public void removeJob(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String jobName = request.getParameter("jobName");
+        logger.info(request.getRemoteAddr() + " is trying to remove job " + jobName);
+
+        try {
+            ScheduleManager.getScheduleManager().removeJob(jobName);
+            response.getWriter().write("success");
+            logger.info("Successfully removed job  " + jobName);
+        } catch (Exception e) {
+            logger.error("Error removing job: " + e.getMessage(), e);
             response.getWriter().write("error");
         }
     }

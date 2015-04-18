@@ -87,4 +87,26 @@ $(document).ready(function(){
             hideDialog();
         }
     });
+
+    $("#removeJobButton").click(function(){
+        var toRemove = $("#jobNameLabel").html();
+
+        var r = confirm("Are you sure you want to remove " + toRemove + "?");
+        if (r) {
+            $.ajax({
+                url : "removeJob",
+                method : "POST",
+                data : {
+                    "jobName" : toRemove
+                }
+            }).done(function(response){
+                if (response === "success") {
+                    hideDialog();
+                    requestJobsForDate($("#dateText").html());
+                } else {
+                    alert("An error occurred trying to remove " + toRemove);
+                }
+            });
+        }
+    });
 });

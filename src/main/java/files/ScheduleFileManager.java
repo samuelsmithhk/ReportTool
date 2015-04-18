@@ -83,4 +83,9 @@ public class ScheduleFileManager {
     public boolean hasUpdate() {
         return hasUpdate;
     }
+
+    public void removeJob(String jobName) {
+        File toRemove = new File(scheduleDirectory + jobName + ".job");
+        if (toRemove.delete()) hasUpdate = true;
+    }
 }

@@ -58,6 +58,7 @@ public class ScheduleManager {
     }
 
     public List<JobInstance> getJobsForDate(LocalDate date) {
+        if (sfm.hasUpdate()) loadSchedule(schedule);
         return schedule.getJobInstancesForDate(date);
     }
 
@@ -76,5 +77,10 @@ public class ScheduleManager {
     public JobInstance.Job getJob(String jobName) {
         for (JobInstance.Job j : jobs) if (j.getName().equals(jobName)) return j;
         return null;
+    }
+
+    public void removeJob(String jobName) {
+        sfm.removeJob(jobName);
+        schedule = loadSchedule(schedule);
     }
 }

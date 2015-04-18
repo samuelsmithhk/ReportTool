@@ -304,7 +304,7 @@ public class JobInstance implements Comparable<JobInstance> {
                     String time = noRepeat.getExecutionTime().toString("hhmm");
 
                     sb.append("\"runType\":\"once\",\"date\":\"").append(date).append("\",\"time\":\"").append(time)
-                            .append("\"}}");
+                            .append("\"");
                 } else if (job.timeRule instanceof RepeatsDaily) {
                     RepeatsDaily repeatsDaily = (RepeatsDaily) job.timeRule;
 
@@ -351,8 +351,6 @@ public class JobInstance implements Comparable<JobInstance> {
                 }
 
                 sb.append("}}");
-
-                System.out.println(sb.toString());
 
                 JsonParser parser = new JsonParser();
                 return parser.parse(sb.toString());

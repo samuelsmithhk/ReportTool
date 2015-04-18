@@ -1,7 +1,9 @@
-function createJobView(response) {
+function createJobView(dateText, response) {
     if (response === "error") {
         alert("An error occurred");
     }
+
+    $("#dateText").html(dateText);
 
     var job = response.job;
     var times = response.executionTimes;
@@ -43,7 +45,7 @@ function createJobView(response) {
                     "instance" :  instance
                 }
             }).done(function(newResponse){
-                createJobView(JSON.parse(newResponse));
+                createJobView(dateText, JSON.parse(newResponse));
             });
         }
     });
