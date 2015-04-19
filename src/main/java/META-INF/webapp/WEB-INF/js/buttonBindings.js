@@ -81,7 +81,7 @@ $(document).ready(function(){
                     requestQueries();
                 });
 
-                hideAddQueryWindow();
+                hideDialog();
             }
         }
     });

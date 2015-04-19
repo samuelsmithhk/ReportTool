@@ -138,16 +138,16 @@ public class DealProperty {
         }
     }
 
-    public static class Value<T> {
+    public static class Value {
 
         public enum ValueType {
             STRING, NUMERIC, BOOLEAN, BLANK
         }
 
-        public final T innerValue;
+        public final Object innerValue;
         public final ValueType type;
 
-        public Value(T innerValue, ValueType type){
+        public Value(Object innerValue, ValueType type){
             this.innerValue = innerValue;
             this.type = type;
         }

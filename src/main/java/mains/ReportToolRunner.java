@@ -1,16 +1,22 @@
 package mains;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import export.Email;
 import files.*;
 import managers.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import parse.ParserConfig;
 import webservice.HttpServer;
 
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URLDecoder;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -20,7 +26,7 @@ public class ReportToolRunner {
 
     public static void main(String[] args) {
         try {
-            ReportToolRunner rtr = new ReportToolRunner();
+            new ReportToolRunner();
         } catch (Exception e) {
             e.printStackTrace();
             System.exit(1);
@@ -48,10 +54,9 @@ public class ReportToolRunner {
                 Integer.valueOf(properties.get("numberOfHistoricFiles")));
         CacheManager.initCacheManager(cfm);
 
-        InputManager.initInputManager
-                (new InputFileManager(properties.get("everestDirectory"), properties.get("dealCentralDirectory")));
-        MappingManager.initMappingManager
-                (new MappingFileManager(properties.get("mappingDirectory")));
+        ParserManager.initParserConfigManager(loadParserConfigs());
+
+        InputManager.initInputManager(new InputFileManager());
         TemplateManager.initTemplateManager
                 (new TemplateFileManager(properties.get("templateDirectory")));
         QueryManager.initQueryManager
@@ -68,6 +73,27 @@ public class ReportToolRunner {
         else
             Email.initEmail(properties.get("emailHost"), Integer.valueOf(properties.get("emailPort")),
                     Boolean.valueOf(properties.get("emailSSL")), properties.get("emailFrom"));
+    }
+
+    private List<ParserConfig> loadParserConfigs() {
+        logger.info("Loading parser configurations");
+
+        List<ParserConfig> retList = Lists.newArrayList();
+
+        try {
+            String path = ReportToolRunner.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+            String decodedPath = URLDecoder.decode(path, "UTF-8");
+            decodedPath = decodedPath.replace("reportTool.jar", "");
+            byte[] encodedJSON = Files.readAllBytes(Paths.get(decodedPath + "parserConfig.json"));
+            String json = new String(encodedJSON, Charset.defaultCharset());
+
+            retList = ParserConfig.loadConfigs(json);
+        } catch (IOException e) {
+            logger.error("ERROR: Error loading parser config file: " + e.getLocalizedMessage());
+            System.exit(1);
+        }
+
+        return retList;
     }
 
     private Map<String, String> loadProperties() {

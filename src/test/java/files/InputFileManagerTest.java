@@ -11,7 +11,7 @@ public class InputFileManagerTest {
 
     @Test
     public void shouldGetAllInputFiles() throws Exception {
-        InputFileManager ifm = new InputFileManager(null, null);
+        InputFileManager ifm = new InputFileManager();
         File[] actual = ifm.getFilesForDirectory("src/test/resources/testInputDirectory/");
 
         if (actual == null) Assert.fail();

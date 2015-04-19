@@ -1,16 +1,16 @@
 package files;
 
 import com.google.common.collect.Lists;
+import deal.Deal;
 import managers.CacheManager;
-import managers.MappingManager;
+import managers.ParserManager;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import parse.DCFileNameParser;
-import parse.EverestParser;
-import parse.SheetParser;
+import parse.*;
+import sheetparser.SheetParser;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -20,6 +20,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
+import java.util.Map;
 
 public class InputFileManager {
 
@@ -28,9 +29,9 @@ public class InputFileManager {
     private final CacheManager cm;
 
 
-    public InputFileManager(String... directoryStrings) throws Exception {
+    public InputFileManager() throws Exception {
         logger.info("Creating InputFileManager");
-        directories = Lists.newArrayList(directoryStrings);
+        directories = ParserManager.getParserConfigManager().getDirectories();
         cm = CacheManager.getCacheManager();
     }
 
@@ -99,7 +100,6 @@ public class InputFileManager {
         logger.info("Parsing the new input files");
         List<InputPair> retList = Lists.newArrayList();
 
-        //TODO: Get parser matching from config
         for (String d : directories) {
             File[] newFiles = getAllNewFilesForDirectory(d);
 
@@ -108,18 +108,14 @@ public class InputFileManager {
                 logger.info("Parsing file: " + fName);
                 Workbook wb = WorkbookFactory.create(f);
 
-                if (fName.contains("Deal_Pipeline") || fName.contains("IC_Summary")) {
-                    SheetParser parser = DCFileNameParser.getParser(f.getName(), wb, getTimestamp(f));
-                    retList.add(new InputPair(d, f.getName(), getTimestamp(f), parser.parse()));
-                } else if (fName.contains("NBFC") || fName.contains("Special")) {
-                    String mapName = f.getName().contains("NBFC") ? "everestNBFC" : "everestSpecial";
+                SheetParser sheetParser = ParserManager.getParserConfigManager().getSheetParser(d, fName);
+                DateTime timestamp = getTimestamp(f);
+                ValuesToDeal vtd = new ValuesToDeal();
+                String sourceSystem = ParserManager.getParserConfigManager().getSourceSystem(d, fName);
 
-                    MappingManager mm = MappingManager.getMappingManager();
+                Map<String, Deal> dealMap  = vtd.convert(timestamp, sourceSystem, sheetParser.parse(wb));
 
-                    SheetParser parser = new EverestParser(wb, getTimestamp(f), mm.loadColumnMap(mapName),
-                            mm.loadCagMap());
-                    retList.add(new InputPair(d, f.getName(), getTimestamp(f), parser.parse()));
-                }
+                retList.add(new InputPair(d, f.getName(), timestamp, dealMap));
             }
         }
 

@@ -208,7 +208,12 @@
             <version>1.3.1</version>
         </dependency>
 
-
+        <!-- so we can invoke people's parsers -->
+        <dependency>
+            <groupId>com.kkr</groupId>
+            <artifactId>sheetParser</artifactId>
+            <version>1.0</version>
+        </dependency>
     </dependencies>
 
 </project>
