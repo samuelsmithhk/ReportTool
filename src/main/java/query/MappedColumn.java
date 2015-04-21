@@ -31,7 +31,7 @@ public class MappedColumn implements SpecialColumn {
         Deal deal = cm.getDeal(dealName);
 
         if (deal.dealProperties.containsKey(original)) return deal.dealProperties.get(original).getLatestValue();
-        return new DealProperty.Value("", DealProperty.Value.ValueType.BLANK);
+        return new DealProperty.Value("", DealProperty.Value.ValueType.BLANK, "MAPPED");
     }
 
     public String getOriginal() {

@@ -3,6 +3,7 @@ package deal;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import managers.CacheManager;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.slf4j.Logger;
@@ -62,7 +63,7 @@ public class DealProperty {
         throw new IllegalArgumentException("No value for given timestamp");
     }
 
-    public Value getSnapshotValue(LocalDate snapshot) {
+    public Value getSnapshotValue(LocalDate snapshot) throws Exception {
         int snapshotYear = snapshot.getYear();
         int snapshotMonth = snapshot.getMonthOfYear();
         int snapshotDay = snapshot.getDayOfMonth();
@@ -78,10 +79,19 @@ public class DealProperty {
                         return values.get(key);
         }
 
+        Value snapshotPrev = getSnapshotValue(snapshot.minusDays(1));
+        if (snapshotPrev == null) return null;
+
+        LocalDate sourceSystemLastUpdated =
+                CacheManager.getCacheManager().getSourceSystemLastUpdated(snapshotPrev.sourceSystem);
+
+        if (snapshot.isBefore(sourceSystemLastUpdated)) return snapshotPrev;
+
+
         return null;
     }
 
-    public Value getValueMinusXDays(int days) {
+    public Value getValueMinusXDays(int days) throws Exception {
        /* DateTime timestamp = values.lastKey().minusDays(days);
 
         if (values.firstKey().isAfter(timestamp)) return values.get(values.firstKey());
@@ -146,10 +156,12 @@ public class DealProperty {
 
         public final Object innerValue;
         public final ValueType type;
+        public final String sourceSystem;
 
-        public Value(Object innerValue, ValueType type){
+        public Value(Object innerValue, ValueType type, String sourceSystem) {
             this.innerValue = innerValue;
             this.type = type;
+            this.sourceSystem = sourceSystem;
         }
 
         @Override

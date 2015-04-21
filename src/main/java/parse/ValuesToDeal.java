@@ -20,9 +20,9 @@ public class ValuesToDeal {
             //create deal from deal properties
             //use company name as key in return map
 
-            Map<String, DealProperty> dealProperties = convertToDealProperties(timestamp, valueMap);
+            Map<String, DealProperty> dealProperties = convertToDealProperties(sourceSystem, timestamp, valueMap);
             DealProperty.DealPropertyBuilder dpb = new DealProperty.DealPropertyBuilder();
-            dpb.withValue(timestamp, new DealProperty.Value(sourceSystem, DealProperty.Value.ValueType.STRING));
+            dpb.withValue(timestamp, new DealProperty.Value(sourceSystem, DealProperty.Value.ValueType.STRING, sourceSystem));
             dealProperties.put("Source System", dpb.build());
 
             if (companyName == null) throw new Exception("Company Name missing from dealset");
@@ -35,7 +35,8 @@ public class ValuesToDeal {
         return retMap;
     }
 
-    private Map<String, DealProperty> convertToDealProperties(DateTime timestamp, Map<String, Value> valueMap) {
+    private Map<String, DealProperty> convertToDealProperties(String sourceSystem, DateTime timestamp,
+                                                              Map<String, Value> valueMap) {
         Map<String, DealProperty> retMap = Maps.newHashMap();
 
         for (Map.Entry<String, Value> entry : valueMap.entrySet()) {
@@ -46,16 +47,20 @@ public class ValuesToDeal {
 
             switch (v.type) {
                 case BOOLEAN :
-                    dpb.withValue(timestamp, new DealProperty.Value(v.t, DealProperty.Value.ValueType.BOOLEAN));
+                    dpb.withValue(timestamp, new DealProperty.Value(v.t, DealProperty.Value.ValueType.BOOLEAN,
+                            sourceSystem));
                     break;
                 case BLANK:
-                    dpb.withValue(timestamp, new DealProperty.Value(v.t, DealProperty.Value.ValueType.BLANK));
+                    dpb.withValue(timestamp, new DealProperty.Value(v.t, DealProperty.Value.ValueType.BLANK,
+                            sourceSystem));
                     break;
                 case NUMERIC:
-                    dpb.withValue(timestamp, new DealProperty.Value(v.t, DealProperty.Value.ValueType.NUMERIC));
+                    dpb.withValue(timestamp, new DealProperty.Value(v.t, DealProperty.Value.ValueType.NUMERIC,
+                            sourceSystem));
                     break;
                 case STRING:
-                    dpb.withValue(timestamp, new DealProperty.Value(v.t, DealProperty.Value.ValueType.STRING));
+                    dpb.withValue(timestamp, new DealProperty.Value(v.t, DealProperty.Value.ValueType.STRING,
+                            sourceSystem));
                     break;
             }
 

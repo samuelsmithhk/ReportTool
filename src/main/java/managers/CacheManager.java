@@ -35,16 +35,17 @@ public class CacheManager {
         return new ArrayList<String>(cache.getCols());
     }
 
-    public void processDealUpdate(String directory, DateTime timestamp, Map<String, Deal> dealMap) {
-        cache.processDealUpdate(directory, timestamp, dealMap);
+    public void processDealUpdate(String sourceSystem,String directory, DateTime timestamp,
+                                  Map<String, Deal> dealMap) {
+        cache.processDealUpdate(sourceSystem, directory, timestamp, dealMap);
     }
 
     public void saveCache() {
         cfm.saveCache(cache);
     }
 
-    public DateTime getLastUpdated(String directory) {
-        return cache.getLastUpdated(directory);
+    public DateTime getDirectoriesLastUpdated(String directory) {
+        return cache.getDirectoriesLastUpdated(directory);
     }
 
     public Map<String, Deal> getDeals() {
@@ -57,5 +58,9 @@ public class CacheManager {
 
     public LocalDate getSnapshotDate() {
         return cache.getSnapshotDate();
+    }
+
+    public LocalDate getSourceSystemLastUpdated(String sourceSystem) {
+        return cache.getSourceSystemLastUpdated(sourceSystem);
     }
 }

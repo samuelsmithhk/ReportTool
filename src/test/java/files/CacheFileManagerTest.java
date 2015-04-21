@@ -57,6 +57,6 @@ public class CacheFileManagerTest {
 
         if (actual.getDeals().size() != 0) Assert.fail();
         if (actual.getCols().size() != 0) Assert.fail();
-        if (actual.getLastUpdated() != null) Assert.fail();
+        if (actual.getDirectoriesLastUpdated() != null) Assert.fail();
     }
 }

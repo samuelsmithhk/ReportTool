@@ -14,9 +14,9 @@ public class DealPropertyTest {
         DateTime time1 = new DateTime(2014, 10, 10, 10, 10), time2 = new DateTime(2014, 11, 11, 11, 11),
                 time3 = new DateTime(2014, 12, 12, 12, 12);
 
-        DealProperty.Value expected1 = new DealProperty.Value(23, DealProperty.Value.ValueType.NUMERIC),
-                expected2 = new DealProperty.Value(24, DealProperty.Value.ValueType.NUMERIC),
-                expected3 = new DealProperty.Value(25, DealProperty.Value.ValueType.NUMERIC);
+        DealProperty.Value expected1 = new DealProperty.Value(23, DealProperty.Value.ValueType.NUMERIC, "TEST"),
+                expected2 = new DealProperty.Value(24, DealProperty.Value.ValueType.NUMERIC, "TEST"),
+                expected3 = new DealProperty.Value(25, DealProperty.Value.ValueType.NUMERIC, "TEST");
 
         DealProperty.DealPropertyBuilder dpb = new DealProperty.DealPropertyBuilder();
         DealProperty dp = dpb
@@ -35,9 +35,9 @@ public class DealPropertyTest {
     public void shouldReturnErrorForDuplicateTimestampAndStillReturnOtherwiseValidDealProperty() {
         DateTime time1 = new DateTime(2014, 10, 10, 10, 10), time2 = new DateTime(2014, 11, 11, 11, 11);
 
-        DealProperty.Value expected1 = new DealProperty.Value(23, DealProperty.Value.ValueType.NUMERIC),
-                expected2 = new DealProperty.Value(24, DealProperty.Value.ValueType.NUMERIC),
-                expected3 = new DealProperty.Value(25, DealProperty.Value.ValueType.NUMERIC);
+        DealProperty.Value expected1 = new DealProperty.Value(23, DealProperty.Value.ValueType.NUMERIC, "TEST"),
+                expected2 = new DealProperty.Value(24, DealProperty.Value.ValueType.NUMERIC, "TEST"),
+                expected3 = new DealProperty.Value(25, DealProperty.Value.ValueType.NUMERIC, "TEST");
 
         DealProperty.DealPropertyBuilder dpb = new DealProperty.DealPropertyBuilder();
         DealProperty dp = dpb
@@ -55,8 +55,8 @@ public class DealPropertyTest {
     public void shouldSuccessfullyAddValueToDealProperty() {
         DateTime time1 = new DateTime(2014, 10, 10, 10, 10), time2 = new DateTime(2014, 11, 11, 11, 11);
 
-        DealProperty.Value expected1 = new DealProperty.Value(23, DealProperty.Value.ValueType.NUMERIC),
-                expected2 = new DealProperty.Value(24, DealProperty.Value.ValueType.NUMERIC);
+        DealProperty.Value expected1 = new DealProperty.Value(23, DealProperty.Value.ValueType.NUMERIC, "TEST"),
+                expected2 = new DealProperty.Value(24, DealProperty.Value.ValueType.NUMERIC, "TEST");
 
         DealProperty.DealPropertyBuilder dpb = new DealProperty.DealPropertyBuilder();
         DealProperty dp = dpb
@@ -76,8 +76,8 @@ public class DealPropertyTest {
     public void shouldThrowErrorForAddingValueWithSameTimestamp() {
         DateTime time1 = new DateTime(2014, 10, 10, 10, 10);
 
-        DealProperty.Value expected1 = new DealProperty.Value(23, DealProperty.Value.ValueType.NUMERIC),
-                expected2 = new DealProperty.Value(24, DealProperty.Value.ValueType.NUMERIC);
+        DealProperty.Value expected1 = new DealProperty.Value(23, DealProperty.Value.ValueType.NUMERIC, "TEST"),
+                expected2 = new DealProperty.Value(24, DealProperty.Value.ValueType.NUMERIC, "TEST");
 
         DealProperty.DealPropertyBuilder dpb = new DealProperty.DealPropertyBuilder();
         DealProperty dp = dpb

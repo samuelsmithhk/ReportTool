@@ -39,11 +39,11 @@ public class InputFileManager {
         logger.info("Checking to see if there's any new input files");
 
         for (String d : directories) {
-            if (cm.getLastUpdated(d) == null) {
+            if (cm.getDirectoriesLastUpdated(d) == null) {
                 logger.info("New input files");
                 return true;
             }
-            if (cm.getLastUpdated(d).isBefore(newestTimestamp(d))) {
+            if (cm.getDirectoriesLastUpdated(d).isBefore(newestTimestamp(d))) {
                 logger.info("New input files");
                 return true;
             }
@@ -115,7 +115,7 @@ public class InputFileManager {
 
                 Map<String, Deal> dealMap  = vtd.convert(timestamp, sourceSystem, sheetParser.parse(wb));
 
-                retList.add(new InputPair(d, f.getName(), timestamp, dealMap));
+                retList.add(new InputPair(sourceSystem, d, f.getName(), timestamp, dealMap));
             }
         }
 
@@ -136,7 +136,7 @@ public class InputFileManager {
 
         File[] files = dir.listFiles(new FilenameFilter() {
 
-            DateTime cacheTimestamp = cm.getLastUpdated(directory);
+            DateTime cacheTimestamp = cm.getDirectoriesLastUpdated(directory);
 
             @Override
             public boolean accept(File dir, String name) {

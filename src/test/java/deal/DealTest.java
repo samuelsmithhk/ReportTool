@@ -19,7 +19,7 @@ public class DealTest {
         DateTime time = new DateTime(1,1,1,1,1);
 
         DealProperty.DealPropertyBuilder dpb = new DealProperty.DealPropertyBuilder();
-        dpb.withValue(time, new DealProperty.Value("Hello", DealProperty.Value.ValueType.STRING));
+        dpb.withValue(time, new DealProperty.Value("Hello", DealProperty.Value.ValueType.STRING, "TEST"));
 
         Map<String, DealProperty> dealProperties = Maps.newHashMap();
         dealProperties.put("Test", dpb.build());

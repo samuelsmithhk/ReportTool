@@ -24,29 +24,36 @@ public class Cache {
     }
 
     public static Cache createLoadedCache(String cacheContents) {
-        Map<String, DateTime> lastUpdated = deserializeCacheTimestamps(cacheContents);
-        return new Cache(deserializeCacheContents(cacheContents), deserializeCacheColumns(cacheContents), lastUpdated);
+        Map<String, DateTime> directoriesLastUpdated = deserializeCacheTimestamps(cacheContents);
+        Map<String, LocalDate> sourceSystemLastUpdated = deserializeSourceSystemTimestamps(cacheContents);
+        return new Cache(deserializeCacheContents(cacheContents), deserializeCacheColumns(cacheContents),
+                directoriesLastUpdated, sourceSystemLastUpdated);
     }
 
     private final Set<String> columnIndex;
     private final Map<String, Deal> deals;
-    private Map<String, DateTime> lastUpdated;
+    private Map<String, DateTime> directoriesLastUpdated;
+    private Map<String, LocalDate> sourceSystemsLastUpdated;
 
     private Cache(){
         logger.info("Creating empty cache");
         this.deals = Maps.newHashMap();
         this.columnIndex = Sets.newTreeSet();
-        this.lastUpdated = Maps.newHashMap();
+        this.directoriesLastUpdated = Maps.newHashMap();
+        this.sourceSystemsLastUpdated = Maps.newHashMap();
     }
 
-    private Cache(Map<String, Deal> deals, Set<String> columnIndex, Map<String, DateTime> lastUpdated) {
+    private Cache(Map<String, Deal> deals, Set<String> columnIndex, Map<String, DateTime> directoriesLastUpdated,
+                  Map<String, LocalDate> sourceSystemsLastUpdated) {
         logger.info("Creating loaded cache with deals");
         this.deals = deals;
         this.columnIndex = columnIndex;
-        this.lastUpdated = lastUpdated;
+        this.directoriesLastUpdated = directoriesLastUpdated;
+        this.sourceSystemsLastUpdated = sourceSystemsLastUpdated;
     }
 
-    public void processDealUpdate(String directory, DateTime timestamp, Map<String, Deal> newDeals) {
+    public void processDealUpdate(String sourceSystem, String directory, DateTime timestamp,
+                                  Map<String, Deal> newDeals) {
         logger.info("Processing deal update with newDeals");
 
         for (Map.Entry<String, Deal> entry : newDeals.entrySet()) {
@@ -65,21 +72,29 @@ public class Cache {
             }
         }
 
-        if (lastUpdated.get(directory) == null) lastUpdated.put(directory, timestamp);
-        else if (lastUpdated.get(directory).isBefore(timestamp)) lastUpdated.put(directory, timestamp);
+        if (directoriesLastUpdated.get(directory) == null) directoriesLastUpdated.put(directory, timestamp);
+        else if (directoriesLastUpdated.get(directory).isBefore(timestamp))
+            directoriesLastUpdated.put(directory, timestamp);
+
+        LocalDate tsLD = timestamp.toLocalDate();
+
+        if (sourceSystemsLastUpdated.get(sourceSystem) == null)
+            sourceSystemsLastUpdated.put(sourceSystem, tsLD);
+        else if (sourceSystemsLastUpdated.get(sourceSystem).isBefore(timestamp.toLocalDate()))
+            sourceSystemsLastUpdated.put(sourceSystem, tsLD);
     }
 
-    public DateTime getLastUpdated(String directory) {
-        return lastUpdated.get(directory);
+    public DateTime getDirectoriesLastUpdated(String directory) {
+        return directoriesLastUpdated.get(directory);
     }
 
-    public Map<String,DateTime> getLastUpdated() {
-        return lastUpdated;
+    public Map<String,DateTime> getDirectoriesLastUpdated() {
+        return directoriesLastUpdated;
     }
 
     public LocalDate getSnapshotDate() {
         DateTime latest = null;
-        for (DateTime dt : lastUpdated.values()) if (latest == null || dt.isAfter(latest)) latest = dt;
+        for (DateTime dt : directoriesLastUpdated.values()) if (latest == null || dt.isAfter(latest)) latest = dt;
         return latest == null ? null : latest.toLocalDate();
     }
 
@@ -98,19 +113,25 @@ public class Cache {
     }
 
     public static String serializeCache(Map<String, Deal> deals, Set<String> columnIndex,
-                                        Map<String, DateTime> lastUpdated) {
+                                        Map<String, DateTime> directoriesLastUpdated,
+                                        Map<String, LocalDate> sourceSystemsLastUpdated) {
 
         Gson gson = new Gson();
         String dealsJSON = "{\"deals\":" + gson.toJson(deals) + ",";
         String colsJSON = "\"columnIndex\":" + gson.toJson(columnIndex) + ",";
 
-        StringBuilder sb = new StringBuilder("\"lastUpdated\":[");
-        for (Map.Entry<String, DateTime> entry : lastUpdated.entrySet())
+        StringBuilder sb = new StringBuilder("\"directoriesLastUpdated\":[");
+        for (Map.Entry<String, DateTime> entry : directoriesLastUpdated.entrySet())
             sb.append("{\"directory\":\"").append(entry.getKey()).append("\",\"timestamp\":\"")
                     .append(entry.getValue()).append("\"},");
 
-        sb.deleteCharAt(sb.lastIndexOf(","));
-        sb.append("]}");
+        sb.deleteCharAt(sb.lastIndexOf(",")).append("],\"sourceSystemsLastUpdated\":[");
+
+        for (Map.Entry<String, LocalDate> entry : sourceSystemsLastUpdated.entrySet())
+            sb.append("{\"sourceSystem\":\"").append(entry.getKey()).append("\",\"timestamp\":\"")
+                    .append(entry.getValue().toString("yyyyMMdd")).append("\"},");
+
+        sb.deleteCharAt(sb.lastIndexOf(",")).append("]}");
 
         return dealsJSON + colsJSON + sb.toString();
 
@@ -147,7 +168,7 @@ public class Cache {
 
                     JsonObject value = dealProperty.getValue().getAsJsonObject();
 
-                    String timestampStr;
+                    String timestampStr, sourceSystem;
                     Object innerValue;
                     DealProperty.Value.ValueType type;
 
@@ -161,7 +182,10 @@ public class Cache {
                         type = parseType(v.get("type").getAsString());
                         innerValue = parseInnerValue(type, v.get("innerValue"));
 
-                        DealProperty.Value parsedValue = new DealProperty.Value(innerValue, type);
+                        sourceSystem = v.get("sourceSystem").getAsString();
+
+
+                        DealProperty.Value parsedValue = new DealProperty.Value(innerValue, type, sourceSystem);
                         propertyMap.put(timestamp, parsedValue);
                     }
 
@@ -200,7 +224,7 @@ public class Cache {
         JsonParser parser = new JsonParser();
         JsonObject o = parser.parse(json).getAsJsonObject();
 
-        JsonArray luJsonArray = o.get("lastUpdated").getAsJsonArray();
+        JsonArray luJsonArray = o.get("directoriesLastUpdated").getAsJsonArray();
 
         for (JsonElement lu : luJsonArray) {
             JsonObject luO = lu.getAsJsonObject();
@@ -211,6 +235,27 @@ public class Cache {
             DateTime timestamp = formatter.parseDateTime(timestampStr);
 
             retMap.put(d, timestamp);
+        }
+
+        return retMap;
+    }
+
+    private static Map<String, LocalDate> deserializeSourceSystemTimestamps(String json) {
+        Map<String, LocalDate> retMap = Maps.newHashMap();
+        JsonParser parser = new JsonParser();
+        JsonObject o = parser.parse(json).getAsJsonObject();
+
+        JsonArray ssJsonArray = o.get("sourceSystemsLastUpdated").getAsJsonArray();
+
+        for (JsonElement ss : ssJsonArray) {
+            JsonObject ssO = ss.getAsJsonObject();
+            String ssString = ssO.get("sourceSystem").getAsString();
+            String timestampStr = ssO.get("timestamp").getAsString();
+
+            DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyyMMdd");
+            LocalDate timestamp  = formatter.parseLocalDate(timestampStr);
+
+            retMap.put(ssString, timestamp);
         }
 
         return retMap;
@@ -234,6 +279,14 @@ public class Cache {
         if (typeStr.equals("BOOLEAN")) return DealProperty.Value.ValueType.BOOLEAN;
         if (typeStr.equals("NUMERIC")) return DealProperty.Value.ValueType.NUMERIC;
         return DealProperty.Value.ValueType.STRING;
+    }
+
+    public Map<String, LocalDate> getSourceSystemsLastUpdated() {
+        return sourceSystemsLastUpdated;
+    }
+
+    public LocalDate getSourceSystemLastUpdated(String sourceSystem) {
+        return sourceSystemsLastUpdated.get(sourceSystem);
     }
 
     public class CacheException extends Exception {

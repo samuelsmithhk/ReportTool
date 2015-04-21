@@ -84,6 +84,9 @@ public class ReportToolRunner {
             String path = ReportToolRunner.class.getProtectionDomain().getCodeSource().getLocation().getPath();
             String decodedPath = URLDecoder.decode(path, "UTF-8");
             decodedPath = decodedPath.replace("reportTool.jar", "");
+            if (System.getProperty("os.name").toLowerCase().contains("win"))
+                decodedPath = decodedPath.replaceFirst("/", "");
+
             byte[] encodedJSON = Files.readAllBytes(Paths.get(decodedPath + "parserConfig.json"));
             String json = new String(encodedJSON, Charset.defaultCharset());
 

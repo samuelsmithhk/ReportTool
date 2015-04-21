@@ -34,7 +34,7 @@ public class CacheTest {
         Cache emptyCache = createEmptyCache();
         boolean condition1 = emptyCache.getDeals().size() == 0;
         boolean condition2 = emptyCache.getCols().size() == 0;
-        boolean condition3 = emptyCache.getLastUpdated() == null;
+        boolean condition3 = emptyCache.getDirectoriesLastUpdated() == null;
 
         Assert.assertTrue(condition1 && condition2 && condition3);
     }
@@ -131,8 +131,10 @@ public class CacheTest {
 
         DateTime time = new DateTime(2014, 10, 10, 10, 10);
         DealProperty.Value
-                value1 = new DealProperty.Value("Deal Code - Project PE - AA1", DealProperty.Value.ValueType.STRING),
-                value2 = new DealProperty.Value("Deal Code - Project PE - AA2", DealProperty.Value.ValueType.STRING);
+                value1 = new DealProperty.Value("Deal Code - Project PE - AA1", DealProperty.Value.ValueType.STRING,
+                        "TEST"),
+                value2 = new DealProperty.Value("Deal Code - Project PE - AA2", DealProperty.Value.ValueType.STRING,
+                        "TEST");
 
         DealProperty.DealPropertyBuilder dpb1 = new DealProperty.DealPropertyBuilder(),
                 dpb2 = new DealProperty.DealPropertyBuilder();
