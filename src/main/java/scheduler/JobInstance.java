@@ -90,7 +90,7 @@ public class JobInstance implements Comparable<JobInstance> {
 
                 sb.append("\"option\":\"day\",").append("\"every\":\"").append(repeatsMonthlyDay.getEvery())
                         .append("\",\"one\":\"").append(repeatsMonthlyDay.getParam1()).append("\",\"two\":\"")
-                        .append(repeatsMonthlyDay.getParam2()).append("\",until\":\"")
+                        .append(repeatsMonthlyDay.getParam2()).append("\",\"until\":\"")
                         .append(repeatsMonthlyDay.getUntil()).append("\",\"executionTime\":\"")
                         .append(repeatsMonthlyDay.getExecutionTime()).append("\"");
 

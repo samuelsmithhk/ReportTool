@@ -37,24 +37,32 @@ public class RepeatsMonthlyDay extends AbstractTimeRule {
         LocalDate today = new LocalDate();
         int numberOfMonths = Months.monthsBetween(today, until).getMonths();
 
-        for (int i = 0; i < numberOfMonths; i += every) {
+        for (int i = 1; i <= numberOfMonths; i += every) {
             if (param1.equals("first"))
-                retQueue.add(mergeDateTime(getNthOfMonth(1, today.plusMonths(i).getMonthOfYear(), param2), runAt));
+                retQueue.add(mergeDateTime(getNthOfMonth(1, i, param2), runAt));
             else if (param1.equals("second"))
-                retQueue.add(mergeDateTime(getNthOfMonth(2, today.plusMonths(i).getMonthOfYear(), param2), runAt));
+                retQueue.add(mergeDateTime(getNthOfMonth(2, i, param2), runAt));
             else if (param1.equals("third"))
-                retQueue.add(mergeDateTime(getNthOfMonth(3, today.plusMonths(i).getMonthOfYear(), param2), runAt));
+                retQueue.add(mergeDateTime(getNthOfMonth(3, i, param2), runAt));
             else if (param1.equals("fourth"))
-                retQueue.add(mergeDateTime(getNthOfMonth(4, today.plusMonths(i).getMonthOfYear(), param2), runAt));
+                retQueue.add(mergeDateTime(getNthOfMonth(4, i, param2), runAt));
             else if (param1.equals("last"))
-                retQueue.add(mergeDateTime(getNthOfMonth(5, today.plusMonths(i).getMonthOfYear(), param2), runAt));
+                retQueue.add(mergeDateTime(getNthOfMonth(5, i, param2), runAt));
         }
 
         return purgeExcluded(purgeOldInstances(retQueue));
     }
 
-    private LocalDate getNthOfMonth(int weekNo, int monthOfYear, DAY dayOfWeek) {
-        LocalDate ret = new LocalDate().withMonthOfYear(monthOfYear).withDayOfMonth(1)
+    private LocalDate getNthOfMonth(int weekNo, int monthsToAdd, DAY dayOfWeek) {
+        int yearsToAdd = 0;
+        int monthOfYear = monthsToAdd;
+
+        if (monthsToAdd > 12) {
+            yearsToAdd = monthsToAdd / 12;
+            monthOfYear = (monthOfYear - (12 * yearsToAdd)) + 1;
+        }
+
+        LocalDate ret = new LocalDate().plusYears(yearsToAdd).withMonthOfYear(monthOfYear).withDayOfMonth(1)
                 .withDayOfWeek(dayOfWeek.ordinal() + 1).plusWeeks(weekNo);
 
         if (ret.getMonthOfYear() < monthOfYear) ret = ret.plusDays(7);
