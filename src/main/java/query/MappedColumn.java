@@ -3,6 +3,7 @@ package query;
 import deal.Deal;
 import deal.DealProperty;
 import managers.CacheManager;
+
 public class MappedColumn implements SpecialColumn {
 
     private final String original, header;

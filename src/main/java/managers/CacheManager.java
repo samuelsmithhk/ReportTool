@@ -12,6 +12,13 @@ import java.util.Map;
 
 public class CacheManager {
     private static CacheManager cm;
+    private final CacheFileManager cfm;
+    private final Cache cache;
+
+    private CacheManager(CacheFileManager cfm) {
+        this.cfm = cfm;
+        this.cache = cfm.getCache();
+    }
 
     public static void initCacheManager(CacheFileManager cfm) {
         if (cm == null) cm = new CacheManager(cfm);
@@ -22,19 +29,11 @@ public class CacheManager {
         return cm;
     }
 
-    private final CacheFileManager cfm;
-    private final Cache cache;
-
-    private CacheManager(CacheFileManager cfm) {
-        this.cfm = cfm;
-        this.cache = cfm.getCache();
-    }
-
     public synchronized List<String> getAllColumns() {
         return new ArrayList<>(cache.getCols());
     }
 
-    public void processDealUpdate(String sourceSystem,String directory, DateTime timestamp,
+    public void processDealUpdate(String sourceSystem, String directory, DateTime timestamp,
                                   Map<String, Deal> dealMap) {
         cache.processDealUpdate(sourceSystem, directory, timestamp, dealMap);
     }

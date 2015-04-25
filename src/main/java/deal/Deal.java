@@ -8,7 +8,7 @@ public class Deal {
 
     public final Map<String, DealProperty> dealProperties; //key is column
 
-    public Deal (Map<String, DealProperty> dealProperties) {
+    public Deal(Map<String, DealProperty> dealProperties) {
         this.dealProperties = dealProperties;
     }
 

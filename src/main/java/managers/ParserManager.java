@@ -16,6 +16,12 @@ import java.util.jar.JarFile;
 public class ParserManager {
 
     private static ParserManager pm;
+    private final List<ParserConfig> parserConfigs;
+    private List<String> directoriesIndex;
+
+    private ParserManager(List<ParserConfig> parserConfigs) {
+        this.parserConfigs = parserConfigs;
+    }
 
     public static void initParserConfigManager(List<ParserConfig> parserConfigs) {
         if (pm == null) pm = new ParserManager(parserConfigs);
@@ -26,14 +32,6 @@ public class ParserManager {
             throw new Exception("ParserConfigManager needs to be initialized with a list of parser configs");
         return pm;
     }
-
-    private final List<ParserConfig> parserConfigs;
-    private List<String> directoriesIndex;
-
-    private ParserManager(List<ParserConfig> parserConfigs) {
-        this.parserConfigs = parserConfigs;
-    }
-
 
     public List<String> getDirectories() {
         if (directoriesIndex == null) {

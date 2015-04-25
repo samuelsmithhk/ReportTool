@@ -151,17 +151,6 @@ public class Query {
                 return this;
             }
 
-
-            public QuerySheetBuilder setGroupBy(String groupBy) {
-                this.groupBy = groupBy;
-                return this;
-            }
-
-            public QuerySheetBuilder setSortBy(String sortBy) {
-                this.sortBy = sortBy;
-                return this;
-            }
-
             public QuerySheetBuilder setFilter(String filterColumn, String filterValue) {
                 this.filterColumn = filterColumn;
                 this.filterValue = filterValue;
@@ -207,6 +196,11 @@ public class Query {
                 return sortBy;
             }
 
+            public QuerySheetBuilder setSortBy(String sortBy) {
+                this.sortBy = sortBy;
+                return this;
+            }
+
             public String getFilterColumn() {
                 return filterColumn;
             }
@@ -217,6 +211,11 @@ public class Query {
 
             public String getGroupBy() {
                 return groupBy;
+            }
+
+            public QuerySheetBuilder setGroupBy(String groupBy) {
+                this.groupBy = groupBy;
+                return this;
             }
         }
 

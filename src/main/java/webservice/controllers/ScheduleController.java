@@ -46,7 +46,8 @@ public class ScheduleController {
         LocalDate date = dtf.parseLocalDate(dateString);
 
         List<JobInstance> jobsForDate = ScheduleManager.getScheduleManager().getJobsForDate(date);
-        Type listAllJobs = new TypeToken<List<JobInstance>>(){}.getType();
+        Type listAllJobs = new TypeToken<List<JobInstance>>() {
+        }.getType();
 
         response.getWriter().write(gson.toJson(jobsForDate, listAllJobs));
         logger.info("Jobs for date {} served to {}", dateString, request.getRemoteAddr());

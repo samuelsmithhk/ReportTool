@@ -47,7 +47,7 @@ public class CacheFileManager {
         }
     }
 
-    public void saveCache(Cache cache)  {
+    public void saveCache(Cache cache) {
         logger.info("Saving cache");
 
         String toSave = Cache.serializeCache(cache.getDeals(), cache.getCols(), cache.getDirectoriesLastUpdated(),
@@ -57,7 +57,7 @@ public class CacheFileManager {
 
         PrintWriter out;
         try {
-            out = new PrintWriter(cacheDirectory + filename  + ".cache");
+            out = new PrintWriter(cacheDirectory + filename + ".cache");
             out.print(toSave);
             out.close();
         } catch (FileNotFoundException e) {
@@ -96,8 +96,7 @@ public class CacheFileManager {
             else logger.error("Error deleted cache with timestamp {}", earliestTimestamp);
 
             historicCleanUp();
-        }
-        else logger.info("Number of caches do not exceed limit (limit is {})", numberOfHistoricFiles);
+        } else logger.info("Number of caches do not exceed limit (limit is {})", numberOfHistoricFiles);
 
     }
 
@@ -126,7 +125,7 @@ public class CacheFileManager {
         File latestFile = files[0];
         DateTime latestTimestamp = getFileTimestamp(latestFile);
 
-        for (int i = 1; i < files.length ; i++) {
+        for (int i = 1; i < files.length; i++) {
             File currentFile = files[i];
             DateTime currentTimestamp = getFileTimestamp(currentFile);
 

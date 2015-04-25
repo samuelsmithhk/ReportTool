@@ -11,24 +11,25 @@ import query.Query;
 import scheduler.timerule.*;
 
 import java.lang.reflect.Type;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.PriorityQueue;
+import java.util.Queue;
 
 public class JobInstance implements Comparable<JobInstance> {
 
     private static final Logger logger = LoggerFactory.getLogger(JobInstance.class);
+    public final DateTime executionTime;
+    private final Job jobToExecute;
+    private JobInstance(DateTime executionTime, Job jobToExecute) {
+        this.executionTime = executionTime;
+        this.jobToExecute = jobToExecute;
+    }
 
     @SuppressWarnings("NullableProblems")
     @Override
     public int compareTo(JobInstance o) {
         return executionTime.compareTo(o.executionTime);
-    }
-
-    public final DateTime executionTime;
-    private final Job jobToExecute;
-
-    private JobInstance(DateTime executionTime, Job jobToExecute) {
-        this.executionTime = executionTime;
-        this.jobToExecute = jobToExecute;
     }
 
     public void execute() throws Exception {
@@ -38,6 +39,11 @@ public class JobInstance implements Comparable<JobInstance> {
         Email.getEmail().sendEmail(jobToExecute.queries, jobToExecute.emailTo, jobToExecute.subject,
                 jobToExecute.message);
         logger.info("Emails sent, job complete");
+    }
+
+    @Override
+    public String toString() {
+        return executionTime + " - " + jobToExecute;
     }
 
     public static class JobInstanceSerializer implements JsonSerializer<JobInstance> {
@@ -120,11 +126,6 @@ public class JobInstance implements Comparable<JobInstance> {
             JsonParser parser = new JsonParser();
             return parser.parse(sb.toString());
         }
-    }
-
-    @Override
-    public String toString() {
-        return executionTime + " - " + jobToExecute;
     }
 
     public static class Job {
@@ -250,7 +251,7 @@ public class JobInstance implements Comparable<JobInstance> {
                 return jb.build();
             }
 
-            private ITimeRule parseTimeObject(JsonObject o)  {
+            private ITimeRule parseTimeObject(JsonObject o) {
                 ITimeRule retRule;
 
                 String runType = o.get("runType").getAsString();
@@ -382,7 +383,7 @@ public class JobInstance implements Comparable<JobInstance> {
                     String until = repeatsMonthlyDay.getUntil().toString("yyyyMMdd");
 
                     sb.append("\"runType\":\"repeats\",\"resolution\":\"monthly\",\"option\":\"day\",\"every\":")
-                    .append(every).append(",\"one\":\"").append(one).append("\",\"two\":\"").append(two)
+                            .append(every).append(",\"one\":\"").append(one).append("\",\"two\":\"").append(two)
                             .append("\",\"time\":\"").append(time).append("\",\"until\":\"").append(until).append("\"");
                 }
 

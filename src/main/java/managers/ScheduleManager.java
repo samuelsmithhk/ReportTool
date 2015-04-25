@@ -12,8 +12,14 @@ import java.util.Queue;
 
 public class ScheduleManager {
 
-    private final ScheduleFileManager sfm;
     private static ScheduleManager sm;
+    private final ScheduleFileManager sfm;
+    List<JobInstance.Job> jobs;
+    private Schedule schedule;
+
+    private ScheduleManager(ScheduleFileManager sfm) {
+        this.sfm = sfm;
+    }
 
     public static void initScheduleManager(ScheduleFileManager sfm) {
         if (sm == null) sm = new ScheduleManager(sfm);
@@ -23,13 +29,6 @@ public class ScheduleManager {
         if (sm == null)
             throw new Exception("ScheduleManager needs to be instantiated with instance of ScheduleFileManager");
         return sm;
-    }
-
-    private Schedule schedule;
-    List<JobInstance.Job> jobs;
-
-    private ScheduleManager(ScheduleFileManager sfm) {
-        this.sfm = sfm;
     }
 
     private Schedule loadSchedule(Schedule currentSchedule) {

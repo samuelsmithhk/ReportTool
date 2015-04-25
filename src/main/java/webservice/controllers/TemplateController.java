@@ -17,16 +17,15 @@ import java.util.List;
 public class TemplateController {
 
     private static final Logger logger = LoggerFactory.getLogger(TemplateController.class);
-
-    private TemplateManager tm;
     private final Gson gson;
+    private TemplateManager tm;
 
     public TemplateController() {
         GsonBuilder builder = new GsonBuilder();
         gson = builder.create();
     }
 
-    @RequestMapping(value = "/getAllTemplates", method= RequestMethod.GET)
+    @RequestMapping(value = "/getAllTemplates", method = RequestMethod.GET)
     public void getAllTemplates(HttpServletRequest request, HttpServletResponse response) throws Exception {
         logger.info("{} is requesting all templates", request.getRemoteAddr());
 

@@ -23,7 +23,7 @@ public class RepeatsMonthlyDay extends AbstractTimeRule {
         this.until = parseDate(until);
         this.runAt = parseTime(runAt);
     }
-    
+
 
     @Override
     public String getType() {

@@ -11,7 +11,7 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.util.List;
 
-import static scheduler.JobInstance.*;
+import static scheduler.JobInstance.Job;
 
 public class ScheduleFileManager {
 

@@ -18,6 +18,25 @@ import java.util.Set;
 public class Cache {
 
     private static final Logger logger = LoggerFactory.getLogger(Cache.class);
+    private final Set<String> columnIndex;
+    private final Map<String, Deal> deals;
+    private Map<String, DateTime> directoriesLastUpdated;
+    private Map<String, LocalDate> sourceSystemsLastUpdated;
+    private Cache() {
+        logger.info("Creating empty cache");
+        this.deals = Maps.newHashMap();
+        this.columnIndex = Sets.newTreeSet();
+        this.directoriesLastUpdated = Maps.newHashMap();
+        this.sourceSystemsLastUpdated = Maps.newHashMap();
+    }
+    private Cache(Map<String, Deal> deals, Set<String> columnIndex, Map<String, DateTime> directoriesLastUpdated,
+                  Map<String, LocalDate> sourceSystemsLastUpdated) {
+        logger.info("Creating loaded cache with deals");
+        this.deals = deals;
+        this.columnIndex = columnIndex;
+        this.directoriesLastUpdated = directoriesLastUpdated;
+        this.sourceSystemsLastUpdated = sourceSystemsLastUpdated;
+    }
 
     public static Cache createEmptyCache() {
         return new Cache();
@@ -38,88 +57,6 @@ public class Cache {
         Map<String, Deal> cacheDeals = deserializeCacheContents(cacheContentsJSON);
 
         return new Cache(cacheDeals, cacheColumns, directoriesLastUpdated, sourceSystemLastUpdated);
-    }
-
-    private final Set<String> columnIndex;
-    private final Map<String, Deal> deals;
-    private Map<String, DateTime> directoriesLastUpdated;
-    private Map<String, LocalDate> sourceSystemsLastUpdated;
-
-    private Cache(){
-        logger.info("Creating empty cache");
-        this.deals = Maps.newHashMap();
-        this.columnIndex = Sets.newTreeSet();
-        this.directoriesLastUpdated = Maps.newHashMap();
-        this.sourceSystemsLastUpdated = Maps.newHashMap();
-    }
-
-    private Cache(Map<String, Deal> deals, Set<String> columnIndex, Map<String, DateTime> directoriesLastUpdated,
-                  Map<String, LocalDate> sourceSystemsLastUpdated) {
-        logger.info("Creating loaded cache with deals");
-        this.deals = deals;
-        this.columnIndex = columnIndex;
-        this.directoriesLastUpdated = directoriesLastUpdated;
-        this.sourceSystemsLastUpdated = sourceSystemsLastUpdated;
-    }
-
-    public void processDealUpdate(String sourceSystem, String directory, DateTime timestamp,
-                                  Map<String, Deal> newDeals) {
-        logger.info("Processing deal update with newDeals");
-
-        for (Map.Entry<String, Deal> entry : newDeals.entrySet()) {
-            Deal deal = entry.getValue();
-
-            //update column index
-            columnIndex.addAll(deal.dealProperties.keySet());
-
-            if (deals.containsKey(entry.getKey())) {
-                //update deal
-                logger.info("Updating deal {}", entry.getKey());
-                deals.get(entry.getKey()).updateDeal(timestamp, deal);
-            } else {
-                //new deal
-                deals.put(entry.getKey(), deal);
-            }
-        }
-
-        if (directoriesLastUpdated.get(directory) == null) directoriesLastUpdated.put(directory, timestamp);
-        else if (directoriesLastUpdated.get(directory).isBefore(timestamp))
-            directoriesLastUpdated.put(directory, timestamp);
-
-        LocalDate tsLD = timestamp.toLocalDate();
-
-        if (sourceSystemsLastUpdated.get(sourceSystem) == null)
-            sourceSystemsLastUpdated.put(sourceSystem, tsLD);
-        else if (sourceSystemsLastUpdated.get(sourceSystem).isBefore(timestamp.toLocalDate()))
-            sourceSystemsLastUpdated.put(sourceSystem, tsLD);
-    }
-
-    public DateTime getDirectoriesLastUpdated(String directory) {
-        return directoriesLastUpdated.get(directory);
-    }
-
-    public Map<String,DateTime> getDirectoriesLastUpdated() {
-        return directoriesLastUpdated;
-    }
-
-    public LocalDate getSnapshotDate() {
-        DateTime latest = null;
-        for (DateTime dt : directoriesLastUpdated.values()) if (latest == null || dt.isAfter(latest)) latest = dt;
-        return latest == null ? null : latest.toLocalDate();
-    }
-
-
-    public Map<String, Deal> getDeals() {
-        return deals;
-    }
-
-    public Set<String> getCols() {
-        return columnIndex;
-    }
-
-    public Deal getDeal(String dealName) throws CacheException {
-        if (deals.containsKey(dealName)) return deals.get(dealName);
-        else throw new CacheException("Deal does not exist in cache: " + dealName);
     }
 
     public static String serializeCache(Map<String, Deal> deals, Set<String> columnIndex,
@@ -204,7 +141,7 @@ public class Cache {
                 parsedDeal = new Deal(dealMap);
             }
 
-            if (parsedDeal  != null) retMap.put(opportunity, parsedDeal);
+            if (parsedDeal != null) retMap.put(opportunity, parsedDeal);
 
         }
 
@@ -244,7 +181,7 @@ public class Cache {
             JsonObject ssO = ss.getAsJsonObject();
             String ssString = ssO.get("ss").getAsString();
             String timestampStr = ssO.get("ts").getAsString();
-            LocalDate timestamp  = formatter.parseLocalDate(timestampStr);
+            LocalDate timestamp = formatter.parseLocalDate(timestampStr);
 
             retMap.put(ssString, timestamp);
         }
@@ -260,7 +197,7 @@ public class Cache {
                 return innerValue.getAsBoolean();
             case NU:
                 return innerValue.getAsDouble();
-            default :
+            default:
                 return innerValue.getAsString();
         }
     }
@@ -272,6 +209,65 @@ public class Cache {
         return DealProperty.Value.ValueType.ST;
     }
 
+    public void processDealUpdate(String sourceSystem, String directory, DateTime timestamp,
+                                  Map<String, Deal> newDeals) {
+        logger.info("Processing deal update with newDeals");
+
+        for (Map.Entry<String, Deal> entry : newDeals.entrySet()) {
+            Deal deal = entry.getValue();
+
+            //update column index
+            columnIndex.addAll(deal.dealProperties.keySet());
+
+            if (deals.containsKey(entry.getKey())) {
+                //update deal
+                logger.info("Updating deal {}", entry.getKey());
+                deals.get(entry.getKey()).updateDeal(timestamp, deal);
+            } else {
+                //new deal
+                deals.put(entry.getKey(), deal);
+            }
+        }
+
+        if (directoriesLastUpdated.get(directory) == null) directoriesLastUpdated.put(directory, timestamp);
+        else if (directoriesLastUpdated.get(directory).isBefore(timestamp))
+            directoriesLastUpdated.put(directory, timestamp);
+
+        LocalDate tsLD = timestamp.toLocalDate();
+
+        if (sourceSystemsLastUpdated.get(sourceSystem) == null)
+            sourceSystemsLastUpdated.put(sourceSystem, tsLD);
+        else if (sourceSystemsLastUpdated.get(sourceSystem).isBefore(timestamp.toLocalDate()))
+            sourceSystemsLastUpdated.put(sourceSystem, tsLD);
+    }
+
+    public DateTime getDirectoriesLastUpdated(String directory) {
+        return directoriesLastUpdated.get(directory);
+    }
+
+    public Map<String, DateTime> getDirectoriesLastUpdated() {
+        return directoriesLastUpdated;
+    }
+
+    public LocalDate getSnapshotDate() {
+        DateTime latest = null;
+        for (DateTime dt : directoriesLastUpdated.values()) if (latest == null || dt.isAfter(latest)) latest = dt;
+        return latest == null ? null : latest.toLocalDate();
+    }
+
+    public Map<String, Deal> getDeals() {
+        return deals;
+    }
+
+    public Set<String> getCols() {
+        return columnIndex;
+    }
+
+    public Deal getDeal(String dealName) throws CacheException {
+        if (deals.containsKey(dealName)) return deals.get(dealName);
+        else throw new CacheException("Deal does not exist in cache: " + dealName);
+    }
+
     public Map<String, LocalDate> getSourceSystemsLastUpdated() {
         return sourceSystemsLastUpdated;
     }
@@ -281,6 +277,8 @@ public class Cache {
     }
 
     public class CacheException extends Exception {
-        public CacheException(String e) { super(e);}
+        public CacheException(String e) {
+            super(e);
+        }
     }
 }

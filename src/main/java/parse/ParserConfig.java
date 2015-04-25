@@ -1,7 +1,10 @@
 package parse;
 
 import com.google.common.collect.Lists;
-import com.google.gson.*;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 import java.util.List;
 
@@ -26,7 +29,7 @@ public class ParserConfig {
         JsonObject jo = jsonParser.parse(json).getAsJsonObject();
         JsonArray parsers = jo.getAsJsonArray("parsers");
 
-        for (JsonElement  jsonElement : parsers) {
+        for (JsonElement jsonElement : parsers) {
             JsonObject o = jsonElement.getAsJsonObject();
 
             String jarPath = o.get("jarPath").getAsString();
@@ -34,7 +37,7 @@ public class ParserConfig {
             String regex = o.get("regex").getAsString();
             String sourceSystem = o.get("sourceSystem").getAsString();
 
-            JsonArray caJSONArray  = o.get("constructorArguments").getAsJsonArray();
+            JsonArray caJSONArray = o.get("constructorArguments").getAsJsonArray();
             String[] constructorArguments = new String[caJSONArray.size()];
 
             int i = 0;

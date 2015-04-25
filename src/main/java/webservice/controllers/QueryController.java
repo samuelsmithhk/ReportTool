@@ -22,9 +22,8 @@ import java.util.List;
 @Controller
 public class QueryController {
     private static final Logger logger = LoggerFactory.getLogger(QueryController.class);
-
-    private QueryManager qm;
     private final Gson gson;
+    private QueryManager qm;
 
     public QueryController() {
 
@@ -41,7 +40,8 @@ public class QueryController {
 
         try {
             List<Query> allQueries = qm.getAllQueries();
-            Type listAllQueries = new TypeToken<List<Query>>(){}.getType();
+            Type listAllQueries = new TypeToken<List<Query>>() {
+            }.getType();
             response.getWriter().write(gson.toJson(allQueries, listAllQueries));
             logger.info("All queries served to {}", request.getRemoteAddr());
         } catch (IOException e) {
@@ -131,7 +131,7 @@ public class QueryController {
     @RequestMapping(value = "/removeQuery", method = RequestMethod.POST)
     public void removeQuery(HttpServletRequest request, HttpServletResponse response) {
         String queryName = request.getParameter("queryName");
-        logger.info( "{} is attempting to remove query {}", request.getRemoteAddr(), queryName);
+        logger.info("{} is attempting to remove query {}", request.getRemoteAddr(), queryName);
 
         try {
             if (qm == null) qm = QueryManager.getQueryManager();

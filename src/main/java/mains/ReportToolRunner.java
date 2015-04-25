@@ -24,15 +24,6 @@ public class ReportToolRunner {
 
     private final Logger logger = LoggerFactory.getLogger(ReportToolRunner.class);
 
-    public static void main(String[] args) {
-        try {
-            new ReportToolRunner();
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.exit(1);
-        }
-    }
-
     private ReportToolRunner() throws Exception {
         logger.info("Initializing mains.ReportToolRunner");
 
@@ -43,6 +34,15 @@ public class ReportToolRunner {
 
         ScheduleManager sm = ScheduleManager.getScheduleManager();
         sm.startSchedule();
+    }
+
+    public static void main(String[] args) {
+        try {
+            new ReportToolRunner();
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
     }
 
     private void init() throws Exception {

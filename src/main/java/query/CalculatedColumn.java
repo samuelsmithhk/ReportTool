@@ -14,12 +14,10 @@ import java.util.regex.Pattern;
 
 public class CalculatedColumn implements SpecialColumn {
 
-    Logger logger = LoggerFactory.getLogger(CalculatedColumn.class);
-
     private final String header, firstHalf, operatorString, secondHalf;
     private final Operator operator;
-
     private final Map<String, Operator> operatorMap;
+    Logger logger = LoggerFactory.getLogger(CalculatedColumn.class);
 
     public CalculatedColumn(String header, String firstHalf, String operator, String secondHalf)
             throws SpecialColumnException {
@@ -59,10 +57,10 @@ public class CalculatedColumn implements SpecialColumn {
         return operator.evaluate(query, deal, firstHalf, secondHalf);
     }
 
-   private Operator getOperator(String operator) throws SpecialColumnException {
-       if (operatorMap.containsKey(operator)) return operatorMap.get(operator);
-       throw new SpecialColumnException("Unknown operator: " + operator);
-   }
+    private Operator getOperator(String operator) throws SpecialColumnException {
+        if (operatorMap.containsKey(operator)) return operatorMap.get(operator);
+        throw new SpecialColumnException("Unknown operator: " + operator);
+    }
 
     public String getFirstHalf() {
         return firstHalf;
@@ -153,8 +151,7 @@ public class CalculatedColumn implements SpecialColumn {
                 if (value.type.equals(DealProperty.Value.ValueType.NU)) {
                     total += (Double) value.innerValue;
                     count++;
-                }
-                else logger.warn("Unable to add value {} in aggregation operation, as not numeric", value.innerValue);
+                } else logger.warn("Unable to add value {} in aggregation operation, as not numeric", value.innerValue);
             }
 
             double average = total / count;
@@ -203,8 +200,7 @@ public class CalculatedColumn implements SpecialColumn {
 
                     a = (Double) res.innerValue;
                 } else throw new SpecialColumnException("Calculated column missing: " + reference);
-            }
-            else {
+            } else {
                 DealProperty dp1 = (deal.dealProperties.containsKey(firstHalf)) ?
                         deal.dealProperties.get(firstHalf) : null;
 
@@ -232,8 +228,7 @@ public class CalculatedColumn implements SpecialColumn {
 
                     b = (Double) res.innerValue;
                 } else throw new SpecialColumnException("Calculated column missing: " + reference);
-            }
-            else {
+            } else {
                 DealProperty dp2 = (deal.dealProperties.containsKey(secondHalf)) ?
                         deal.dealProperties.get(secondHalf) : null;
 
@@ -253,7 +248,7 @@ public class CalculatedColumn implements SpecialColumn {
         public abstract DealProperty.Value calculate(double dp1, double dp2);
     }
 
-    private class AddOperator extends MathematicalOperator{
+    private class AddOperator extends MathematicalOperator {
         @Override
         public DealProperty.Value calculate(double a, double b) {
             return new DealProperty.Value((a + b), DealProperty.Value.ValueType.NU, "CALCULATED");
@@ -302,8 +297,7 @@ public class CalculatedColumn implements SpecialColumn {
                     DealProperty.Value res = cc.evaluate(query, deal);
                     str1 = (String) res.innerValue;
                 } else throw new SpecialColumnException("Calculated column missing: " + reference);
-            }
-            else {
+            } else {
                 DealProperty dp = (deal.dealProperties.containsKey(firstHalf)) ?
                         deal.dealProperties.get(firstHalf) : null;
 
@@ -323,8 +317,7 @@ public class CalculatedColumn implements SpecialColumn {
                     DealProperty.Value res = cc.evaluate(query, deal);
                     str2 = (String) res.innerValue;
                 } else throw new SpecialColumnException("Calculated column missing: " + reference);
-            }
-            else {
+            } else {
                 DealProperty dp = (deal.dealProperties.containsKey(secondHalf)) ?
                         deal.dealProperties.get(secondHalf) : null;
 

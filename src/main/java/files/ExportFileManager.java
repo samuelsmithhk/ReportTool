@@ -9,7 +9,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import query.Query;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FilenameFilter;
+import java.io.IOException;
 import java.util.List;
 
 
@@ -36,7 +39,7 @@ public class ExportFileManager {
             result.write(out);
             out.close();
         } catch (IOException e) {
-            logger.error("Error saving query result file: {}" ,e.getLocalizedMessage());
+            logger.error("Error saving query result file: {}", e.getLocalizedMessage());
         }
 
     }

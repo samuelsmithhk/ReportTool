@@ -153,11 +153,11 @@ public class SheetGenerator {
             return retSet;
         }
 
-        static List<String> getValuesInHeaderOrder(Set<Query.QuerySheet.Header> headers, QueryResultDeal d){
+        static List<String> getValuesInHeaderOrder(Set<Query.QuerySheet.Header> headers, QueryResultDeal d) {
             List<String> retList = Lists.newLinkedList();
 
             for (Query.QuerySheet.Header h : headers) {
-                for (String sub: h.subs) {
+                for (String sub : h.subs) {
                     if (d.hasDealProperty(sub)) retList.add(d.getDPValue(sub));
                     else retList.add("");
                 }

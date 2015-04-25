@@ -4,11 +4,18 @@ import files.InputFileManager;
 import files.InputPair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.util.List;
 
 public class InputManager {
 
     private static InputManager im;
+    private final Logger logger = LoggerFactory.getLogger(InputManager.class);
+    private final InputFileManager ifm;
+
+    private InputManager(InputFileManager ifm) {
+        this.ifm = ifm;
+    }
 
     public static void initInputManager(InputFileManager ifm) {
         if (im == null) im = new InputManager(ifm);
@@ -18,14 +25,6 @@ public class InputManager {
         if (im == null)
             throw new Exception("InputManager needs to be initialized with an instance of InputFileManager");
         return im;
-    }
-
-    private final Logger logger = LoggerFactory.getLogger(InputManager.class);
-
-    private final InputFileManager ifm;
-
-    private InputManager(InputFileManager ifm) {
-        this.ifm = ifm;
     }
 
     public void loadNewInputsIfAny() throws Exception {

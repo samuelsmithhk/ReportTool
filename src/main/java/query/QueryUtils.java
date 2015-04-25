@@ -7,7 +7,7 @@ public class QueryUtils {
         if (value == null || value.innerValue == null) return "";
         if (value.type == DealProperty.Value.ValueType.NU) {
             Double val = (Double) value.innerValue;
-            if (val % 1 == 0 ) return String.valueOf(val.intValue());
+            if (val % 1 == 0) return String.valueOf(val.intValue());
         }
         return String.valueOf(value.innerValue);
     }

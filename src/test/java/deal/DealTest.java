@@ -13,7 +13,7 @@ public class DealTest {
     @Test
     public void shouldUpdateDeal() {
         Deal deal = new Deal(new HashMap<String, DealProperty>());
-        DateTime time = new DateTime(1,1,1,1,1);
+        DateTime time = new DateTime(1, 1, 1, 1, 1);
 
         DealProperty.DealPropertyBuilder dpb = new DealProperty.DealPropertyBuilder();
         dpb.withValue(time, new DealProperty.Value("Hello", DealProperty.Value.ValueType.ST, "TEST"));

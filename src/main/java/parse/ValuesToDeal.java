@@ -46,7 +46,7 @@ public class ValuesToDeal {
             Value v = entry.getValue();
 
             switch (v.type) {
-                case BOOLEAN :
+                case BOOLEAN:
                     dpb.withValue(timestamp, new DealProperty.Value(v.t, DealProperty.Value.ValueType.BO,
                             sourceSystem));
                     break;

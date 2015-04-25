@@ -64,7 +64,7 @@ public class HttpServer {
         log.setRequestLog(createRequestLog());
 
         HandlerCollection result = new HandlerCollection();
-        result.setHandlers(new Handler[] {contexts, log});
+        result.setHandlers(new Handler[]{contexts, log});
 
         return result;
     }

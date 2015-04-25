@@ -15,9 +15,13 @@ import java.util.List;
 
 public class ExportManager {
 
-    private final Logger logger = LoggerFactory.getLogger(ExportManager.class);
-
     private static ExportManager em;
+    private final Logger logger = LoggerFactory.getLogger(ExportManager.class);
+    private final ExportFileManager efm;
+
+    private ExportManager(ExportFileManager efm) {
+        this.efm = efm;
+    }
 
     public static void initExportManager(ExportFileManager efm) {
         if (em == null) em = new ExportManager(efm);
@@ -27,12 +31,6 @@ public class ExportManager {
         if (em == null)
             throw new Exception("ExportManager needs to be initialised with an instance of ExportFileManager");
         return em;
-    }
-
-    private final ExportFileManager efm;
-
-    private ExportManager(ExportFileManager efm) {
-        this.efm = efm;
     }
 
     public synchronized void exportQuery(QueryResult qr) throws Exception {
@@ -70,12 +68,11 @@ public class ExportManager {
             if (query.outputTimestamp)
                 sb.append(" - ").append(efm.getFileTimestamp(efm.getLatestExportForQuery(query).get(0)));
 
-            Process p = Runtime.getRuntime().exec( "wscript runmacro.vbs \"" + decodedPath + "\" " + sb.toString());
+            Process p = Runtime.getRuntime().exec("wscript runmacro.vbs \"" + decodedPath + "\" " + sb.toString());
             logger.info("Running macro");
             p.waitFor();
             logger.info("Macro complete");
 
-        }
-        else logger.warn("Warning, cannot run vbscript for macro as not on Windows operating system");
+        } else logger.warn("Warning, cannot run vbscript for macro as not on Windows operating system");
     }
 }

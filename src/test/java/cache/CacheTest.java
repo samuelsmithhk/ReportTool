@@ -19,7 +19,7 @@ import static org.mockito.Mockito.when;
 public class CacheTest {
 
     private Cache createEmptyCache() {
-         return Cache.createEmptyCache();
+        return Cache.createEmptyCache();
     }
 
     private Cache createLoadedCache() {
@@ -71,7 +71,7 @@ public class CacheTest {
     @Test
     public void shouldReturnNumericInnerValue() {
         JsonElement mockedElement = mock(JsonElement.class);
-        when (mockedElement.getAsDouble()).thenReturn(23.1);
+        when(mockedElement.getAsDouble()).thenReturn(23.1);
 
         double actual = (Double) Cache.parseInnerValue(DealProperty.Value.ValueType.NU, mockedElement);
 

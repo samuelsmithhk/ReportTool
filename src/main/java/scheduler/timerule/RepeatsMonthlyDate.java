@@ -37,7 +37,7 @@ public class RepeatsMonthlyDate extends AbstractTimeRule {
             LocalDate date = today.plusMonths(i).withDayOfMonth(dayOfMonth);
             retQueue.add(mergeDateTime(date, runAt));
         }
-        
+
         return purgeExcluded(purgeOldInstances(retQueue));
     }
 

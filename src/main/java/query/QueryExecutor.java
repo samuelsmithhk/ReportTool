@@ -17,6 +17,9 @@ public class QueryExecutor {
 
     private static transient Logger logger = LoggerFactory.getLogger(QueryExecutor.class);
 
+    private QueryExecutor() {
+    }
+
     public static QueryResult executeQuery(Query query) throws Exception {
         QueryExecutor qe = new QueryExecutor();
 
@@ -51,9 +54,6 @@ public class QueryExecutor {
 
         return qrb.build();
     }
-
-
-    private QueryExecutor() {}
 
     public Map<String, Deal> filterDeals(String filterColumn, String filterValue, LocalDate snapshotDate)
             throws Exception {
@@ -119,7 +119,7 @@ public class QueryExecutor {
             if (deal.hasDealProperty(groupBy)) {
                 String val = deal.getDPValue(groupBy);
 
-                if (retMap.containsKey(val)){
+                if (retMap.containsKey(val)) {
                     Group g = retMap.get(val);
                     g.addDeal(deal);
                 } else {
@@ -151,7 +151,7 @@ public class QueryExecutor {
         return toSort;
     }
 
-    private void  overwriteHeaders(Query query, List<Query.QuerySheet.Header> headers) {
+    private void overwriteHeaders(Query query, List<Query.QuerySheet.Header> headers) {
         for (Query.QuerySheet.Header header : headers) {
             for (String sub : header.subs) {
                 if ((sub.startsWith("=")) || (sub.startsWith("$"))) {

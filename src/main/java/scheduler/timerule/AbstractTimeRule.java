@@ -16,11 +16,6 @@ import java.util.Queue;
 public abstract class AbstractTimeRule implements ITimeRule {
 
     private final Logger logger = LoggerFactory.getLogger(AbstractTimeRule.class);
-
-    public enum DAY {
-        MON, TUE, WED, THU, FRI, SAT, SUN
-    }
-
     private List<DateTime> exclude;
 
     public AbstractTimeRule() {
@@ -55,7 +50,7 @@ public abstract class AbstractTimeRule implements ITimeRule {
         return retList;
     }
 
-    public DAY parseDay(String day)  {
+    public DAY parseDay(String day) {
         day = day.trim().toLowerCase();
         if (day.equals("mon")) return DAY.MON;
         if (day.equals("tue")) return DAY.TUE;
@@ -75,7 +70,7 @@ public abstract class AbstractTimeRule implements ITimeRule {
     }
 
     @Override
-    public List<DateTime> getExclusions(){
+    public List<DateTime> getExclusions() {
         return exclude;
     }
 
@@ -93,5 +88,9 @@ public abstract class AbstractTimeRule implements ITimeRule {
     public Queue<DateTime> purgeExcluded(Queue<DateTime> queue) {
         queue.removeAll(exclude);
         return queue;
+    }
+
+    public enum DAY {
+        MON, TUE, WED, THU, FRI, SAT, SUN
     }
 }

@@ -9,7 +9,7 @@ import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import parse.*;
+import parse.ValuesToDeal;
 import sheetparser.SheetParser;
 
 import java.io.File;
@@ -113,7 +113,7 @@ public class InputFileManager {
                 ValuesToDeal vtd = new ValuesToDeal();
                 String sourceSystem = ParserManager.getParserConfigManager().getSourceSystem(d, fName);
 
-                Map<String, Deal> dealMap  = vtd.convert(timestamp, sourceSystem, sheetParser.parse(wb));
+                Map<String, Deal> dealMap = vtd.convert(timestamp, sourceSystem, sheetParser.parse(wb));
 
                 retList.add(new InputPair(sourceSystem, d, f.getName(), timestamp, dealMap));
             }
@@ -125,7 +125,7 @@ public class InputFileManager {
 
     public DateTime getTimestamp(File file) throws IOException {
         logger.info("Getting the timestamp for input file: {}", file);
-        BasicFileAttributes attr = Files.readAttributes(file.toPath(),  BasicFileAttributes.class);
+        BasicFileAttributes attr = Files.readAttributes(file.toPath(), BasicFileAttributes.class);
         return new DateTime(attr.creationTime().toMillis());
     }
 

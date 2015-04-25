@@ -11,6 +11,18 @@ import java.util.List;
 public class Email {
 
     private static Email email;
+    private final String host, from, username, password;
+    private final int port;
+    private final boolean ssl;
+
+    private Email(String host, int port, boolean ssl, String from, String username, String password) {
+        this.host = host;
+        this.from = from;
+        this.username = username;
+        this.password = password;
+        this.port = port;
+        this.ssl = ssl;
+    }
 
     public static Email getEmail() throws Exception {
         if (email == null) throw new Exception("Needs to be instantiated with properties");
@@ -23,19 +35,6 @@ public class Email {
 
     public static void initEmail(String host, int port, boolean ssl, String from, String username, String password) {
         email = new Email(host, port, ssl, from, username, password);
-    }
-
-    private final String host, from, username, password;
-    private final int port;
-    private final boolean ssl;
-
-    private Email(String host, int port, boolean ssl, String from, String username, String password) {
-        this.host = host;
-        this.from = from;
-        this.username = username;
-        this.password = password;
-        this.port = port;
-        this.ssl = ssl;
     }
 
     public void sendEmail(List<Query> queries, List<String> addresses, String subject, String contents) throws Exception {

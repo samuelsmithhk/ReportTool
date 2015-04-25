@@ -8,13 +8,14 @@ import org.joda.time.LocalDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 
 public class DealProperty {
 
-    private transient Logger logger = LoggerFactory.getLogger(DealProperty.class);
-
     private final TreeMap<DateTime, Value> values; //contains all versions of the value
+    private transient Logger logger = LoggerFactory.getLogger(DealProperty.class);
 
     private DealProperty(DealPropertyBuilder dpb) {
         values = dpb.values;
@@ -63,29 +64,32 @@ public class DealProperty {
     }
 
     public Value getSnapshotValue(LocalDate snapshot) throws Exception {
-        int snapshotYear = snapshot.getYear();
-        int snapshotMonth = snapshot.getMonthOfYear();
-        int snapshotDay = snapshot.getDayOfMonth();
 
-        for (DateTime key : values.keySet()) {
-            int keyYear = key.getYear();
-            int keyMonth = key.getMonthOfYear();
-            int keyDay = key.getDayOfMonth();
+        for (int i = 0; i <= 5; i++) {
+            LocalDate snapshotDerived = snapshot.minusDays(i);
+            int snapshotYear = snapshotDerived.getYear();
+            int snapshotMonth = snapshotDerived.getMonthOfYear();
+            int snapshotDay = snapshotDerived.getDayOfMonth();
 
-            if (snapshotYear == keyYear)
-                if (snapshotMonth == keyMonth)
-                    if (snapshotDay == keyDay)
-                        return values.get(key);
+            for (DateTime key : values.keySet()) {
+                int keyYear = key.getYear();
+                int keyMonth = key.getMonthOfYear();
+                int keyDay = key.getDayOfMonth();
+
+                if (snapshotYear == keyYear)
+                    if (snapshotMonth == keyMonth)
+                        if (snapshotDay == keyDay) {
+                            Value value = values.get(key);
+
+                            if (i > 0) {
+                                LocalDate sourceSystemLastUpdated =
+                                        CacheManager.getCacheManager().getSourceSystemLastUpdated(value.ss);
+
+                                if (snapshotDerived.isEqual(sourceSystemLastUpdated)) return value;
+                            } else return value;
+                        }
+            }
         }
-
-        Value snapshotPrev = getSnapshotValue(snapshot.minusDays(1));
-        if (snapshotPrev == null) return null;
-
-        LocalDate sourceSystemLastUpdated =
-                CacheManager.getCacheManager().getSourceSystemLastUpdated(snapshotPrev.ss);
-
-        if (snapshot.isBefore(sourceSystemLastUpdated)) return snapshotPrev;
-
 
         return null;
     }
@@ -135,17 +139,9 @@ public class DealProperty {
 
     public static class Value {
 
-        public enum ValueType {
-            ST, //string
-            NU, //numeric
-            BO, //boolean
-            BL //blank
-        }
-
         public final Object innerValue;
         public final ValueType type;
         public final String ss; //sourceSystem
-
         public Value(Object innerValue, ValueType type, String ss) {
             this.innerValue = innerValue;
             this.type = type;
@@ -155,6 +151,13 @@ public class DealProperty {
         @Override
         public String toString() {
             return (String.valueOf(innerValue) + " (type: " + type + ")");
+        }
+
+        public enum ValueType {
+            ST, //string
+            NU, //numeric
+            BO, //boolean
+            BL //blank
         }
 
     }

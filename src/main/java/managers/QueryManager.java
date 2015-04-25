@@ -14,6 +14,12 @@ import java.util.Map;
 public class QueryManager {
 
     private static QueryManager qm;
+    private final QueryFileManager qfm;
+    private volatile Map<String, Query> currentQueries;
+
+    private QueryManager(QueryFileManager qfm) {
+        this.qfm = qfm;
+    }
 
     public static void initQueryManager(QueryFileManager qfm) {
         if (qm == null) qm = new QueryManager(qfm);
@@ -22,13 +28,6 @@ public class QueryManager {
     public static QueryManager getQueryManager() throws Exception {
         if (qm == null) throw new Exception("QueryManager needs to be instantiated with instance of QueryFileManager");
         return qm;
-    }
-
-    private final QueryFileManager qfm;
-    private volatile Map<String, Query> currentQueries;
-
-    private QueryManager(QueryFileManager qfm) {
-        this.qfm = qfm;
     }
 
     public synchronized List<Query> getAllQueries() {
