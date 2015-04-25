@@ -29,7 +29,7 @@ public class RepeatsDaily extends AbstractTimeRule {
 
     @Override
     public Queue<DateTime> getDateTimes() {
-        Queue<DateTime> retQueue = new PriorityQueue<DateTime>();
+        Queue<DateTime> retQueue = new PriorityQueue<>();
 
         int numberOfDays = Days.daysBetween(startingFrom, until).getDays();
 

@@ -31,7 +31,7 @@ public class RepeatsWeekly extends AbstractTimeRule {
 
     @Override
     public Queue<DateTime> getDateTimes() {
-        Queue<DateTime> retQueue = new PriorityQueue<DateTime>();
+        Queue<DateTime> retQueue = new PriorityQueue<>();
 
         int numberOfWeeks = Weeks.weeksBetween(startingFrom, until).getWeeks();
 

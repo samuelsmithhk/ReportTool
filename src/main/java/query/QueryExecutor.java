@@ -34,8 +34,8 @@ public class QueryExecutor {
                 try {
                     groupedValues = qe.groupValues(query, sheet.groupBy, selectedColumns, sheet.sortBy);
                 } catch (SpecialColumn.SpecialColumnException e) {
-                    logger.warn("Unable to execute group by for query, outputting with no groupings, reason: "
-                            + e.getMessage(), e);
+                    logger.warn("Unable to execute group by for query, outputting with no groupings, reason: {}"
+                            , e.getMessage(), e);
                     groupedValues = qe.safeGroupValues(selectedColumns, sheet.sortBy);
                 }
                 List<Group> sortedValues = qe.sortValues(groupedValues);
@@ -45,7 +45,7 @@ public class QueryExecutor {
                 qrb.addSheet(new QueryResult.QueryResultSheet(sheet.sheetName, sortedValues, sheet.headers,
                         sheet.isHidden));
             } catch (Exception e) {
-                logger.error("Error executing query, skipping sheet: " + e.getMessage(), e);
+                logger.error("Error executing query, skipping sheet: {}", e.getMessage(), e);
             }
         }
 
@@ -159,7 +159,7 @@ public class QueryExecutor {
                         SpecialColumn sc = query.getSpecialColumn(sub);
                         header.overwriteSub(sub, sc.getHeader());
                     } catch (SpecialColumn.SpecialColumnException e) {
-                        logger.warn("Special column " + sub + " does not exist in query, skipping header overwrite");
+                        logger.warn("Special column {} does not exist in query, skipping header overwrite", sub);
                     }
                 }
             }

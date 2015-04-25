@@ -11,14 +11,13 @@ import org.eclipse.jetty.util.thread.ThreadPool;
 import org.eclipse.jetty.webapp.WebAppContext;
 
 import java.io.File;
+import java.net.URL;
 import java.util.List;
 
 public class HttpServer {
 
     private static final String logPath = "logs/web-logs/yyyy_mm_dd.log";
     private static final String webXML = "webapp/WEB-INF/web.xml";
-    private static final String onlyInIDE = "webservice.ide";
-    private static final String projectPathRelativeWebApp = "webapp";
 
     private final Server server;
     private final int port;
@@ -47,10 +46,10 @@ public class HttpServer {
         WebAppContext ctx = new WebAppContext();
         ctx.setContextPath("/");
 
-        //if(isRunningInShadedJar()) ctx.setWar(getShadedWarUrl());
-        //else ctx.setWar(projectPathRelativeWebApp);
 
-        String war = Thread.currentThread().getContextClassLoader().getResource(webXML).toString();
+        URL warURL = Thread.currentThread().getContextClassLoader().getResource(webXML);
+        assert warURL != null;
+        String war = warURL.toString();
         war = war.substring(0, war.length() - 15);
         ctx.setWar(war);
 
@@ -59,7 +58,7 @@ public class HttpServer {
         handlers.add(ctx);
 
         HandlerList contexts = new HandlerList();
-        contexts.setHandlers(handlers.toArray(new Handler[0]));
+        contexts.setHandlers(handlers.toArray(new Handler[handlers.size()]));
 
         RequestLogHandler log = new RequestLogHandler();
         log.setRequestLog(createRequestLog());
@@ -74,6 +73,7 @@ public class HttpServer {
         NCSARequestLog log = new NCSARequestLog();
 
         File path = new File(logPath);
+        //noinspection ResultOfMethodCallIgnored
         path.getParentFile().mkdirs();
 
         log.setFilename(path.getPath());
@@ -83,23 +83,6 @@ public class HttpServer {
         log.setLogTimeZone("HKT");
         log.setLogLatency(true);
         return log;
-    }
-
-    private String getShadedWarUrl() {
-        String urlStr = Thread.currentThread().getContextClassLoader().getResource(webXML).toString();
-        return urlStr.substring(0, urlStr.length() - 15);
-    }
-
-    private boolean isRunningInShadedJar() {
-        try
-        {
-            Class.forName(onlyInIDE);
-            return false;
-        }
-        catch(ClassNotFoundException anExc)
-        {
-            return true;
-        }
     }
 
     private Connector createConnector() {

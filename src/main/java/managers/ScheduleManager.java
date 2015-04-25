@@ -36,7 +36,7 @@ public class ScheduleManager {
         if (sfm.hasUpdate()) {
             jobs = sfm.loadJobs();
 
-            Queue<JobInstance> masterQueue = new PriorityQueue<JobInstance>();
+            Queue<JobInstance> masterQueue = new PriorityQueue<>();
 
             for (JobInstance.Job j : jobs) {
                 Queue<JobInstance> instances = j.createJobInstances();

@@ -92,7 +92,7 @@ public class ReportToolRunner {
 
             retList = ParserConfig.loadConfigs(json);
         } catch (IOException e) {
-            logger.error("ERROR: Error loading parser config file: " + e.getLocalizedMessage());
+            logger.error("ERROR: Error loading parser config file: {}", e.getMessage());
             System.exit(1);
         }
 
@@ -117,7 +117,7 @@ public class ReportToolRunner {
             }
 
         } catch (IOException e) {
-            logger.error("ERROR: Error loading properties file: " + e.getLocalizedMessage());
+            logger.error("ERROR: Error loading properties file: {}", e.getMessage());
             System.exit(1);
         }
 

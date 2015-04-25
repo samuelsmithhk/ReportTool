@@ -33,7 +33,7 @@ public class QueryManager {
 
     public synchronized List<Query> getAllQueries() {
         if (qfm.hasUpdate()) currentQueries = qfm.loadQueries();
-        return new ArrayList<Query>(currentQueries.values());
+        return new ArrayList<>(currentQueries.values());
     }
 
     public synchronized List<String> getQueryNames() {

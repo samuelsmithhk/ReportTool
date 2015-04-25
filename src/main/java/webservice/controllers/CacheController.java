@@ -31,16 +31,16 @@ public class CacheController {
 
     @RequestMapping(value = "/getAllColumns", method = RequestMethod.GET)
     public void getAllColumns(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        logger.info(request.getRemoteAddr() + " is requesting all columns");
+        logger.info("{} is requesting all columns", request.getRemoteAddr());
 
         if (cm == null) cm = CacheManager.getCacheManager();
 
         try {
             List<String> columns = cm.getAllColumns();
             response.getWriter().write(gson.toJson(columns));
-            logger.info("Sent list of columns to " + request.getRemoteAddr());
+            logger.info("Sent list of columns to {}", request.getRemoteAddr());
         } catch (IOException e) {
-            logger.error("Error sending columns to " + request.getRemoteAddr() + ": " + e.getMessage(), e);
+            logger.error("Error sending columns to {}: {}", request.getRemoteAddr(), e.getMessage(), e);
         }
     }
 

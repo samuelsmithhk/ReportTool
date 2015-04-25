@@ -4,7 +4,6 @@ import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
 
-import java.util.ArrayList;
 import java.util.PriorityQueue;
 import java.util.Queue;
 
@@ -23,7 +22,7 @@ public class NoRepeat extends AbstractTimeRule {
 
     @Override
     public Queue<DateTime> getDateTimes() {
-        Queue<DateTime> retQueue = new PriorityQueue<DateTime>();
+        Queue<DateTime> retQueue = new PriorityQueue<>();
         retQueue.add(executionDateTime);
         return purgeExcluded(purgeOldInstances(retQueue));
     }

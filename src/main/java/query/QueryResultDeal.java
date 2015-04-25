@@ -40,9 +40,7 @@ public class QueryResultDeal {
 
                         retMap.put(new Header(col.header, sc.getHeader()),
                                 QueryUtils.parseValue(sc.evaluate(query, dealName)));
-                    } catch (SpecialColumn.SpecialColumnException e) {
-                        retMap.put(new Header(col.header, sub), "");
-                    } catch (Cache.CacheException e) {
+                    } catch (SpecialColumn.SpecialColumnException | Cache.CacheException e) {
                         retMap.put(new Header(col.header, sub), "");
                     }
                 }

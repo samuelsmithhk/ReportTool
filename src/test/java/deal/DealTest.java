@@ -8,9 +8,6 @@ import org.junit.Test;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Created by samuelsmith on 04/03/15.
- */
 public class DealTest {
 
     @Test
@@ -19,7 +16,7 @@ public class DealTest {
         DateTime time = new DateTime(1,1,1,1,1);
 
         DealProperty.DealPropertyBuilder dpb = new DealProperty.DealPropertyBuilder();
-        dpb.withValue(time, new DealProperty.Value("Hello", DealProperty.Value.ValueType.STRING, "TEST"));
+        dpb.withValue(time, new DealProperty.Value("Hello", DealProperty.Value.ValueType.ST, "TEST"));
 
         Map<String, DealProperty> dealProperties = Maps.newHashMap();
         dealProperties.put("Test", dpb.build());

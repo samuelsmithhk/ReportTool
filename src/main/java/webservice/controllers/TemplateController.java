@@ -16,7 +16,7 @@ import java.util.List;
 @Controller
 public class TemplateController {
 
-    private final Logger logger = LoggerFactory.getLogger(TemplateController.class);
+    private static final Logger logger = LoggerFactory.getLogger(TemplateController.class);
 
     private TemplateManager tm;
     private final Gson gson;
@@ -28,13 +28,13 @@ public class TemplateController {
 
     @RequestMapping(value = "/getAllTemplates", method= RequestMethod.GET)
     public void getAllTemplates(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        logger.info(request.getRemoteAddr() + " is requesting all templates");
+        logger.info("{} is requesting all templates", request.getRemoteAddr());
 
         if (tm == null) tm = TemplateManager.getTemplateManager();
 
         List<String> templateList = tm.getTemplateList();
         response.getWriter().write(gson.toJson(templateList));
-        logger.info("All templates served to " + request.getRemoteAddr());
+        logger.info("All templates served to {}", request.getRemoteAddr());
 
     }
 }

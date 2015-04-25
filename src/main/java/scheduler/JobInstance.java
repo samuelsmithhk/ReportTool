@@ -17,6 +17,7 @@ public class JobInstance implements Comparable<JobInstance> {
 
     private static final Logger logger = LoggerFactory.getLogger(JobInstance.class);
 
+    @SuppressWarnings("NullableProblems")
     @Override
     public int compareTo(JobInstance o) {
         return executionTime.compareTo(o.executionTime);
@@ -31,7 +32,7 @@ public class JobInstance implements Comparable<JobInstance> {
     }
 
     public void execute() throws Exception {
-        logger.info("Executing " + this);
+        logger.info("Executing {}", this);
         QueryManager qm = QueryManager.getQueryManager();
         for (Query q : jobToExecute.queries) qm.executeQuery(q);
         Email.getEmail().sendEmail(jobToExecute.queries, jobToExecute.emailTo, jobToExecute.subject,
@@ -64,46 +65,52 @@ public class JobInstance implements Comparable<JobInstance> {
             String timeRuleType = timeRule.getType();
             sb.append("\"type\":\"").append(timeRuleType).append("\",");
 
-            if (timeRuleType.equals("NoRepeat")) {
-                NoRepeat noRepeat = (NoRepeat) timeRule;
+            switch (timeRuleType) {
+                case "NoRepeat":
+                    NoRepeat noRepeat = (NoRepeat) timeRule;
 
-                sb.append("\"executionDate\":\"").append(noRepeat.getExecutionDate()).append("\",\"executionTime\":\"")
-                        .append(noRepeat.getExecutionTime()).append("\"");
-            } else if (timeRuleType.equals("RepeatsDaily")) {
-                RepeatsDaily repeatsDaily = (RepeatsDaily) timeRule;
+                    sb.append("\"executionDate\":\"").append(noRepeat.getExecutionDate()).append("\",\"executionTime\":\"")
+                            .append(noRepeat.getExecutionTime()).append("\"");
+                    break;
+                case "RepeatsDaily":
+                    RepeatsDaily repeatsDaily = (RepeatsDaily) timeRule;
 
-                sb.append("\"every\":\"").append(repeatsDaily.getEvery()).append("\",\"startingFrom\":")
-                        .append(repeatsDaily.getStartingFrom()).append("\",\"until\":\"")
-                        .append(repeatsDaily.getUntil()).append("\",\"executionTime\":\"")
-                        .append(repeatsDaily.getExecutionTime()).append("\"");
+                    sb.append("\"every\":\"").append(repeatsDaily.getEvery()).append("\",\"startingFrom\":")
+                            .append(repeatsDaily.getStartingFrom()).append("\",\"until\":\"")
+                            .append(repeatsDaily.getUntil()).append("\",\"executionTime\":\"")
+                            .append(repeatsDaily.getExecutionTime()).append("\"");
 
-            } else if (timeRuleType.equals("RepeatsMonthlyDate")) {
-                RepeatsMonthlyDate repeatsMonthlyDate = (RepeatsMonthlyDate) timeRule;
+                    break;
+                case "RepeatsMonthlyDate":
+                    RepeatsMonthlyDate repeatsMonthlyDate = (RepeatsMonthlyDate) timeRule;
 
-                sb.append("\"option\":\"date\",").append("\"every\":\"").append(repeatsMonthlyDate.getEvery())
-                        .append("\",\"dayOfMonth\":\"").append(repeatsMonthlyDate.getDayOfMonth())
-                        .append("\",\"until\":\"").append(repeatsMonthlyDate.getUntil())
-                        .append("\",\"executionTime\":\"").append(repeatsMonthlyDate.getExecutionTime()).append("\"");
+                    sb.append("\"option\":\"date\",").append("\"every\":\"").append(repeatsMonthlyDate.getEvery())
+                            .append("\",\"dayOfMonth\":\"").append(repeatsMonthlyDate.getDayOfMonth())
+                            .append("\",\"until\":\"").append(repeatsMonthlyDate.getUntil())
+                            .append("\",\"executionTime\":\"").append(repeatsMonthlyDate.getExecutionTime()).append("\"");
 
-            } else if (timeRuleType.equals("RepeatsMonthlyDay")) {
-                RepeatsMonthlyDay repeatsMonthlyDay = (RepeatsMonthlyDay) timeRule;
+                    break;
+                case "RepeatsMonthlyDay":
+                    RepeatsMonthlyDay repeatsMonthlyDay = (RepeatsMonthlyDay) timeRule;
 
-                sb.append("\"option\":\"day\",").append("\"every\":\"").append(repeatsMonthlyDay.getEvery())
-                        .append("\",\"one\":\"").append(repeatsMonthlyDay.getParam1()).append("\",\"two\":\"")
-                        .append(repeatsMonthlyDay.getParam2()).append("\",\"until\":\"")
-                        .append(repeatsMonthlyDay.getUntil()).append("\",\"executionTime\":\"")
-                        .append(repeatsMonthlyDay.getExecutionTime()).append("\"");
+                    sb.append("\"option\":\"day\",").append("\"every\":\"").append(repeatsMonthlyDay.getEvery())
+                            .append("\",\"one\":\"").append(repeatsMonthlyDay.getParam1()).append("\",\"two\":\"")
+                            .append(repeatsMonthlyDay.getParam2()).append("\",\"until\":\"")
+                            .append(repeatsMonthlyDay.getUntil()).append("\",\"executionTime\":\"")
+                            .append(repeatsMonthlyDay.getExecutionTime()).append("\"");
 
-            } else if (timeRuleType.equals("RepeatsWeekly")) {
-                RepeatsWeekly repeatsWeekly = (RepeatsWeekly) timeRule;
+                    break;
+                case "RepeatsWeekly":
+                    RepeatsWeekly repeatsWeekly = (RepeatsWeekly) timeRule;
 
-                sb.append("\"every\":\"").append(repeatsWeekly.getEvery()).append("\",\"days\":[");
+                    sb.append("\"every\":\"").append(repeatsWeekly.getEvery()).append("\",\"days\":[");
 
-                for (AbstractTimeRule.DAY day : repeatsWeekly.getDays()) sb.append("\"").append(day).append("\",");
-                sb.deleteCharAt(sb.lastIndexOf(","));
-                sb.append("],\"executionTime\":\"").append(repeatsWeekly.getExecutionTime())
-                        .append("\",\"startingFrom\":\"").append(repeatsWeekly.getStartingFrom())
-                        .append("\",\"until\":\"").append(repeatsWeekly.getUntil()).append("\"");
+                    for (AbstractTimeRule.DAY day : repeatsWeekly.getDays()) sb.append("\"").append(day).append("\",");
+                    sb.deleteCharAt(sb.lastIndexOf(","));
+                    sb.append("],\"executionTime\":\"").append(repeatsWeekly.getExecutionTime())
+                            .append("\",\"startingFrom\":\"").append(repeatsWeekly.getStartingFrom())
+                            .append("\",\"until\":\"").append(repeatsWeekly.getUntil()).append("\"");
+                    break;
             }
 
             sb.append("}");
@@ -138,7 +145,7 @@ public class JobInstance implements Comparable<JobInstance> {
         }
 
         public Queue<JobInstance> createJobInstances() {
-            Queue<JobInstance> retQueue = new PriorityQueue<JobInstance>();
+            Queue<JobInstance> retQueue = new PriorityQueue<>();
             Queue<DateTime> executionTimes = timeRule.getDateTimes();
             for (DateTime dt : executionTimes) retQueue.add(new JobInstance(dt, this));
             return retQueue;
@@ -150,7 +157,7 @@ public class JobInstance implements Comparable<JobInstance> {
         }
 
         public List<DateTime> getExecutionTimes() {
-            return new ArrayList<DateTime>(timeRule.getDateTimes());
+            return new ArrayList<>(timeRule.getDateTimes());
         }
 
         public String getName() {
@@ -234,7 +241,7 @@ public class JobInstance implements Comparable<JobInstance> {
                     jb.withQueries(queries);
 
                 } catch (Exception e) {
-                    logger.error("Unable to create queries for job " + jobName + ": " + e.getMessage(), e);
+                    logger.error("Unable to create queries for job {}: {}", jobName, e.getMessage(), e);
                 }
 
                 JsonObject timeObject = o.get("scheduler").getAsJsonObject();
@@ -255,45 +262,51 @@ public class JobInstance implements Comparable<JobInstance> {
                 } else {
                     String resolution = o.get("resolution").getAsString();
 
-                    if (resolution.equals("daily")) {
-                        String startingFrom = o.get("startingFrom").getAsString();
-                        int every = o.get("every").getAsInt();
-                        String until = o.get("until").getAsString();
-                        String runAt = o.get("time").getAsString();
-
-                        retRule = new RepeatsDaily(startingFrom, every, until, runAt);
-                    } else if (resolution.equals("weekly")) {
-                        int every = o.get("every").getAsInt();
-
-                        JsonArray daysArray = o.getAsJsonArray("days");
-                        List<String> days = Lists.newArrayList();
-                        for (JsonElement day : daysArray) days.add(day.getAsString());
-
-                        String runAt = o.get("time").getAsString();
-                        String startingFrom = o.get("startingFrom").getAsString();
-                        String until = o.get("until").getAsString();
-
-
-                        retRule = new RepeatsWeekly(every, days, runAt, startingFrom, until);
-                    } else { //resolution.equals("monthly")
-                        String option = o.get("option").getAsString();
-
-                        if (option.equals("date")) {
+                    switch (resolution) {
+                        case "daily": {
+                            String startingFrom = o.get("startingFrom").getAsString();
                             int every = o.get("every").getAsInt();
-                            int dayOfMonth = o.get("date").getAsInt();
                             String until = o.get("until").getAsString();
                             String runAt = o.get("time").getAsString();
 
-                            retRule = new RepeatsMonthlyDate(every, dayOfMonth, until, runAt);
-                        } else { //monthly day
-                            int every = o.get("every").getAsInt();
-                            String one = o.get("one").getAsString();
-                            String two = o.get("two").getAsString();
-                            String until = o.get("until").getAsString();
-                            String runAt = o.get("time").getAsString();
-
-                            retRule = new RepeatsMonthlyDay(every, one, two, until, runAt);
+                            retRule = new RepeatsDaily(startingFrom, every, until, runAt);
+                            break;
                         }
+                        case "weekly": {
+                            int every = o.get("every").getAsInt();
+
+                            JsonArray daysArray = o.getAsJsonArray("days");
+                            List<String> days = Lists.newArrayList();
+                            for (JsonElement day : daysArray) days.add(day.getAsString());
+
+                            String runAt = o.get("time").getAsString();
+                            String startingFrom = o.get("startingFrom").getAsString();
+                            String until = o.get("until").getAsString();
+
+
+                            retRule = new RepeatsWeekly(every, days, runAt, startingFrom, until);
+                            break;
+                        }
+                        default:  //resolution.equals("monthly")
+                            String option = o.get("option").getAsString();
+
+                            if (option.equals("date")) {
+                                int every = o.get("every").getAsInt();
+                                int dayOfMonth = o.get("date").getAsInt();
+                                String until = o.get("until").getAsString();
+                                String runAt = o.get("time").getAsString();
+
+                                retRule = new RepeatsMonthlyDate(every, dayOfMonth, until, runAt);
+                            } else { //monthly day
+                                int every = o.get("every").getAsInt();
+                                String one = o.get("one").getAsString();
+                                String two = o.get("two").getAsString();
+                                String until = o.get("until").getAsString();
+                                String runAt = o.get("time").getAsString();
+
+                                retRule = new RepeatsMonthlyDay(every, one, two, until, runAt);
+                            }
+                            break;
                     }
                 }
 

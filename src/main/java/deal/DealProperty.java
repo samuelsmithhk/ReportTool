@@ -1,6 +1,5 @@
 package deal;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import managers.CacheManager;
@@ -56,7 +55,7 @@ public class DealProperty {
     }
 
     public Value getValueAtTimestamp(DateTime timestamp) {
-        logger.info("Getting value at timestamp: " + timestamp);
+        logger.info("Getting value at timestamp: {}", timestamp);
 
         if (values.containsKey(timestamp)) return values.get(timestamp);
 
@@ -83,7 +82,7 @@ public class DealProperty {
         if (snapshotPrev == null) return null;
 
         LocalDate sourceSystemLastUpdated =
-                CacheManager.getCacheManager().getSourceSystemLastUpdated(snapshotPrev.sourceSystem);
+                CacheManager.getCacheManager().getSourceSystemLastUpdated(snapshotPrev.ss);
 
         if (snapshot.isBefore(sourceSystemLastUpdated)) return snapshotPrev;
 
@@ -92,20 +91,6 @@ public class DealProperty {
     }
 
     public Value getValueMinusXDays(int days) throws Exception {
-       /* DateTime timestamp = values.lastKey().minusDays(days);
-
-        if (values.firstKey().isAfter(timestamp)) return values.get(values.firstKey());
-
-        List<DateTime> dates = Lists.newLinkedList(values.keySet());
-
-        for (int i = dates.size() -1; i >= 0; i--) {
-            DateTime compare = dates.get(i);
-            if (!(compare.isAfter(timestamp))) return values.get(compare);
-        }
-
-        logger.warn("No value found at minus x days, returning latest value");
-        return values.lastEntry().getValue();*/
-
         LocalDate timestamp = LocalDate.now().minusDays(days);
         return getSnapshotValue(timestamp);
 
@@ -151,17 +136,20 @@ public class DealProperty {
     public static class Value {
 
         public enum ValueType {
-            STRING, NUMERIC, BOOLEAN, BLANK
+            ST, //string
+            NU, //numeric
+            BO, //boolean
+            BL //blank
         }
 
         public final Object innerValue;
         public final ValueType type;
-        public final String sourceSystem;
+        public final String ss; //sourceSystem
 
-        public Value(Object innerValue, ValueType type, String sourceSystem) {
+        public Value(Object innerValue, ValueType type, String ss) {
             this.innerValue = innerValue;
             this.type = type;
-            this.sourceSystem = sourceSystem;
+            this.ss = ss;
         }
 
         @Override

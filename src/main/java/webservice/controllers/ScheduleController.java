@@ -4,7 +4,6 @@ package webservice.controllers;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
-import jdk.nashorn.internal.ir.RuntimeNode;
 import managers.ScheduleManager;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
@@ -27,7 +26,7 @@ import java.util.List;
 @Controller
 public class ScheduleController {
 
-    private final Logger logger = LoggerFactory.getLogger(ScheduleController.class);
+    private static final Logger logger = LoggerFactory.getLogger(ScheduleController.class);
 
     private final Gson gson;
 
@@ -41,7 +40,7 @@ public class ScheduleController {
     @RequestMapping(value = "/getJobsForDate", method = RequestMethod.GET)
     public void getJobsForDate(HttpServletRequest request, HttpServletResponse response) throws Exception {
         String dateString = request.getParameter("date");
-        logger.info(request.getRemoteAddr() + " is requesting jobs for date " + dateString);
+        logger.info("{} is requesting jobs for date {}", request.getRemoteAddr(), dateString);
 
         DateTimeFormatter dtf = DateTimeFormat.forPattern("MM/dd/yyyy");
         LocalDate date = dtf.parseLocalDate(dateString);
@@ -50,13 +49,13 @@ public class ScheduleController {
         Type listAllJobs = new TypeToken<List<JobInstance>>(){}.getType();
 
         response.getWriter().write(gson.toJson(jobsForDate, listAllJobs));
-        logger.info("Jobs for date " + dateString + " served to " + request.getRemoteAddr());
+        logger.info("Jobs for date {} served to {}", dateString, request.getRemoteAddr());
     }
 
     @RequestMapping(value = "/getJobByName", method = RequestMethod.GET)
     public void getJobByName(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String jobName = request.getParameter("jobName");
-        logger.info(request.getRemoteAddr() + " is requesting job by name " + jobName);
+        logger.info("{} is requesting job by name {}", request.getRemoteAddr(), jobName);
 
         try {
             JobInstance.Job job = ScheduleManager.getScheduleManager().getJobByName(jobName);
@@ -76,7 +75,7 @@ public class ScheduleController {
             }
 
         } catch (Exception e) {
-            logger.error("Error getting job by name for schedule: " + e.getMessage(), e);
+            logger.error("Error getting job by name for schedule: {}", e.getMessage(), e);
             response.getWriter().write("\"error\"");
         }
     }
@@ -85,14 +84,14 @@ public class ScheduleController {
     public void removeJobInstance(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String jobName = request.getParameter("jobName");
         String instance = request.getParameter("instance");
-        logger.info(request.getRemoteAddr() + " is trying to remove instance " + instance + " of job " + jobName);
+        logger.info("{} is trying to remove instance {} of job {}", request.getRemoteAddr(), instance, jobName);
 
         try {
             ScheduleManager.getScheduleManager().removeJobInstance(jobName, instance);
             getJobByName(request, response);
-            logger.info("Successfully completed removing job instance for " + request.getRemoteAddr());
+            logger.info("Successfully completed removing job instance for {}", request.getRemoteAddr());
         } catch (Exception e) {
-            logger.error("Error removing job instance: " + e.getMessage(), e);
+            logger.error("Error removing job instance: {}", e.getMessage(), e);
             response.getWriter().write("error");
         }
     }
@@ -100,29 +99,29 @@ public class ScheduleController {
     @RequestMapping(value = "removeJob", method = RequestMethod.POST)
     public void removeJob(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String jobName = request.getParameter("jobName");
-        logger.info(request.getRemoteAddr() + " is trying to remove job " + jobName);
+        logger.info("{} is trying to remove job {}", request.getRemoteAddr(), jobName);
 
         try {
             ScheduleManager.getScheduleManager().removeJob(jobName);
             response.getWriter().write("success");
-            logger.info("Successfully removed job  " + jobName);
+            logger.info("Successfully removed job  {}", jobName);
         } catch (Exception e) {
-            logger.error("Error removing job: " + e.getMessage(), e);
+            logger.error("Error removing job: {}", e.getMessage(), e);
             response.getWriter().write("error");
         }
     }
 
     @RequestMapping(value = "saveJob", method = RequestMethod.POST)
     public void saveJob(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        logger.info(request.getRemoteUser() + " is trying to save a job");
+        logger.info("{} is trying to save a job", request.getRemoteUser());
 
         try {
             JobInstance.Job job = gson.fromJson(request.getParameter("toBeSaved"), JobInstance.Job.class);
             ScheduleManager.getScheduleManager().saveJob(job);
             response.getWriter().write("saved");
-            logger.info("Successfully saved job " + job.getName());
+            logger.info("Successfully saved job {}", job.getName());
         } catch (Exception e) {
-            logger.error("Exception saving job: " + e.getMessage(), e);
+            logger.error("Exception saving job: {}", e.getMessage(), e);
             response.getWriter().write("error");
         }
     }

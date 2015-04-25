@@ -40,10 +40,9 @@ public class CacheFileManager {
             logger.info("Cache found, loading");
             byte[] encodedJSON = Files.readAllBytes(Paths.get(cacheAddress));
             String json = new String(encodedJSON, Charset.defaultCharset());
-
             return Cache.createLoadedCache(json);
         } catch (IOException e) {
-            logger.error("No existing cache file found at " + cacheAddress + " creating new cache");
+            logger.error("No existing cache file found at {} creating new cache", cacheAddress);
             return Cache.createEmptyCache();
         }
     }
@@ -62,7 +61,7 @@ public class CacheFileManager {
             out.print(toSave);
             out.close();
         } catch (FileNotFoundException e) {
-            logger.error("Error saving cache file: " + e.getLocalizedMessage());
+            logger.error("Error saving cache file: {}", e.getMessage());
         }
 
         historicCleanUp();
@@ -74,11 +73,11 @@ public class CacheFileManager {
 
         File[] caches = getAllCaches();
 
-        logger.info("There are " + caches.length + " cache files stored");
+        logger.info("There are {} cache files stored", caches.length);
 
         if (caches.length > numberOfHistoricFiles) {
-            logger.info("The number of cache files exceeds the limit, reducing cache files (limit is " +
-                    numberOfHistoricFiles + ")");
+            logger.info("The number of cache files exceeds the limit, reducing cache files (limit is {})",
+                    numberOfHistoricFiles);
 
             File earliestCache = caches[0];
             DateTime earliestTimestamp = getFileTimestamp(earliestCache);
@@ -93,12 +92,12 @@ public class CacheFileManager {
                 }
             }
 
-            if (earliestCache.delete()) logger.info("Cache with timestamp " + earliestTimestamp + " removed.");
-            else logger.error("Error deleted cache with timestamp " + earliestTimestamp);
+            if (earliestCache.delete()) logger.info("Cache with timestamp {} removed.", earliestTimestamp);
+            else logger.error("Error deleted cache with timestamp {}", earliestTimestamp);
 
             historicCleanUp();
         }
-        else logger.info("Number of caches do not exceed limit (limit is " + numberOfHistoricFiles + ")");
+        else logger.info("Number of caches do not exceed limit (limit is {})", numberOfHistoricFiles);
 
     }
 
@@ -137,17 +136,17 @@ public class CacheFileManager {
             }
         }
 
-        logger.info("Latest cache found: " + latestFile);
+        logger.info("Latest cache found: {}", latestFile);
         return latestFile.getAbsolutePath();
     }
 
     public DateTime getFileTimestamp(File file) {
-        logger.info("Identifying timestamp for file: " + file);
+        logger.info("Identifying timestamp for file: {}", file);
         return getFileTimestamp(file.getAbsolutePath());
     }
 
     public DateTime getFileTimestamp(String file) {
-        logger.info("Parsing timestamp for string:" + file);
+        logger.info("Parsing timestamp for string: {}", file);
         DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyyMMddHHmmss");
         return formatter.parseDateTime(file.substring((file.length() - 20), (file.length() - 6)));
     }

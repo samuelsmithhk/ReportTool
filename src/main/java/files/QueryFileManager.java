@@ -13,7 +13,7 @@ import java.util.Map;
 
 public class QueryFileManager {
 
-    Logger logger = LoggerFactory.getLogger(QueryFileManager.class);
+    private final Logger logger = LoggerFactory.getLogger(QueryFileManager.class);
 
     private final String queryDirectory;
 
@@ -38,12 +38,11 @@ public class QueryFileManager {
         File[] queryFiles = dir.listFiles(new FilenameFilter() {
             @Override
             public boolean accept(File dir, String name) {
-                logger.info(name);
                 return name.endsWith(".query");
             }
         });
 
-        logger.info("Found " + queryFiles.length + " queries");
+        logger.info("Found {} queries", queryFiles.length);
 
         if (queryFiles.length == 0) return Maps.newHashMap();
 
@@ -52,7 +51,7 @@ public class QueryFileManager {
         Gson gson = builder.create();
 
         for (File f : queryFiles) {
-            logger.info("Parsing query: " + f.getName());
+            logger.info("Parsing query: {}", f.getName());
 
             try {
                 byte[] encodedJSON = Files.readAllBytes(f.toPath());
@@ -60,7 +59,7 @@ public class QueryFileManager {
                 Query q = gson.fromJson(json, Query.class);
                 queries.put(q.name, q);
             } catch (IOException e) {
-                logger.error("Error parsing query " + f.getName() + ": " + e.getLocalizedMessage(), e);
+                logger.error("Error parsing query {}: {}",f.getName(), e.getMessage(), e);
             }
         }
 
@@ -78,7 +77,7 @@ public class QueryFileManager {
             out.close();
             hasUpdate = true;
         } catch (FileNotFoundException e) {
-            logger.error("Error saving query file: " + e.getLocalizedMessage());
+            logger.error("Error saving query file: {}", e.getMessage());
         }
     }
 

@@ -24,7 +24,7 @@ public abstract class AbstractTimeRule implements ITimeRule {
     private List<DateTime> exclude;
 
     public AbstractTimeRule() {
-        exclude = new ArrayList<DateTime>();
+        exclude = new ArrayList<>();
     }
 
     public LocalDate parseDate(String date) {
@@ -48,7 +48,7 @@ public abstract class AbstractTimeRule implements ITimeRule {
             try {
                 retList.add(parseDay(d));
             } catch (Exception e) {
-                logger.error("Exception parsing day: " + e.getMessage(), e);
+                logger.error("Exception parsing day: {}", e.getMessage(), e);
             }
         }
 

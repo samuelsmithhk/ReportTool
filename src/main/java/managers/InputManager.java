@@ -35,7 +35,7 @@ public class InputManager {
             List<InputPair> newInputs = ifm.parseNewInputs();
 
             for (InputPair input : newInputs) {
-                logger.info("Processing update: " + input);
+                logger.info("Processing update: {}", input);
                 cm.processDealUpdate(input.sourceSystem, input.directory, input.timestamp, input.dealMap);
             }
 

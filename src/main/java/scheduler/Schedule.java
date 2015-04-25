@@ -12,7 +12,7 @@ import java.util.Queue;
 
 public class Schedule implements Runnable {
 
-    private final Logger logger = LoggerFactory.getLogger(Schedule.class);
+    private static final Logger logger = LoggerFactory.getLogger(Schedule.class);
 
     private Queue<JobInstance> jobs;
 
@@ -34,7 +34,7 @@ public class Schedule implements Runnable {
 
                 if (timeNow.isAfter(jobs.peek().executionTime)) {
                     JobInstance job = jobs.poll();
-                    logger.info("Job " + job + " is due, executing");
+                    logger.info("Job {} is due, executing", job);
                     job.execute();
                 }
 
@@ -42,7 +42,7 @@ public class Schedule implements Runnable {
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             } catch (Exception e) {
-                logger.error("Error executing query: " + e.getMessage(), e);
+                logger.error("Error executing query: {}", e.getMessage(), e);
                 try {
                     Thread.sleep(60000);
                 } catch (InterruptedException e1) {

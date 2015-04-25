@@ -25,7 +25,7 @@ public class ExportFileManager {
     }
 
     public synchronized void writeExport(String filename, Workbook result, boolean hasTemplate, boolean useTimestamp) {
-        logger.info("Writing exported excel file: " + filename);
+        logger.info("Writing exported excel file: {}", filename);
 
         FileOutputStream out;
         try {
@@ -36,13 +36,13 @@ public class ExportFileManager {
             result.write(out);
             out.close();
         } catch (IOException e) {
-            logger.error("Error saving query result file: " + e.getLocalizedMessage());
+            logger.error("Error saving query result file: {}" ,e.getLocalizedMessage());
         }
 
     }
 
     public synchronized List<File> getLatestExportForQuery(final Query query) {
-        logger.info("Getting filename of latest export for query " + query);
+        logger.info("Getting filename of latest export for query {}", query);
 
         File dir;
         if (query.hasTemplate) dir = new File(processedMacroDirectory);
@@ -55,7 +55,7 @@ public class ExportFileManager {
             }
         });
 
-        logger.info("Found " + files.length + " exports for query " + query);
+        logger.info("Found {} exports for query {}", files.length, query);
 
         if (files.length == 0) return null;
         List<File> retList = Lists.newLinkedList();
@@ -83,18 +83,18 @@ public class ExportFileManager {
             }
         }
 
-        logger.info("Latest version found: " + latestFile);
+        logger.info("Latest version found: {}", latestFile);
         return retList;
     }
 
 
     public DateTime getFileTimestamp(File file) {
-        logger.info("Identifying timestamp for file: " + file);
+        logger.info("Identifying timestamp for file: {}", file);
         return getFileTimestamp(file.getAbsolutePath());
     }
 
     public DateTime getFileTimestamp(String file) {
-        logger.info("Parsing timestamp for string:" + file);
+        logger.info("Parsing timestamp for string: {}", file);
         DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyyMMdd");
 
         boolean testIfPDF = file.endsWith(".pdf");

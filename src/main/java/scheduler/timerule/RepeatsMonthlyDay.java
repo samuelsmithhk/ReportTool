@@ -32,22 +32,29 @@ public class RepeatsMonthlyDay extends AbstractTimeRule {
 
     @Override
     public Queue<DateTime> getDateTimes() {
-        Queue<DateTime> retQueue = new PriorityQueue<DateTime>();
+        Queue<DateTime> retQueue = new PriorityQueue<>();
 
         LocalDate today = new LocalDate();
         int numberOfMonths = Months.monthsBetween(today, until).getMonths();
 
         for (int i = 1; i <= numberOfMonths; i += every) {
-            if (param1.equals("first"))
-                retQueue.add(mergeDateTime(getNthOfMonth(1, i, param2), runAt));
-            else if (param1.equals("second"))
-                retQueue.add(mergeDateTime(getNthOfMonth(2, i, param2), runAt));
-            else if (param1.equals("third"))
-                retQueue.add(mergeDateTime(getNthOfMonth(3, i, param2), runAt));
-            else if (param1.equals("fourth"))
-                retQueue.add(mergeDateTime(getNthOfMonth(4, i, param2), runAt));
-            else if (param1.equals("last"))
-                retQueue.add(mergeDateTime(getNthOfMonth(5, i, param2), runAt));
+            switch (param1) {
+                case "first":
+                    retQueue.add(mergeDateTime(getNthOfMonth(1, i, param2), runAt));
+                    break;
+                case "second":
+                    retQueue.add(mergeDateTime(getNthOfMonth(2, i, param2), runAt));
+                    break;
+                case "third":
+                    retQueue.add(mergeDateTime(getNthOfMonth(3, i, param2), runAt));
+                    break;
+                case "fourth":
+                    retQueue.add(mergeDateTime(getNthOfMonth(4, i, param2), runAt));
+                    break;
+                case "last":
+                    retQueue.add(mergeDateTime(getNthOfMonth(5, i, param2), runAt));
+                    break;
+            }
         }
 
         return purgeExcluded(purgeOldInstances(retQueue));

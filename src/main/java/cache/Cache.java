@@ -17,17 +17,27 @@ import java.util.Set;
 
 public class Cache {
 
-    private final Logger logger = LoggerFactory.getLogger(Cache.class);
+    private static final Logger logger = LoggerFactory.getLogger(Cache.class);
 
     public static Cache createEmptyCache() {
         return new Cache();
     }
 
     public static Cache createLoadedCache(String cacheContents) {
-        Map<String, DateTime> directoriesLastUpdated = deserializeCacheTimestamps(cacheContents);
-        Map<String, LocalDate> sourceSystemLastUpdated = deserializeSourceSystemTimestamps(cacheContents);
-        return new Cache(deserializeCacheContents(cacheContents), deserializeCacheColumns(cacheContents),
-                directoriesLastUpdated, sourceSystemLastUpdated);
+        JsonParser parser = new JsonParser();
+        JsonObject o = parser.parse(cacheContents).getAsJsonObject();
+
+        JsonArray directoriesLastUpdatedJSON = o.getAsJsonArray("dLU");
+        JsonArray sourceSystemsLastUpdatedJSON = o.getAsJsonArray("ssLU");
+        JsonArray cacheColumnsJSON = o.getAsJsonArray("columnIndex");
+        JsonObject cacheContentsJSON = o.getAsJsonObject("deals");
+
+        Map<String, DateTime> directoriesLastUpdated = deserializeDirectoriesTimestamps(directoriesLastUpdatedJSON);
+        Map<String, LocalDate> sourceSystemLastUpdated = deserializeSourceSystemTimestamps(sourceSystemsLastUpdatedJSON);
+        Set<String> cacheColumns = deserializeCacheColumns(cacheColumnsJSON);
+        Map<String, Deal> cacheDeals = deserializeCacheContents(cacheContentsJSON);
+
+        return new Cache(cacheDeals, cacheColumns, directoriesLastUpdated, sourceSystemLastUpdated);
     }
 
     private final Set<String> columnIndex;
@@ -64,7 +74,7 @@ public class Cache {
 
             if (deals.containsKey(entry.getKey())) {
                 //update deal
-                logger.info("Updating deal " + entry.getKey());
+                logger.info("Updating deal {}", entry.getKey());
                 deals.get(entry.getKey()).updateDeal(timestamp, deal);
             } else {
                 //new deal
@@ -120,15 +130,15 @@ public class Cache {
         String dealsJSON = "{\"deals\":" + gson.toJson(deals) + ",";
         String colsJSON = "\"columnIndex\":" + gson.toJson(columnIndex) + ",";
 
-        StringBuilder sb = new StringBuilder("\"directoriesLastUpdated\":[");
+        StringBuilder sb = new StringBuilder("\"dLU\":[");
         for (Map.Entry<String, DateTime> entry : directoriesLastUpdated.entrySet())
-            sb.append("{\"directory\":\"").append(entry.getKey()).append("\",\"timestamp\":\"")
+            sb.append("{\"directory\":\"").append(entry.getKey()).append("\",\"ts\":\"")
                     .append(entry.getValue()).append("\"},");
 
-        sb.deleteCharAt(sb.lastIndexOf(",")).append("],\"sourceSystemsLastUpdated\":[");
+        sb.deleteCharAt(sb.lastIndexOf(",")).append("],\"ssLU\":[");
 
         for (Map.Entry<String, LocalDate> entry : sourceSystemsLastUpdated.entrySet())
-            sb.append("{\"sourceSystem\":\"").append(entry.getKey()).append("\",\"timestamp\":\"")
+            sb.append("{\"ss\":\"").append(entry.getKey()).append("\",\"ts\":\"")
                     .append(entry.getValue().toString("yyyyMMdd")).append("\"},");
 
         sb.deleteCharAt(sb.lastIndexOf(",")).append("]}");
@@ -137,16 +147,12 @@ public class Cache {
 
     }
 
-    public static Map<String, Deal> deserializeCacheContents(String json) {
+    public static Map<String, Deal> deserializeCacheContents(JsonObject o) {
         //{"Project PE - AA2":{"dealProperties":{"Deal Code Name":
         // {"values":{"2014-10-10T10:10:00.000+08:00":
         // {"innerValue":"Deal Code - Project PE - AA2","type":"STRING"}}}}},"Project PE - AA1":
         // {"dealProperties":{"Deal Code Name":{"values":{"2014-10-10T10:10:00.000+08:00":
         // {"innerValue":"Deal Code - Project PE - AA1","type":"STRING"}}}}}}
-
-        JsonParser parser = new JsonParser();
-        JsonObject jo = (JsonObject) parser.parse(json);
-        JsonObject o = jo.get("deals").getAsJsonObject();
 
         Map<String, Deal> retMap = Maps.newHashMap();
 
@@ -182,7 +188,7 @@ public class Cache {
                         type = parseType(v.get("type").getAsString());
                         innerValue = parseInnerValue(type, v.get("innerValue"));
 
-                        sourceSystem = v.get("sourceSystem").getAsString();
+                        sourceSystem = v.get("ss").getAsString();
 
 
                         DealProperty.Value parsedValue = new DealProperty.Value(innerValue, type, sourceSystem);
@@ -205,33 +211,22 @@ public class Cache {
         return retMap;
     }
 
-    public static Set<String> deserializeCacheColumns(String json) {
+    public static Set<String> deserializeCacheColumns(JsonArray columns) {
         Set<String> retSet = Sets.newTreeSet();
-        JsonParser parser = new JsonParser();
-        JsonObject o = parser.parse(json).getAsJsonObject();
-
-        JsonArray colIndexJsonArray = o.get("columnIndex").getAsJsonArray();
-
-        for (JsonElement col : colIndexJsonArray) {
-            retSet.add(col.getAsString());
-        }
-
+        for (JsonElement col : columns) retSet.add(col.getAsString());
         return retSet;
     }
 
-    public static Map<String, DateTime> deserializeCacheTimestamps(String json) {
+    public static Map<String, DateTime> deserializeDirectoriesTimestamps(JsonArray directories) {
         Map<String, DateTime> retMap = Maps.newHashMap();
-        JsonParser parser = new JsonParser();
-        JsonObject o = parser.parse(json).getAsJsonObject();
 
-        JsonArray luJsonArray = o.get("directoriesLastUpdated").getAsJsonArray();
+        DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZZ");
 
-        for (JsonElement lu : luJsonArray) {
+        for (JsonElement lu : directories) {
             JsonObject luO = lu.getAsJsonObject();
             String d = luO.get("directory").getAsString();
-            String timestampStr = luO.get("timestamp").getAsString();
+            String timestampStr = luO.get("ts").getAsString();
 
-            DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZZ");
             DateTime timestamp = formatter.parseDateTime(timestampStr);
 
             retMap.put(d, timestamp);
@@ -240,19 +235,15 @@ public class Cache {
         return retMap;
     }
 
-    private static Map<String, LocalDate> deserializeSourceSystemTimestamps(String json) {
+    private static Map<String, LocalDate> deserializeSourceSystemTimestamps(JsonArray sourceSystems) {
         Map<String, LocalDate> retMap = Maps.newHashMap();
-        JsonParser parser = new JsonParser();
-        JsonObject o = parser.parse(json).getAsJsonObject();
 
-        JsonArray ssJsonArray = o.get("sourceSystemsLastUpdated").getAsJsonArray();
+        DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyyMMdd");
 
-        for (JsonElement ss : ssJsonArray) {
+        for (JsonElement ss : sourceSystems) {
             JsonObject ssO = ss.getAsJsonObject();
-            String ssString = ssO.get("sourceSystem").getAsString();
-            String timestampStr = ssO.get("timestamp").getAsString();
-
-            DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyyMMdd");
+            String ssString = ssO.get("ss").getAsString();
+            String timestampStr = ssO.get("ts").getAsString();
             LocalDate timestamp  = formatter.parseLocalDate(timestampStr);
 
             retMap.put(ssString, timestamp);
@@ -263,11 +254,11 @@ public class Cache {
 
     public static Object parseInnerValue(DealProperty.Value.ValueType type, JsonElement innerValue) {
         switch (type) {
-            case BLANK:
+            case BL:
                 return "";
-            case BOOLEAN:
+            case BO:
                 return innerValue.getAsBoolean();
-            case NUMERIC:
+            case NU:
                 return innerValue.getAsDouble();
             default :
                 return innerValue.getAsString();
@@ -275,10 +266,10 @@ public class Cache {
     }
 
     public static DealProperty.Value.ValueType parseType(String typeStr) {
-        if (typeStr.equals("BLANK")) return DealProperty.Value.ValueType.BLANK;
-        if (typeStr.equals("BOOLEAN")) return DealProperty.Value.ValueType.BOOLEAN;
-        if (typeStr.equals("NUMERIC")) return DealProperty.Value.ValueType.NUMERIC;
-        return DealProperty.Value.ValueType.STRING;
+        if (typeStr.equals("BL")) return DealProperty.Value.ValueType.BL;
+        if (typeStr.equals("BO")) return DealProperty.Value.ValueType.BO;
+        if (typeStr.equals("NU")) return DealProperty.Value.ValueType.NU;
+        return DealProperty.Value.ValueType.ST;
     }
 
     public Map<String, LocalDate> getSourceSystemsLastUpdated() {

@@ -22,7 +22,7 @@ public class ValuesToDeal {
 
             Map<String, DealProperty> dealProperties = convertToDealProperties(sourceSystem, timestamp, valueMap);
             DealProperty.DealPropertyBuilder dpb = new DealProperty.DealPropertyBuilder();
-            dpb.withValue(timestamp, new DealProperty.Value(sourceSystem, DealProperty.Value.ValueType.STRING, sourceSystem));
+            dpb.withValue(timestamp, new DealProperty.Value(sourceSystem, DealProperty.Value.ValueType.ST, sourceSystem));
             dealProperties.put("Source System", dpb.build());
 
             if (companyName == null) throw new Exception("Company Name missing from dealset");
@@ -47,19 +47,19 @@ public class ValuesToDeal {
 
             switch (v.type) {
                 case BOOLEAN :
-                    dpb.withValue(timestamp, new DealProperty.Value(v.t, DealProperty.Value.ValueType.BOOLEAN,
+                    dpb.withValue(timestamp, new DealProperty.Value(v.t, DealProperty.Value.ValueType.BO,
                             sourceSystem));
                     break;
                 case BLANK:
-                    dpb.withValue(timestamp, new DealProperty.Value(v.t, DealProperty.Value.ValueType.BLANK,
+                    dpb.withValue(timestamp, new DealProperty.Value(v.t, DealProperty.Value.ValueType.BL,
                             sourceSystem));
                     break;
                 case NUMERIC:
-                    dpb.withValue(timestamp, new DealProperty.Value(v.t, DealProperty.Value.ValueType.NUMERIC,
+                    dpb.withValue(timestamp, new DealProperty.Value(v.t, DealProperty.Value.ValueType.NU,
                             sourceSystem));
                     break;
                 case STRING:
-                    dpb.withValue(timestamp, new DealProperty.Value(v.t, DealProperty.Value.ValueType.STRING,
+                    dpb.withValue(timestamp, new DealProperty.Value(v.t, DealProperty.Value.ValueType.ST,
                             sourceSystem));
                     break;
             }

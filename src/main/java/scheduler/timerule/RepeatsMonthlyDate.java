@@ -5,7 +5,6 @@ import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
 import org.joda.time.Months;
 
-import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Queue;
 
@@ -29,7 +28,7 @@ public class RepeatsMonthlyDate extends AbstractTimeRule {
 
     @Override
     public Queue<DateTime> getDateTimes() {
-        Queue<DateTime> retQueue = new PriorityQueue<DateTime>();
+        Queue<DateTime> retQueue = new PriorityQueue<>();
 
         LocalDate today = new LocalDate();
         int numberOfMonths = Months.monthsBetween(today, until).getMonths();

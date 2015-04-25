@@ -105,7 +105,7 @@ public class InputFileManager {
 
             for (File f : newFiles) {
                 String fName = f.getName();
-                logger.info("Parsing file: " + fName);
+                logger.info("Parsing file: {}", fName);
                 Workbook wb = WorkbookFactory.create(f);
 
                 SheetParser sheetParser = ParserManager.getParserConfigManager().getSheetParser(d, fName);
@@ -124,7 +124,7 @@ public class InputFileManager {
     }
 
     public DateTime getTimestamp(File file) throws IOException {
-        logger.info("Getting the timestamp for input file: " + file);
+        logger.info("Getting the timestamp for input file: {}", file);
         BasicFileAttributes attr = Files.readAttributes(file.toPath(),  BasicFileAttributes.class);
         return new DateTime(attr.creationTime().toMillis());
     }
@@ -142,28 +142,28 @@ public class InputFileManager {
             public boolean accept(File dir, String name) {
 
                 try {
-                    logger.info("name: " + name);
+                    logger.info("name: {}", name);
 
                     BasicFileAttributes attr = Files.readAttributes(Paths.get(dir.getAbsolutePath() + "/" + name),
                             BasicFileAttributes.class);
 
                     DateTime fileTimestamp = new DateTime(attr.creationTime().toMillis());
 
-                    logger.info("Checking if " + name + " is a new input file");
+                    logger.info("Checking if {} is a new input file", name);
 
                     if (cacheTimestamp == null) return (name.endsWith(".xlsx") || name.endsWith(".xls"));
-                    logger.info("cacheTimestamp: " + cacheTimestamp);
-                    logger.info("fileTimestamp: " + fileTimestamp);
+                    logger.info("cacheTimestamp: {}", cacheTimestamp);
+                    logger.info("fileTimestamp: {}", fileTimestamp);
                     return fileTimestamp.isAfter(cacheTimestamp) && (name.endsWith(".xlsx") || name.endsWith(".xls"));
 
                 } catch (IOException e) {
-                    logger.error("Error finding latest files: " + e.getLocalizedMessage());
+                    logger.error("Error finding latest files: {}", e.getLocalizedMessage());
                     return false;
                 }
             }
         });
 
-        logger.info("Found " + files.length + " new input files in directory " + directory);
+        logger.info("Found {} new input files in directory {}", files.length, directory);
         return files;
     }
 

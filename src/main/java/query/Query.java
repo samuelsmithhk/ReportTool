@@ -21,7 +21,6 @@ public class Query {
     public final boolean hasTemplate, outputTimestamp;
 
     private Query(QueryBuilder qb) {
-        logger.info("Creating query");
         this.sheets = qb.sheets;
         this.calculatedColumns = qb.calculatedColumns;
         this.mappedColumns = qb.mappedColumns;
@@ -107,8 +106,6 @@ public class Query {
         private final QuerySheetBuilder qsb;
 
         private QuerySheet(QuerySheetBuilder qsb) {
-            logger.info("Creating query sheet");
-
             this.sheetName = qsb.sheetName;
             this.headers = qsb.headers;
             this.groupBy = qsb.groupBy;
@@ -154,17 +151,6 @@ public class Query {
                 return this;
             }
 
-            public QuerySheetBuilder withoutColumn(String header, String column) {
-                if (this.headers == null) this.headers = Lists.newLinkedList();
-
-                for (Header h : headers)
-                    if (h.isThisHeader(header)) {
-                        h.removeSub(column);
-                        return this;
-                    }
-
-                return this;
-            }
 
             public QuerySheetBuilder setGroupBy(String groupBy) {
                 this.groupBy = groupBy;
@@ -247,10 +233,6 @@ public class Query {
                 subs.add(sub);
             }
 
-            public void removeSub(String sub) {
-                subs.remove(sub);
-            }
-
             public boolean isThisHeader(String test) {
                 return header.equals(test);
             }
@@ -306,12 +288,6 @@ public class Query {
                     String header = headersJSON.get(i).getAsString();
                     JsonArray headerGroupJSON = headerGroupsJSON.get(i).getAsJsonArray();
 
-                    String[] headerGroup = new String[headerGroupJSON.size()];
-
-                    for (int x = 0; x < headerGroupJSON.size(); x++) {
-                        headerGroup[x] = headerGroupJSON.get(x).getAsString();
-                    }
-
                     for (int x = 0; x < headerGroupJSON.size(); x++)
                         qsb = qsb.withColumn(header,
                                 headerGroupJSON.get(x).getAsString());
@@ -352,7 +328,7 @@ public class Query {
 
                         qb.addCalculatedColumn(reference, cc);
                     } catch (Exception e) {
-                        logger.error("Unable to construct calculated column: " + e.getMessage(), e);
+                        logger.error("Unable to construct calculated column: {}", e.getMessage(), e);
                     }
                 }
             }

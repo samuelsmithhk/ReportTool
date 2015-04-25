@@ -5,7 +5,6 @@ import deal.Deal;
 import files.CacheFileManager;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
-import org.joda.time.format.DateTimeFormat;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +31,7 @@ public class CacheManager {
     }
 
     public synchronized List<String> getAllColumns() {
-        return new ArrayList<String>(cache.getCols());
+        return new ArrayList<>(cache.getCols());
     }
 
     public void processDealUpdate(String sourceSystem,String directory, DateTime timestamp,

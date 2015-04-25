@@ -40,7 +40,6 @@ public class ScheduleFileManager {
         File[] jobFiles = dir.listFiles(new FilenameFilter() {
             @Override
             public boolean accept(File dir, String name) {
-                logger.info(name);
                 return name.endsWith(".job");
             }
         });
@@ -48,7 +47,7 @@ public class ScheduleFileManager {
         if (jobFiles.length == 0) return Lists.newArrayList();
 
         for (File f : jobFiles) {
-            logger.info("Parsing job: " + f.getName());
+            logger.info("Parsing job: {}", f.getName());
 
             try {
                 byte[] encodedJSON = Files.readAllBytes(f.toPath());
@@ -56,7 +55,7 @@ public class ScheduleFileManager {
                 Job j = gson.fromJson(json, Job.class);
                 retList.add(j);
             } catch (IOException e) {
-                logger.error("ERROR parsing job file " + f.getName() + ": " + e.getMessage(), e);
+                logger.error("ERROR parsing job file {}: {}", f.getName(), e.getMessage(), e);
             }
         }
 
@@ -75,7 +74,7 @@ public class ScheduleFileManager {
             out.close();
             hasUpdate = true;
         } catch (FileNotFoundException e) {
-            logger.error("Exception saving job: " + e.getMessage(), e);
+            logger.error("Exception saving job: {}", e.getMessage(), e);
             throw e;
         }
     }

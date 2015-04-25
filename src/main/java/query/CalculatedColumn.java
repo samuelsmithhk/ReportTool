@@ -23,7 +23,6 @@ public class CalculatedColumn implements SpecialColumn {
 
     public CalculatedColumn(String header, String firstHalf, String operator, String secondHalf)
             throws SpecialColumnException {
-        logger.info("Constructing calculated column");
         this.header = header;
         this.firstHalf = firstHalf;
         this.operatorString = operator;
@@ -151,17 +150,16 @@ public class CalculatedColumn implements SpecialColumn {
         public DealProperty.Value calculate(DealProperty dp, int r1, int r2) {
             double total = 0, count = 0;
             for (DealProperty.Value value : dp.getValuesForDayRange(r1, r2)) {
-                if (value.type.equals(DealProperty.Value.ValueType.NUMERIC)) {
+                if (value.type.equals(DealProperty.Value.ValueType.NU)) {
                     total += (Double) value.innerValue;
                     count++;
                 }
-                else logger.warn("Unable to add value " + value.innerValue
-                        + " in aggregation operation, as not numeric");
+                else logger.warn("Unable to add value {} in aggregation operation, as not numeric", value.innerValue);
             }
 
             double average = total / count;
 
-            return new DealProperty.Value(average, DealProperty.Value.ValueType.NUMERIC, "CALCULATED");
+            return new DealProperty.Value(average, DealProperty.Value.ValueType.NU, "CALCULATED");
         }
     }
 
@@ -171,12 +169,11 @@ public class CalculatedColumn implements SpecialColumn {
         public DealProperty.Value calculate(DealProperty dp, int r1, int r2) {
             double total = 0;
             for (DealProperty.Value value : dp.getValuesForDayRange(r1, r2)) {
-                if (value.type.equals(DealProperty.Value.ValueType.NUMERIC)) total += (Double) value.innerValue;
-                else logger.warn("Unable to add value " + value.innerValue
-                        + " in aggregation operation, as not numeric");
+                if (value.type.equals(DealProperty.Value.ValueType.NU)) total += (Double) value.innerValue;
+                else logger.warn("Unable to add value {} in aggregation operation, as not numeric", value.innerValue);
             }
 
-            return new DealProperty.Value(total, DealProperty.Value.ValueType.NUMERIC, "CALCULATED");
+            return new DealProperty.Value(total, DealProperty.Value.ValueType.NU, "CALCULATED");
         }
 
 
@@ -200,7 +197,7 @@ public class CalculatedColumn implements SpecialColumn {
                     CalculatedColumn cc = query.calculatedColumns.get(reference);
                     DealProperty.Value res = cc.evaluate(query, deal);
 
-                    if (!(res.type.equals(DealProperty.Value.ValueType.NUMERIC)))
+                    if (!(res.type.equals(DealProperty.Value.ValueType.NU)))
                         throw new SpecialColumnException
                                 ("Mathematical operator cannot be applied to non-numeric DealProperty");
 
@@ -213,7 +210,7 @@ public class CalculatedColumn implements SpecialColumn {
 
                 if (dp1 == null) throw new
                         SpecialColumnException("DealProperty " + firstHalf + " does not exist");
-                if (!(dp1.getLatestValue().type.equals(DealProperty.Value.ValueType.NUMERIC)))
+                if (!(dp1.getLatestValue().type.equals(DealProperty.Value.ValueType.NU)))
                     throw new SpecialColumnException
                             ("Mathematical operator cannot be applied to non-numeric DealProperty " + firstHalf);
 
@@ -224,12 +221,12 @@ public class CalculatedColumn implements SpecialColumn {
             else if (secondHalf.startsWith("=")) {
                 String reference = secondHalf.substring(1);
                 if (query.calculatedColumns.containsKey(reference)) {
-                    logger.info("Executing calculated column: " + reference);
+                    logger.info("Executing calculated column: {}", reference);
 
                     CalculatedColumn cc = query.calculatedColumns.get(reference);
                     DealProperty.Value res = cc.evaluate(query, deal);
 
-                    if (!(res.type.equals(DealProperty.Value.ValueType.NUMERIC)))
+                    if (!(res.type.equals(DealProperty.Value.ValueType.NU)))
                         throw new SpecialColumnException
                                 ("Mathematical operator cannot be applied to non-numeric DealProperty");
 
@@ -242,7 +239,7 @@ public class CalculatedColumn implements SpecialColumn {
 
                 if (dp2 == null) throw new
                         SpecialColumnException("DealProperty " + secondHalf + " does not exist");
-                if (!(dp2.getLatestValue().type.equals(DealProperty.Value.ValueType.NUMERIC)))
+                if (!(dp2.getLatestValue().type.equals(DealProperty.Value.ValueType.NU)))
                     throw new SpecialColumnException
                             ("Mathematical operator cannot be applied to non-numeric DealProperty " + secondHalf);
 
@@ -259,28 +256,28 @@ public class CalculatedColumn implements SpecialColumn {
     private class AddOperator extends MathematicalOperator{
         @Override
         public DealProperty.Value calculate(double a, double b) {
-            return new DealProperty.Value((a + b), DealProperty.Value.ValueType.NUMERIC, "CALCULATED");
+            return new DealProperty.Value((a + b), DealProperty.Value.ValueType.NU, "CALCULATED");
         }
     }
 
     private class SubtractOperator extends MathematicalOperator {
         @Override
         public DealProperty.Value calculate(double a, double b) {
-            return new DealProperty.Value((a - b), DealProperty.Value.ValueType.NUMERIC, "CALCULATED");
+            return new DealProperty.Value((a - b), DealProperty.Value.ValueType.NU, "CALCULATED");
         }
     }
 
     private class MultiplyOperator extends MathematicalOperator {
         @Override
         public DealProperty.Value calculate(double a, double b) {
-            return new DealProperty.Value((a * b), DealProperty.Value.ValueType.NUMERIC, "CALCULATED");
+            return new DealProperty.Value((a * b), DealProperty.Value.ValueType.NU, "CALCULATED");
         }
     }
 
     private class DivideOperator extends MathematicalOperator {
         @Override
         public DealProperty.Value calculate(double a, double b) {
-            return new DealProperty.Value((a / b), DealProperty.Value.ValueType.NUMERIC, "CALCULATED");
+            return new DealProperty.Value((a / b), DealProperty.Value.ValueType.NU, "CALCULATED");
         }
     }
 
@@ -299,7 +296,7 @@ public class CalculatedColumn implements SpecialColumn {
             else if (firstHalf.startsWith("=")) {
                 String reference = firstHalf.substring(1);
                 if (query.calculatedColumns.containsKey(reference)) {
-                    logger.info("Executing calculated column: " + reference);
+                    logger.info("Executing calculated column: {}", reference);
 
                     CalculatedColumn cc = query.calculatedColumns.get(reference);
                     DealProperty.Value res = cc.evaluate(query, deal);
@@ -320,7 +317,7 @@ public class CalculatedColumn implements SpecialColumn {
             else if (secondHalf.startsWith("=")) {
                 String reference = secondHalf.substring(1);
                 if (query.calculatedColumns.containsKey(reference)) {
-                    logger.info("Executing calculated column: " + reference);
+                    logger.info("Executing calculated column: {}", reference);
 
                     CalculatedColumn cc = query.calculatedColumns.get(reference);
                     DealProperty.Value res = cc.evaluate(query, deal);
@@ -337,7 +334,7 @@ public class CalculatedColumn implements SpecialColumn {
                 str2 = (String) dp.getLatestValue().innerValue;
             }
 
-            return new DealProperty.Value((str1 + str2), DealProperty.Value.ValueType.STRING, "CALCULATED");
+            return new DealProperty.Value((str1 + str2), DealProperty.Value.ValueType.ST, "CALCULATED");
         }
     }
 
