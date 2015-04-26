@@ -13,6 +13,7 @@
     <script src="/js/query/queryCreatorUIManagement.js"></script>
     <script src="/js/schedule/scheduleUIManagement.js"></script>
     <script src="/js/schedule/jobValidation.js"></script>
+    <script src="/js/services.js"></script>
 
     <link href="c/jquery-ui.min.css" rel="stylesheet">
     <link href="c/jquery-ui.structure.min.css" rel="stylesheet">
@@ -182,6 +183,7 @@
     <ul>
         <li><a href="#queriesTab">Queries</a></li>
         <li><a href="#scheduleTab">Schedule</a></li>
+        <li><a href="#servicesTab">Services</a></li>
     </ul>
     <div id="queriesTab">
         <h2>Queries</h2>
@@ -194,6 +196,7 @@
         </div>
 
     </div>
+
     <div id="scheduleTab">
         <h2>Schedule</h2>
 
@@ -202,6 +205,25 @@
 
         <div id="scheduleDatePicker"></div>
         <div id="jobList"></div>
+    </div>
+
+    <div id="servicesTab">
+        <h2>Services</h2>
+
+        <p>You may use the following links to force a reload of that particular component if you have
+        modified the underlying files, and do not wish to fully restart the application.</p>
+
+        <p>After reloading the component, you may need to refresh this webpage.</p><br />
+
+        <ul>
+            <li><a id="reloadCacheLink" href="#">Force new cache from inputs</a><br /></li>
+            <li><a id="reloadQueriesLink" href="#">Force reload of queries</a><br /></li>
+            <li><a id="reloadScheduleLink" href="#">Force reload of schedule</a></li>
+        </ul>
+        <br />
+        <p>If you wish to terminate the ReportTool service entirely,
+            <a id="terminateServiceLink" href="#">click here,</a> please note that this webpage will become
+        unavailable once the service is terminated.</p>
     </div>
 </div>
 

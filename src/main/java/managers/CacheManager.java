@@ -13,7 +13,7 @@ import java.util.Map;
 public class CacheManager {
     private static CacheManager cm;
     private final CacheFileManager cfm;
-    private final Cache cache;
+    private Cache cache;
 
     private CacheManager(CacheFileManager cfm) {
         this.cfm = cfm;
@@ -60,5 +60,11 @@ public class CacheManager {
 
     public LocalDate getSourceSystemLastUpdated(String sourceSystem) {
         return cache.getSourceSystemLastUpdated(sourceSystem);
+    }
+
+    public void createNewCache() throws Exception {
+        cache = cfm.forceEmptyCache();
+        InputManager im = InputManager.getInputManager();
+        im.loadNewInputsIfAny();
     }
 }

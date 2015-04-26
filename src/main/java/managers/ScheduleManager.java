@@ -32,7 +32,7 @@ public class ScheduleManager {
     }
 
     private Schedule loadSchedule(Schedule currentSchedule) {
-        if (sfm.hasUpdate()) {
+        if (sfm.hasUpdate() || currentSchedule == null) {
             jobs = sfm.loadJobs();
 
             Queue<JobInstance> masterQueue = new PriorityQueue<>();
@@ -75,13 +75,19 @@ public class ScheduleManager {
         return null;
     }
 
-    public void removeJob(String jobName) {
+    public synchronized void removeJob(String jobName) {
         sfm.removeJob(jobName);
         schedule = loadSchedule(schedule);
     }
 
-    public void saveJob(JobInstance.Job job) throws FileNotFoundException {
+    public synchronized void saveJob(JobInstance.Job job) throws FileNotFoundException {
         sfm.saveJob(job);
         schedule = loadSchedule(schedule);
+    }
+
+    public synchronized void shutdownSchedule() throws InterruptedException {
+        schedule.shouldBreakOnNextLoop();
+
+    while (!(schedule.hasBroken())) Thread.sleep(15000);
     }
 }

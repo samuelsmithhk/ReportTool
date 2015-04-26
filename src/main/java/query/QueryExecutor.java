@@ -52,6 +52,8 @@ public class QueryExecutor {
             }
         }
 
+        logger.info("Query execution finished");
+
         return qrb.build();
     }
 

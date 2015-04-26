@@ -35,6 +35,10 @@ public class QueryManager {
         return new ArrayList<>(currentQueries.values());
     }
 
+    public synchronized void forceQueryReload() {
+        currentQueries = qfm.loadQueries();
+    }
+
     public synchronized List<String> getQueryNames() {
         if (qfm.hasUpdate()) currentQueries = qfm.loadQueries();
 

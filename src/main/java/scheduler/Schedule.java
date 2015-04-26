@@ -16,13 +16,24 @@ public class Schedule implements Runnable {
 
     private Queue<JobInstance> jobs;
 
+    private boolean shouldBreak, hasBroken;
+
     public Schedule(Queue<JobInstance> jobs) {
         this.jobs = jobs;
+        shouldBreak = false;
+        hasBroken = false;
     }
 
     @Override
     public void run() {
         while (!Thread.currentThread().isInterrupted()) {
+
+            if (shouldBreak) {
+                logger.info("Should break set to true, terminating loop");
+                hasBroken = true;
+                break;
+            }
+
 
             if (jobs.peek() == null) {
                 logger.info("No jobs left in schedule, terminating loop");
@@ -63,5 +74,13 @@ public class Schedule implements Runnable {
         Collections.sort(retList);
 
         return retList;
+    }
+
+    public void shouldBreakOnNextLoop() {
+        shouldBreak = true;
+    }
+
+    public boolean hasBroken() {
+        return hasBroken;
     }
 }

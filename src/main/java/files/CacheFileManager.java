@@ -11,6 +11,8 @@ import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.zip.DeflaterOutputStream;
+import java.util.zip.InflaterInputStream;
 
 public class CacheFileManager {
 
@@ -38,8 +40,20 @@ public class CacheFileManager {
 
         try {
             logger.info("Cache found, loading");
-            byte[] encodedJSON = Files.readAllBytes(Paths.get(cacheAddress));
-            String json = new String(encodedJSON, Charset.defaultCharset());
+
+            InputStream inputStream = new FileInputStream(cacheAddress);
+            InflaterInputStream inflaterStream = new InflaterInputStream(inputStream);
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream(1024);
+
+            int buffer;
+            while ((buffer = inflaterStream.read()) != -1) outputStream.write(buffer);
+
+            inputStream.close();
+            inflaterStream.close();
+            outputStream.close();
+
+            String json = new String(outputStream.toByteArray(), Charset.defaultCharset());
+
             return Cache.createLoadedCache(json);
         } catch (IOException e) {
             logger.error("No existing cache file found at {} creating new cache", cacheAddress);
@@ -47,21 +61,30 @@ public class CacheFileManager {
         }
     }
 
+    public Cache forceEmptyCache() {
+        return Cache.createEmptyCache();
+    }
+
     public void saveCache(Cache cache) {
         logger.info("Saving cache");
 
-        String toSave = Cache.serializeCache(cache.getDeals(), cache.getCols(), cache.getDirectoriesLastUpdated(),
+        String cacheJson = Cache.serializeCache(cache.getDeals(), cache.getCols(), cache.getDirectoriesLastUpdated(),
                 cache.getSourceSystemsLastUpdated());
+        byte[] toSave = cacheJson.getBytes();
 
         String filename = new DateTime().toString(DateTimeFormat.forPattern("yyyyMMddHHmmss"));
 
-        PrintWriter out;
+        OutputStream outputStream;
         try {
-            out = new PrintWriter(cacheDirectory + filename + ".cache");
-            out.print(toSave);
-            out.close();
-        } catch (FileNotFoundException e) {
-            logger.error("Error saving cache file: {}", e.getMessage());
+            outputStream = new FileOutputStream(cacheDirectory + filename + ".cache");
+            OutputStream deflaterStream = new DeflaterOutputStream(outputStream);
+
+            deflaterStream.write(toSave);
+            deflaterStream.close();
+            outputStream.flush();
+            outputStream.close();
+        } catch (IOException e) {
+            logger.error("Error saving cache file: {}", e.getMessage(), e);
         }
 
         historicCleanUp();

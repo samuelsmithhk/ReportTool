@@ -126,5 +126,4 @@ public class ScheduleController {
             response.getWriter().write("error");
         }
     }
-
 }
