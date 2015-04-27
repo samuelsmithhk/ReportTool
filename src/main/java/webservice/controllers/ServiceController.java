@@ -3,6 +3,7 @@ package webservice.controllers;
 import managers.CacheManager;
 import managers.QueryManager;
 import managers.ScheduleManager;
+import managers.ServiceManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -17,6 +18,23 @@ import java.io.IOException;
 public class ServiceController {
 
     private static final Logger logger = LoggerFactory.getLogger(ServiceController.class);
+
+    @RequestMapping(value = "/serviceReady", method = RequestMethod.GET)
+    public void serviceReady(HttpServletRequest request, HttpServletResponse response) {
+        logger.info("{} is requesting whether the service is ready to use", request.getRemoteAddr());
+
+        try {
+            ServiceManager sm = ServiceManager.getServiceManager();
+
+            boolean serviceReady = sm.isReady();
+            String status = sm.getStatus();
+
+            String responseMessage = "{\"status\":\"" + serviceReady + "\",\"message\":\"" + status + "\"}";
+            response.getWriter().write(responseMessage);
+        } catch (Exception e) {
+            logger.error("Exception getting server status: {}", e.getMessage(), e);
+        }
+    }
 
     @RequestMapping(value = "/reloadCache", method = RequestMethod.GET)
     public void reloadCache(HttpServletRequest request, HttpServletResponse response) throws IOException {

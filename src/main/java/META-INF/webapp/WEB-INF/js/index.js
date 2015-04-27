@@ -1,4 +1,26 @@
 $(document).ready(function(){
+    displayServiceNotReadyWindow();
+
+    setInterval(function(){
+        $.ajax({
+            type : "GET",
+            url : "serviceReady"
+        }).done(function(response){
+            var responseObj = JSON.parse(response);
+
+            if (responseObj.status === "true") {
+                ready = true;
+                finishLoadingPage();
+                hideDialog();
+            } else {
+                $("#serviceStageLabel").html(responseObj.message);
+            }
+            });
+    }, 3000);
+});
+
+function finishLoadingPage(){
+    requestQueries();
 
     $("#tabbedPanel").tabs();
     $("#scheduleDatePicker").datepicker({
@@ -6,8 +28,7 @@ $(document).ready(function(){
             requestJobsForDate(dateText);
         }
     });
-    requestQueries();
-});
+}
 
 function requestJobsForDate(dateText) {
     $.ajax({
@@ -199,6 +220,20 @@ function displayNewJobWindow(){
     // assign values to the overlay and dialog box
     $('#dialogUnderlay').css({height:maskHeight, width:maskWidth}).show();
     $('#jobDialog').css({top:dialogTop, left:dialogLeft}).show();
+}
+
+function displayServiceNotReadyWindow(){
+    // get the screen height and width
+    var maskHeight = $(document).height();
+    var maskWidth = $(window).width();
+
+    // calculate the values for center alignment
+    var dialogTop =  0;
+    var dialogLeft = (maskWidth/2) - ($('#queriesDialog').width()/2);
+
+    // assign values to the overlay and dialog box
+    $('#dialogUnderlay').css({height:maskHeight, width:maskWidth}).show();
+    $('#notReadyDialog').css({top:dialogTop, left:dialogLeft}).show();
 }
 
 function displayViewJobWindow() {

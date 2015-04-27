@@ -23,17 +23,26 @@ import java.util.Properties;
 public class ReportToolRunner {
 
     private final Logger logger = LoggerFactory.getLogger(ReportToolRunner.class);
+    private final ServiceManager sm;
 
     private ReportToolRunner() throws Exception {
         logger.info("Initializing mains.ReportToolRunner");
 
+        ServiceManager.initServiceManager();
+        sm = ServiceManager.getServiceManager();
+        sm.isReady(false);
+        sm.setStatus("Initializing server");
         HttpServer server = new HttpServer(8088);
         server.start();
 
         init();
 
-        ScheduleManager sm = ScheduleManager.getScheduleManager();
-        sm.startSchedule();
+        sm.setStatus("Starting schedule");
+        ScheduleManager scm = ScheduleManager.getScheduleManager();
+        scm.startSchedule();
+        logger.info("Ready");
+        sm.setStatus("Ready");
+        sm.isReady(true);
     }
 
     public static void main(String[] args) {
@@ -50,22 +59,35 @@ public class ReportToolRunner {
 
         Map<String, String> properties = loadProperties();
 
+        sm.setStatus("Creating cache");
         CacheFileManager cfm = new CacheFileManager(properties.get("cacheDirectory"),
                 Integer.valueOf(properties.get("numberOfHistoricFiles")));
         CacheManager.initCacheManager(cfm);
 
+        sm.setStatus("Loading parser config");
         ParserManager.initParserConfigManager(loadParserConfigs());
 
+        sm.setStatus("Init input manager");
         InputManager.initInputManager(new InputFileManager());
+
+        sm.setStatus("Init template manager");
         TemplateManager.initTemplateManager
                 (new TemplateFileManager(properties.get("templateDirectory")));
+
+        sm.setStatus("Init query manager");
         QueryManager.initQueryManager
                 (new QueryFileManager(properties.get("queryDirectory")));
+
+        sm.setStatus("Init schedule manager");
         ScheduleManager.initScheduleManager
                 (new ScheduleFileManager(properties.get("scheduleDirectory")));
+
+        sm.setStatus("Init export manager");
         ExportManager.initExportManager
                 (new ExportFileManager(properties.get("exportDirectory"), properties.get("processedMacroDirectory")));
 
+
+        sm.setStatus("Init email manager");
         if (properties.get("emailAuthenticate").equals("true"))
             Email.initEmail(properties.get("emailHost"), Integer.valueOf(properties.get("emailPort")),
                     Boolean.valueOf(properties.get("emailSSL")), properties.get("emailFrom"),
