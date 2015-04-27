@@ -41,8 +41,14 @@ public class ServiceController {
         logger.info("{} is attempting to create a new cache from current inputs", request.getRemoteAddr());
 
         try {
+            ServiceManager sm = ServiceManager.getServiceManager();
+
+            sm.isReady(false);
+            sm.setStatus("Recreating cache");
             CacheManager.getCacheManager().createNewCache();
             logger.info("New Cache successfully created");
+            sm.isReady(true);
+            sm.setStatus("Ready");
             response.getWriter().write("\"success\"");
         } catch (Exception e) {
             logger.error("Exception occurred trying to recreate cache: {}", e.getMessage(), e);
@@ -56,8 +62,13 @@ public class ServiceController {
         logger.info("{} is attempting to reload the queries from the filesystem", request.getRemoteAddr());
 
         try {
+            ServiceManager sm = ServiceManager.getServiceManager();
+            sm.isReady(false);
+            sm.setStatus("Reloading queries");
             QueryManager.getQueryManager().forceQueryReload();
             logger.info("Queries successfully reloaded");
+            sm.isReady(true);
+            sm.setStatus("Ready");
             response.getWriter().write("\"success\"");
         } catch (Exception e) {
             logger.error("Exception occurred trying to reload queries: {}", e.getMessage(), e);
@@ -71,8 +82,17 @@ public class ServiceController {
         logger.info("{} is attempting to reload the schedule files from the filesystem", request.getRemoteAddr());
 
         try {
+            ServiceManager sem = ServiceManager.getServiceManager();
+
+            sem.isReady(false);
+            sem.setStatus("Reloading schedule");
+
             ScheduleManager sm = ScheduleManager.getScheduleManager();
             logger.info("Shutting down scheduler");
+
+            sem.isReady(true);
+            sem.setStatus("Ready");
+
             sm.shutdownSchedule();
             logger.info("Loading and starting new schedule");
             sm.startSchedule();

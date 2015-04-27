@@ -1,7 +1,11 @@
 $(document).ready(function(){
+    isNotReady();
+});
+
+function isNotReady() {
     displayServiceNotReadyWindow();
 
-    setInterval(function(){
+    var interval = setInterval(function(){
         $.ajax({
             type : "GET",
             url : "serviceReady"
@@ -9,15 +13,15 @@ $(document).ready(function(){
             var responseObj = JSON.parse(response);
 
             if (responseObj.status === "true") {
-                ready = true;
+                clearInterval(interval);
                 finishLoadingPage();
                 hideDialog();
             } else {
                 $("#serviceStageLabel").html(responseObj.message);
             }
             });
-    }, 3000);
-});
+    }, 1500);
+}
 
 function finishLoadingPage(){
     requestQueries();

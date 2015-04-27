@@ -5,7 +5,7 @@ $(document).ready(function(){
 
         if (r) {
             alert("Process may take some time. Do not use the ReportTool until you get a complete alert");
-
+            isNotReady();
             $.ajax({
                 type: "GET",
                 url : "reloadCache"
@@ -24,7 +24,7 @@ $(document).ready(function(){
 
         if (r) {
             alert("Do not use the ReportTool until you get a complete alert");
-
+            isNotReady();
             $.ajax({
                 type : "GET",
                 url : "reloadQueries"
@@ -40,7 +40,7 @@ $(document).ready(function(){
 
     $("#reloadScheduleLink").click(function(){
         var r = confirm("This will reload the schedule from the filesystem. Continue?");
-
+        isNotReady();
         if (r) {
             alert("Do not use the ReportTool until you get a complete alert");
 
@@ -59,7 +59,7 @@ $(document).ready(function(){
 
     $("#terminateServiceLink").click(function(){
         var r = confirm("Are you sure you want to terminate this service?");
-
+        isNotReady();
         if (r) {
             alert("Terminating");
 
