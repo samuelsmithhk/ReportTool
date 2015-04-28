@@ -13,6 +13,9 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
 
 
@@ -63,11 +66,6 @@ public class ExportFileManager {
         if (files.length == 0) return null;
         List<File> retList = Lists.newLinkedList();
 
-        if (!query.outputTimestamp) {
-            retList.add(files[0]);
-            return retList;
-        }
-
         File latestFile = files[0];
         retList.add(latestFile);
         DateTime latestTimestamp = getFileTimestamp(latestFile);
@@ -93,17 +91,7 @@ public class ExportFileManager {
 
     public DateTime getFileTimestamp(File file) {
         logger.info("Identifying timestamp for file: {}", file);
-        return getFileTimestamp(file.getAbsolutePath());
-    }
-
-    public DateTime getFileTimestamp(String file) {
-        logger.info("Parsing timestamp for string: {}", file);
-        DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyyMMdd");
-
-        boolean testIfPDF = file.endsWith(".pdf");
-        int start = testIfPDF ? file.length() - 12 : file.length() - 13;
-        int end = testIfPDF ? file.length() - 4 : file.length() - 5;
-        return formatter.parseDateTime(file.substring(start, end));
+        return new DateTime(file.lastModified());
     }
 
 }
