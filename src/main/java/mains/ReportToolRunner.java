@@ -59,7 +59,7 @@ public class ReportToolRunner {
 
         Map<String, String> properties = loadProperties();
 
-        sm.setStatus("Creating cache");
+        sm.setStatus("Init cache");
         CacheFileManager cfm = new CacheFileManager(properties.get("cacheDirectory"),
                 Integer.valueOf(properties.get("numberOfHistoricFiles")));
         CacheManager.initCacheManager(cfm);

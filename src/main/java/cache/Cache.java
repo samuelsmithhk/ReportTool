@@ -263,6 +263,10 @@ public class Cache {
         return columnIndex;
     }
 
+    public Set<String> getSourceSystems() {
+        return sourceSystemsLastUpdated.keySet();
+    }
+
     public Deal getDeal(String dealName) throws CacheException {
         if (deals.containsKey(dealName)) return deals.get(dealName);
         else throw new CacheException("Deal does not exist in cache: " + dealName);

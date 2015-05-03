@@ -64,6 +64,12 @@ public class DealProperty {
     }
 
     public Value getSnapshotValue(LocalDate snapshot) throws Exception {
+        return getSnapshotValue(snapshot, null, false);
+    }
+
+    public Value getSnapshotValue(LocalDate snapshot, String ssPriority, boolean fallback) throws Exception {
+
+        Value fallbackVal = null;
 
         for (int i = 0; i <= 5; i++) {
             LocalDate snapshotDerived = snapshot.minusDays(i);
@@ -81,17 +87,35 @@ public class DealProperty {
                         if (snapshotDay == keyDay) {
                             Value value = values.get(key);
 
-                            if (i > 0) {
-                                LocalDate sourceSystemLastUpdated =
-                                        CacheManager.getCacheManager().getSourceSystemLastUpdated(value.ss);
+                            if (ssPriority != null) {
+                                if (ssPriority.equals(value.ss)) {
+                                    if (i > 0) {
+                                        LocalDate sourceSystemLastUpdated =
+                                                CacheManager.getCacheManager().getSourceSystemLastUpdated(value.ss);
 
-                                if (snapshotDerived.isEqual(sourceSystemLastUpdated)) return value;
-                            } else return value;
+                                        if (snapshotDerived.isEqual(sourceSystemLastUpdated)) return value;
+                                    } else return value;
+                                } else if (fallback && (fallbackVal == null)) {
+                                    if (i > 0) {
+                                        LocalDate sourceSystemLastUpdated =
+                                                CacheManager.getCacheManager().getSourceSystemLastUpdated(value.ss);
+
+                                        if (snapshotDerived.isEqual(sourceSystemLastUpdated)) fallbackVal = value;
+                                    }
+                                }
+                            } else {
+                                if (i > 0) {
+                                    LocalDate sourceSystemLastUpdated =
+                                            CacheManager.getCacheManager().getSourceSystemLastUpdated(value.ss);
+
+                                    if (snapshotDerived.isEqual(sourceSystemLastUpdated)) return value;
+                                } else return value;
+                            }
                         }
             }
         }
 
-        return null;
+        return fallbackVal;
     }
 
     public Value getValueMinusXDays(int days) throws Exception {
@@ -142,6 +166,7 @@ public class DealProperty {
         public final Object innerValue;
         public final ValueType type;
         public final String ss; //sourceSystem
+
         public Value(Object innerValue, ValueType type, String ss) {
             this.innerValue = innerValue;
             this.type = type;

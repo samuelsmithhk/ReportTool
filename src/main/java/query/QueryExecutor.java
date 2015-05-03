@@ -31,7 +31,7 @@ public class QueryExecutor {
             Map<String, Deal> filteredDeals;
             try {
                 filteredDeals = qe.filterDeals(sheet.filterColumn, sheet.filterValue, snapshotDate);
-                List<QueryResultDeal> selectedColumns = qe.selectColumns(query, sheet.headers, filteredDeals,
+                List<QueryResultDeal> selectedColumns = qe.selectColumns(query, sheet, filteredDeals,
                         snapshotDate);
                 List<Group> groupedValues;
                 try {
@@ -84,7 +84,7 @@ public class QueryExecutor {
         return retMap;
     }
 
-    public List<QueryResultDeal> selectColumns(Query query, List<Query.QuerySheet.Header> headers,
+    public List<QueryResultDeal> selectColumns(Query query, Query.QuerySheet sheet,
                                                Map<String, Deal> filteredDeals,
                                                LocalDate snapshotDate) throws Exception {
 
@@ -93,7 +93,7 @@ public class QueryExecutor {
 
         for (Map.Entry<String, Deal> toBeConverted : filteredDeals.entrySet()) {
             retList.add(new QueryResultDeal(query, toBeConverted.getKey(),
-                    toBeConverted.getValue().dealProperties, headers, snapshotDate));
+                    toBeConverted.getValue().dealProperties, sheet, snapshotDate));
         }
 
 

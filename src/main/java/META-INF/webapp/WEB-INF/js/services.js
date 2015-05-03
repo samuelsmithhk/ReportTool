@@ -5,6 +5,7 @@ $(document).ready(function(){
 
         if (r) {
             alert("Process may take some time. Do not use the ReportTool until you get a complete alert");
+            displayServiceNotReadyWindow();
             isNotReady();
             $.ajax({
                 type: "GET",
@@ -12,8 +13,6 @@ $(document).ready(function(){
             }).done(function(response){
                 if (JSON.parse(response) === "error") {
                     alert("An exception occurred. Probably best to terminate the service and reload");
-                } else {
-                    alert("Process complete. May need to refresh webpage");
                 }
             });
         }
@@ -24,6 +23,7 @@ $(document).ready(function(){
 
         if (r) {
             alert("Do not use the ReportTool until you get a complete alert");
+            displayServiceNotReadyWindow();
             isNotReady();
             $.ajax({
                 type : "GET",
@@ -31,8 +31,6 @@ $(document).ready(function(){
             }).done(function(response){
                 if (JSON.parse(response) === "error") {
                     alert("An exception occurred. Probably best to terminate the service and reload");
-                } else {
-                    alert("Process complete. May need to refresh webpage");
                 }
             });
         }
@@ -40,6 +38,7 @@ $(document).ready(function(){
 
     $("#reloadScheduleLink").click(function(){
         var r = confirm("This will reload the schedule from the filesystem. Continue?");
+        displayServiceNotReadyWindow();
         isNotReady();
         if (r) {
             alert("Do not use the ReportTool until you get a complete alert");
@@ -50,8 +49,6 @@ $(document).ready(function(){
             }).done(function(response){
                 if (JSON.parse(response) === "error") {
                     alert("An exception occurred. Probably best to terminate the service and reload");
-                } else {
-                    alert("Process complete. May need to refresh webpage");
                 }
             });
         }

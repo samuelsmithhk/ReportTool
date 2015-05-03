@@ -33,6 +33,10 @@ public class CacheManager {
         return new ArrayList<>(cache.getCols());
     }
 
+    public synchronized List<String> getAllSourceSystems() {
+        return new ArrayList<>(cache.getSourceSystems());
+    }
+
     public void processDealUpdate(String sourceSystem, String directory, DateTime timestamp,
                                   Map<String, Deal> dealMap) {
         cache.processDealUpdate(sourceSystem, directory, timestamp, dealMap);

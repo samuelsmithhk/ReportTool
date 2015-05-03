@@ -44,4 +44,17 @@ public class CacheController {
         }
     }
 
+    @RequestMapping(value = "/getAllSourceSystems", method = RequestMethod.GET)
+    public void getAllSourceSystems(HttpServletRequest request, HttpServletResponse response) {
+        logger.info("{} is requesting all source systems", request.getRemoteAddr());
+
+        try {
+            if (cm == null) cm = CacheManager.getCacheManager();
+            List<String> sourceSystems = cm.getAllSourceSystems();
+            response.getWriter().write(gson.toJson(sourceSystems));
+        } catch (Exception e) {
+            logger.error("Error sending source systems to {}: {}", request.getRemoteAddr(), e.getMessage(), e);
+        }
+    }
+
 }

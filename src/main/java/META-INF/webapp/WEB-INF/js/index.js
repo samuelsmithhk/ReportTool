@@ -1,26 +1,28 @@
 $(document).ready(function(){
+    displayServiceNotReadyWindow();
     isNotReady();
 });
 
+var repeat = true;
 function isNotReady() {
-    displayServiceNotReadyWindow();
+    $.ajax({
+        type : "GET",
+        url : "serviceReady"
+    }).done(function(response){
+        var responseObj = JSON.parse(response);
 
-    var interval = setInterval(function(){
-        $.ajax({
-            type : "GET",
-            url : "serviceReady"
-        }).done(function(response){
-            var responseObj = JSON.parse(response);
+        if (responseObj.status === "true") {
+            repeat = false;
+            finishLoadingPage();
+            hideDialog();
+        } else {
+            $("#serviceStageLabel").html(responseObj.message);
+        }
+    });
 
-            if (responseObj.status === "true") {
-                clearInterval(interval);
-                finishLoadingPage();
-                hideDialog();
-            } else {
-                $("#serviceStageLabel").html(responseObj.message);
-            }
-            });
-    }, 1500);
+    if (repeat) {
+        setTimeout(isNotReady, 1000);
+    }
 }
 
 function finishLoadingPage(){
@@ -162,16 +164,6 @@ function requestQueryNames() {
     });
 }
 
-function requestColumns(dropDownToUpdate, valueToSelect) {
-    $.ajax({
-        type : "GET",
-        url : "getAllColumns"
-    }).done(function(response){
-        var columns = JSON.parse(response);
-        addColumnsToSelects(columns, dropDownToUpdate, valueToSelect);
-    });
-}
-
 function addQueryNamesToSelect(queryNames) {
     var htmlValue = "";
     $.each(queryNames, function(index, name){
@@ -179,23 +171,6 @@ function addQueryNamesToSelect(queryNames) {
     });
 
     $("#querySelectBox").html(htmlValue);
-}
-
-function addColumnsToSelects(columnsToAdd, dropDownToUpdate, valueToSelect) {
-    var htmlValue = "<option value=\"RAWVAL\"></option>";
-
-    $.each(columnsToAdd, function(index, column) {
-        htmlValue += "<option value=\"" + column + "\">" + column + "</option>";
-    });
-
-    if (!(typeof dropDownToUpdate === "undefined")) {
-        $("#" + dropDownToUpdate).html(htmlValue);
-            if (!(typeof dropDownToUpdate === "undefined")) {
-                $("#" + dropDownToUpdate).val(valueToSelect);
-            }
-    } else {
-        $(".columnSelectBox").html(htmlValue);
-    }
 }
 
 function displayAddQueryWindow() {
@@ -419,7 +394,7 @@ function createQueryList(queryListString) {
                     return;
                 }
 
-                 currentQuery = convertQueryObjectToUI(unprocessedQuery);
+                currentQuery = convertQueryObjectToUI(unprocessedQuery);
                 createEditorWindow();
             });
         }

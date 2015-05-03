@@ -8,9 +8,11 @@ function initNewQuery(name, template, timestamp, sheets, templateFile) {
     return query;
 }
 
-function initNewSheet(name, hidden, headers, filterColumn, filterValue, sortBy, groupBy) {
+function initNewSheet(name, prioritySS, fallback, hidden, headers, filterColumn, filterValue, sortBy, groupBy) {
     var sheet = {};
     sheet.name = name;
+    sheet.prioritySS = prioritySS;
+    sheet.fallback = fallback;
     sheet.hidden = hidden;
     sheet.headers = headers;
     sheet.filterColumn = filterColumn;
@@ -182,6 +184,26 @@ function convertQueryObject(toBeConverted) {
         convertedSheet.headers = [];
         convertedSheet.headerGroups = [];
 
+        var prioritySS = sheet.prioritySS;
+
+        if (!(typeof prioritySS === "undefined") && !(prioritySS.trim() === "") && !(prioritySS === "RAWVAL")) {
+            convertedSheet.prioritySS = prioritySS;
+
+            var fallback = sheet.fallback;
+
+            if (!(typeof fallback === "undefined") && fallback != null && !(fallback.trim() === "")) {
+                if (fallback === "y") {
+                    convertedSheet.fallback = true;
+                } else if (fallback === "n") {
+                    convertedSheet.fallback = false;
+                }
+            } else {
+                convertedSheet.fallback = false;
+            }
+        }
+
+
+
         $.each(sheet.headers, function(headerIndex, header) {
             convertedSheet.headers.push(header.name);
             var convertedHeaderGroup = [];
@@ -285,6 +307,22 @@ function convertQueryObjectToUI(toBeConverted) {
         convertedSheet.groupBy = sheet.groupBy;
         convertedSheet.sortBy = sheet.sortBy;
         convertedSheet.headers = [];
+
+        var prioritySS = sheet.prioritySS;
+
+        if (!(typeof prioritySS === "undefined") && prioritySS != null && !(prioritySS === "RAWVAL")) {
+            convertedSheet.prioritySS = prioritySS;
+
+            var fallback = sheet.fallback;
+
+            if (!(typeof fallback === "undefined") && fallback != null) {
+                if (fallback === "true" || fallback == true) {
+                    convertedSheet.fallback = "y";
+                } else if (fallback === "false" || fallback == false) {
+                    convertedSheet.fallback = "n";
+                }
+            }
+        }
 
         if (sheet.hidden === "true") {
             convertedSheet.hidden = true;

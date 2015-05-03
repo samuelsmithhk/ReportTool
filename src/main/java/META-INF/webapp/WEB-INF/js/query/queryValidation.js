@@ -5,12 +5,28 @@ function validateSaveQuery(query) {
         return false;
     }
 
+    if (query.template == true || query.template === "true") {
+        if (typeof query.templateFile === "undefined" || query.templateFile == null ||
+                query.templateFile.trim() === "") {
+            alert("You have selected use template, but no template is specified");
+            return false;
+        }
+    }
+
     var broke = false;
     $.each(query.sheets, function(sheetIndex, sheet){
         if (typeof sheet.name === "undefined" || sheet.name.trim() === "") {
             alert("A sheet is missing its name");
             broke = true;
             return false;
+        }
+
+        if (!(typeof sheet.prioritySS === "undefined") && sheet.prioritySS != null && !(sheet.prioritySS.trim() === "")) {
+            if (typeof sheet.fallback === "undefined" || sheet.fallback == null || sheet.fallback.trim() === "") {
+                alert("You select a source system priority for a sheet, but not whether it falls back or not");
+                broke = true;
+                return false;
+            }
         }
 
         $.each(sheet.headers, function(headerIndex, header){

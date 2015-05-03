@@ -76,9 +76,13 @@ function createSheetsUIForQuery(query) {
         + '-nameTextBox">Sheet Name: </label><input id="sheet' + sheetIndex + '-nameTextBox"/>&nbsp;'
         + '<button id="sheet' + sheetIndex + '-saveSheetNameButton" class="button">Save Sheet Name</button>'
         + '<br /><br /><div id="sheet' + sheetIndex + '-headers"></div><br />'
-        + '<label for="sheet' + sheetIndex + '-filterByColumnSelect">Filter Column:</label><select id="sheet'
-        + sheetIndex + '-filterByColumnSelect"></select>&nbsp;&nbsp;<label for="sheet' + sheetIndex
-        + '-filterByValueTextBox">Filter Value: </label><input id="sheet' + sheetIndex
+        + '<label for="sheet' + sheetIndex + '-prioritySSSelect">Prioritize by source system:</label><select id="sheet'
+        + sheetIndex + '-prioritySSSelect"></select><br /><label for="sheet' + sheetIndex + '-fallbackSelect">'
+        + 'If no values found for above Source System within snapshot range, fallback to regular function?</label>'
+        + '<select id="sheet' + sheetIndex + '-fallbackSelect"><option value="y">Yes</option><option value="n">No'
+        + '</option></select><br/ ><br /><label for="sheet' + sheetIndex + '-filterByColumnSelect">Filter Column:'
+        +  '</label><select id="sheet' + sheetIndex + '-filterByColumnSelect"></select>&nbsp;&nbsp;<label for="sheet'
+        + sheetIndex + '-filterByValueTextBox">Filter Value: </label><input id="sheet' + sheetIndex
         + '-filterByValueTextBox"/><br /><br /><label for="sheet' + sheetIndex
         + '-sortBySelect">Sort By: </label><select id="sheet' + sheetIndex + '-sortBySelect"></select><br /><br />'
         + '<label for="sheet' + sheetIndex + '-groupBySelect">Group By: </label><select id="sheet'
@@ -142,6 +146,10 @@ function createSheetsUIForQuery(query) {
 
         requestColumns("sheet" + sheetIndex + "-filterByColumnSelect", sheet.filterColumn);
         updateGroupByAndSortByColumns(query, sheetIndex);
+
+
+        requestSourceSystems("sheet" + sheetIndex + "-prioritySSSelect", sheet.prioritySS);
+        $("#sheet" + sheetIndex + "-fallbackSelect").val(sheet.select);
 
         $("#sheet" + sheetIndex + "-filterByValueTextBox").val(sheet.filterValue);
         $("#sheet" + sheetIndex + "-sortBySelect").val(sheet.sortBy);
@@ -406,6 +414,8 @@ function switchToColumnEditor(query, sheetIndex, headerIndex, columnIndex) {
             requestColumns("directColumnList", col.rule);
             $("#overwriteNameTextBox").val(col.name)
         } else {
+            $("#columnNameTextBox").val(col.name);
+
             $("#directColumnOption").prop("checked", false);
             $("#calculatedColumnOption").prop("checked", true);
             setColumnCreatorForType();
@@ -459,6 +469,53 @@ function switchToColumnEditor(query, sheetIndex, headerIndex, columnIndex) {
 
     $("#sheet" + sheetIndex + "-header" + headerIndex + "-columnCreator").show();
 
+}
+
+function requestColumns(dropDownToUpdate, valueToSelect) {
+    $.ajax({
+        type : "GET",
+        url : "getAllColumns"
+    }).done(function(response){
+        var columns = JSON.parse(response);
+        addColumnsToSelects(columns, dropDownToUpdate, valueToSelect);
+    });
+}
+
+function addColumnsToSelects(columnsToAdd, dropDownToUpdate, valueToSelect) {
+    var htmlValue = "<option value=\"RAWVAL\"></option>";
+
+    $.each(columnsToAdd, function(index, column) {
+        htmlValue += "<option value=\"" + column + "\">" + column + "</option>";
+    });
+
+    if (!(typeof dropDownToUpdate === "undefined")) {
+        $("#" + dropDownToUpdate).html(htmlValue);
+        $("#" + dropDownToUpdate).val(valueToSelect);
+    } else {
+        $(".columnSelectBox").html(htmlValue);
+    }
+}
+
+function requestSourceSystems(dropDownToUpdate, valueToSelect) {
+    $.ajax({
+        type : "GET",
+        url : "getAllSourceSystems"
+    }).done(function(response){
+        var sourceSystems = JSON.parse(response);
+
+        var htmlValue = '<option value="RAWVAL"></option>';
+
+        $.each(sourceSystems, function(index, sourceSystem){
+            htmlValue += '<option value="' + sourceSystem + '">' + sourceSystem + '</option>';
+        });
+
+        if (!(typeof dropDownToUpdate === "undefined")) {
+            $("#" + dropDownToUpdate).html(htmlValue);
+            if (valueToSelect != null) {
+                $("#" + dropDownToUpdate).val(valueToSelect);
+            }
+        }
+    });
 }
 
 function setColumnCreatorForType() {

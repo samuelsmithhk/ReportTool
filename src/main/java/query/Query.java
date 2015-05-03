@@ -100,8 +100,8 @@ public class Query {
 
     public static class QuerySheet {
         public final List<Header> headers;
-        public final String sheetName, groupBy, filterColumn, filterValue, sortBy;
-        public final boolean isHidden;
+        public final String sheetName, groupBy, filterColumn, filterValue, sortBy, ssPriority;
+        public final boolean isHidden, allowFallback;
 
         private final QuerySheetBuilder qsb;
 
@@ -113,6 +113,8 @@ public class Query {
             this.filterValue = qsb.filterValue;
             this.sortBy = qsb.sortBy;
             this.isHidden = qsb.isHidden;
+            this.ssPriority = qsb.ssPriority;
+            this.allowFallback = qsb.allowFallback;
 
             this.qsb = qsb;
         }
@@ -122,9 +124,9 @@ public class Query {
         }
 
         public static class QuerySheetBuilder {
-            List<Header> headers;
-            String sheetName, groupBy, filterColumn, filterValue, sortBy;
-            boolean isHidden;
+            private List<Header> headers;
+            private String sheetName, groupBy, filterColumn, filterValue, sortBy, ssPriority;
+            private boolean isHidden, allowFallback;
 
             public QuerySheetBuilder(String sheetName) {
                 this.sheetName = sheetName;
@@ -134,6 +136,7 @@ public class Query {
                 filterValue = null;
                 sortBy = null;
                 isHidden = false;
+                ssPriority = null;
             }
 
             public QuerySheetBuilder withColumn(String header, String column) {
@@ -159,6 +162,16 @@ public class Query {
 
             public QuerySheetBuilder setIsHidden(boolean isHidden) {
                 this.isHidden = isHidden;
+                return this;
+            }
+
+            public QuerySheetBuilder withSSPriority(String ssPriority) {
+                this.ssPriority = ssPriority;
+                return this;
+            }
+
+            public QuerySheetBuilder withoutSSPriority() {
+                this.ssPriority = null;
                 return this;
             }
 
@@ -217,6 +230,11 @@ public class Query {
                 this.groupBy = groupBy;
                 return this;
             }
+
+            public QuerySheetBuilder setAllowFallback(boolean allowFallback) {
+                this.allowFallback = allowFallback;
+                return this;
+            }
         }
 
         public static class Header {
@@ -265,7 +283,7 @@ public class Query {
             JsonElement outputTimestampJSON = o.get("outputTimestamp");
             if (outputTimestampJSON != null) {
                 boolean outputTimestamp = outputTimestampJSON.getAsBoolean();
-                qb.setOutputTimestamp(outputTimestamp);
+                qb = qb.setOutputTimestamp(outputTimestamp);
             }
 
             JsonArray sheetsArray = o.get("sheets").getAsJsonArray();
@@ -276,9 +294,18 @@ public class Query {
                 String sheetName = (sheetNameJSON != null) ? sheetNameJSON.getAsString() : "Results";
                 Query.QuerySheet.QuerySheetBuilder qsb = new Query.QuerySheet.QuerySheetBuilder(sheetName);
 
+                JsonElement ssPriorityJSON = sheetO.get("prioritySS");
+                String ssPriority = ssPriorityJSON != null ? ssPriorityJSON.getAsString() : null;
+                qsb = qsb.withSSPriority(ssPriority);
+
+                JsonElement allowFallbackJSON = sheetO.get("fallback");
+                boolean allowFallback = allowFallbackJSON != null && allowFallbackJSON.getAsBoolean();
+                qsb = qsb.setAllowFallback(allowFallback);
+
+
                 JsonElement isHiddenJSON = sheetO.get("hidden");
                 boolean isHidden = (isHiddenJSON != null) && isHiddenJSON.getAsBoolean();
-                qsb.setIsHidden(isHidden);
+                qsb = qsb.setIsHidden(isHidden);
 
                 JsonArray headersJSON = sheetO.getAsJsonArray("headers"),
                         headerGroupsJSON = sheetO.getAsJsonArray("headerGroups");
@@ -305,7 +332,7 @@ public class Query {
 
                 qsb = qsb.setSortBy(sheetO.get("sortBy").getAsString());
 
-                qb.addSheet(qsb.build());
+                qb = qb.addSheet(qsb.build());
             }
 
             JsonElement calculatedColumnsJSON = o.get("calculatedColumns");
@@ -383,6 +410,10 @@ public class Query {
 
 
                 sb.append("{\"sheetName\":").append("\"").append(qsb.getSheetName()).append("\"");
+
+                if (sheet.ssPriority != null)
+                    sb.append(",\"prioritySS\":\"").append(sheet.ssPriority).append("\",\"fallback\":\"")
+                            .append(sheet.allowFallback).append("\"");
 
                 sb.append(",\"headers\":[");
                 for (String h : qsb.getHeaders()) sb.append("\"").append(h).append("\",");

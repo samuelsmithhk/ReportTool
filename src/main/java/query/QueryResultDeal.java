@@ -15,12 +15,14 @@ public class QueryResultDeal {
     public final Map<Header, String> dealProperties;
 
     private final Query query;
+    private final Query.QuerySheet sheet;
 
     public QueryResultDeal(Query query, String dealName, Map<String, DealProperty> dpToConvert,
-                           List<Query.QuerySheet.Header> selectedColumns, LocalDate snapshotDate) throws Exception {
+                           Query.QuerySheet sheet, LocalDate snapshotDate) throws Exception {
         this.dealName = dealName;
         this.query = query;
-        this.dealProperties = convertDealProperties(dpToConvert, selectedColumns, snapshotDate);
+        this.sheet = sheet;
+        this.dealProperties = convertDealProperties(dpToConvert, sheet.headers, snapshotDate);
     }
 
     public Map<Header, String> convertDealProperties(Map<String, DealProperty> toConvert,
@@ -33,7 +35,7 @@ public class QueryResultDeal {
             for (String sub : col.subs) {
                 if (toConvert.containsKey(sub))
                     retMap.put(new Header(col.header, sub), QueryUtils.parseValue(toConvert.get(sub)
-                            .getSnapshotValue(snapshotDate)));
+                            .getSnapshotValue(snapshotDate, sheet.ssPriority, sheet.allowFallback)));
                 else if ((sub.startsWith("=")) || (sub.startsWith("$"))) {
                     try {
                         SpecialColumn sc = query.getSpecialColumn(sub);
