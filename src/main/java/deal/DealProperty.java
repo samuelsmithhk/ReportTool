@@ -71,7 +71,7 @@ public class DealProperty {
 
         Value fallbackVal = null;
 
-        for (int i = 0; i <= 5; i++) {
+        for (int i = 0; i <= 1; i++) {
             LocalDate snapshotDerived = snapshot.minusDays(i);
             int snapshotYear = snapshotDerived.getYear();
             int snapshotMonth = snapshotDerived.getMonthOfYear();
@@ -101,7 +101,7 @@ public class DealProperty {
                                                 CacheManager.getCacheManager().getSourceSystemLastUpdated(value.ss);
 
                                         if (snapshotDerived.isEqual(sourceSystemLastUpdated)) fallbackVal = value;
-                                    }
+                                    } else fallbackVal = value;
                                 }
                             } else {
                                 if (i > 0) {
