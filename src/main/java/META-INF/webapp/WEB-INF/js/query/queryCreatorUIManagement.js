@@ -54,7 +54,7 @@ function loadTemplates(query) {
 
         if (!(typeof query.templateFile === "undefined" || query.templateFile.trim() === ""
                 || query.templateFile.trim() === "null")) {
-            $("#templateSelect").val(query.template);
+            $("#templateSelect").val(query.templateFile);
         }
     });
 }
@@ -149,7 +149,8 @@ function createSheetsUIForQuery(query) {
 
 
         requestSourceSystems("sheet" + sheetIndex + "-prioritySSSelect", sheet.prioritySS);
-        $("#sheet" + sheetIndex + "-fallbackSelect").val(sheet.select);
+        $("#sheet" + sheetIndex + "-fallbackSelect").val(sheet.fallback);
+
 
         $("#sheet" + sheetIndex + "-filterByValueTextBox").val(sheet.filterValue);
         $("#sheet" + sheetIndex + "-sortBySelect").val(sheet.sortBy);

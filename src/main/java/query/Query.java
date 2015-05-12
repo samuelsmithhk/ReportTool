@@ -261,6 +261,12 @@ public class Query {
                     }
                 }
             }
+
+            public Header copy(){
+                Header retHeader = new Header(header);
+                for (String s : subs) retHeader.addSub(s);
+                return retHeader;
+            }
         }
     }
 

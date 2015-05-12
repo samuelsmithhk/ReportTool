@@ -43,9 +43,9 @@ public class QueryExecutor {
                 }
                 List<Group> sortedValues = qe.sortValues(groupedValues);
 
-                qe.overwriteHeaders(query, sheet.headers);
+                List<Query.QuerySheet.Header> newHeaders = qe.overwriteHeaders(query, sheet.headers);
 
-                qrb.addSheet(new QueryResult.QueryResultSheet(sheet.sheetName, sortedValues, sheet.headers,
+                qrb.addSheet(new QueryResult.QueryResultSheet(sheet.sheetName, sortedValues, newHeaders,
                         sheet.isHidden));
             } catch (Exception e) {
                 logger.error("Error executing query, skipping sheet: {}", e.getMessage(), e);
@@ -153,19 +153,28 @@ public class QueryExecutor {
         return toSort;
     }
 
-    private void overwriteHeaders(Query query, List<Query.QuerySheet.Header> headers) {
+    private List<Query.QuerySheet.Header> overwriteHeaders(Query query, List<Query.QuerySheet.Header> headers) {
+        List<Query.QuerySheet.Header> retList = Lists.newLinkedList();
+
         for (Query.QuerySheet.Header header : headers) {
-            for (String sub : header.subs) {
+            Query.QuerySheet.Header headerCopy = header.copy();
+            retList.add(headerCopy);
+
+            for (String sub : headerCopy.subs) {
                 if ((sub.startsWith("=")) || (sub.startsWith("$"))) {
                     try {
                         SpecialColumn sc = query.getSpecialColumn(sub);
-                        header.overwriteSub(sub, sc.getHeader());
+                        headerCopy.overwriteSub(sub, sc.getHeader());
                     } catch (SpecialColumn.SpecialColumnException e) {
                         logger.warn("Special column {} does not exist in query, skipping header overwrite", sub);
                     }
                 }
+
+                retList.add(headerCopy);
             }
         }
+
+        return retList;
     }
 
 }

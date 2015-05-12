@@ -14,6 +14,7 @@ $(document).ready(function(){
     });
 
     $("#newJobButton").click(function(){
+        clearJobEditorWindow();
         requestQueryNames();
         displayNewJobWindow();
     });
@@ -110,6 +111,30 @@ $(document).ready(function(){
         var r = confirm("Are you sure you want to cancel?");
         if (r) {
             hideDialog();
+        }
+    });
+
+    $("#editJobButton").click(function(){
+        var jobName = $("#jobNameLabel").html();
+
+        var r = confirm("Do you want to edit " + jobName + "? This will effect all instances of this job");
+        if (r) {
+            $.ajax({
+                type : "GET",
+                url : "getJobByName",
+                data : {
+                    "jobName" : jobName
+                }
+            }).done(function(data){
+                var job = JSON.parse(data);
+
+                if (job.result === 'error') {
+                    alert("Unable to retrieve job for editing");
+                    return;
+                }
+
+                createJobEditorWindow(job);
+            });
         }
     });
 

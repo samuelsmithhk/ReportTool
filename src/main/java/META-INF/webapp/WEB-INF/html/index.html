@@ -57,6 +57,8 @@
     <div id="scheduleDialog" class="dialogBox">
         <h2><span id="jobNameLabel">Job Name</span></h2>
 
+        <button id="editJobButton" class="button">Edit Job</button>
+
         <div id="jobExecutionTimes">No execution times</div>
 
         <button id="removeJobButton" class="button">Remove Job</button>
@@ -76,11 +78,11 @@
 
         <h2>Email Rules</h2>
         <label for="emailToTextBox">Send email to (use , between addresses):</label>
-        <input id="emailToTextBox"/><br/>
+        <input id="emailToTextBox" size="50"/><br/>
         <label for="subjectTextBox">Subject:</label>
-        <input id="subjectTextBox"/><br/>
-        <label for="messageTextBox">Message: </label>
-        <input id="messageTextBox"/><br/><br/>
+        <input id="subjectTextBox" size="50"/><br/>
+        <label for="messageTextArea">Message: <br /></label>
+        <textArea id="messageTextArea" cols="50" rows="5"></textArea><br/><br/>
 
         <h2>Schedule Rules</h2>
 

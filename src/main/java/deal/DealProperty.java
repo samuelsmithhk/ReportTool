@@ -71,7 +71,7 @@ public class DealProperty {
 
         Value fallbackVal = null;
 
-        for (int i = 0; i <= 1; i++) {
+        for (int i = 0; i <= 2; i++) {
             LocalDate snapshotDerived = snapshot.minusDays(i);
             int snapshotYear = snapshotDerived.getYear();
             int snapshotMonth = snapshotDerived.getMonthOfYear();

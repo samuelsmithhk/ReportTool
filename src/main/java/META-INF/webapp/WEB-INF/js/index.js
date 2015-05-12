@@ -154,23 +154,28 @@ function requestQueries() {
     });
 }
 
-function requestQueryNames() {
+function requestQueryNames(toSelect) {
     $.ajax({
         type : "GET",
         url : "getAllQueryNames"
     }).done(function(response){
         var queryNames = JSON.parse(response);
-        addQueryNamesToSelect(queryNames);
+        addQueryNamesToSelect(queryNames, toSelect);
+        return true;
     });
 }
 
-function addQueryNamesToSelect(queryNames) {
+function addQueryNamesToSelect(queryNames, toSelect) {
     var htmlValue = "";
     $.each(queryNames, function(index, name){
         htmlValue += '<option value="' + name + '">' + name + '</option>';
     });
 
     $("#querySelectBox").html(htmlValue);
+
+    if (!(typeof toSelect === "undefined") || toSelect != null) {
+            $("#querySelectBox").val(toSelect);
+        }
 }
 
 function displayAddQueryWindow() {
@@ -239,15 +244,11 @@ function createQueryList(queryListString) {
     var htmlValue = '<div id="queriesAccordion">';
 
     $.each(queryList, function(index, query){
-        //alert(JSON.stringify(query))
         var partialHtml = "";
 
         var name = query.queryName;
 
         partialHtml += "<h3>" + name + "</h3><div>";
-
-        //partialHtml += '<button id="exe-' + name + '" class="executeButton">Execute Query</button>&nbsp;&nbsp;'
-        //+ '<button id="edit-'+ name + '" class="editQueryButton">Edit Query</button><br />';
 
         partialHtml += '<button id="edit-' + name + '" class="editQueryButton">Edit Query</button>&nbsp;&nbsp;'
         + 'Enter <b>email address</b> to send executed query to: <input id="email-' + name

@@ -4,7 +4,7 @@ function validateAndSaveJob() {
 
     var emailTo = $("#emailToTextBox").val();
     var subject = $("#subjectTextBox").val();
-    var message = $("#messageTextBox").val();
+    var message = $("#messageTextArea").val();
 
     if (jobName.trim() === "") {
         alert("Enter a job name");
