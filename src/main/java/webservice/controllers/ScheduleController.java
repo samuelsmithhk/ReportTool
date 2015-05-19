@@ -67,7 +67,10 @@ public class ScheduleController {
                 StringBuilder sb = new StringBuilder("[");
                 for (DateTime dt : jobExecutionTimes)
                     sb.append("\"").append(dt.toString("yyyy-MM-dd hh:mm")).append("\",");
-                sb.deleteCharAt(sb.lastIndexOf(",")).append("]");
+                int commaIndex = sb.lastIndexOf(",");
+
+                if (commaIndex != -1) sb.deleteCharAt(commaIndex);
+                sb.append("]");
 
                 String jobJson = "\"job\":" + gson.toJson(job);
                 String dtJson = "\"executionTimes\":" + sb.toString();

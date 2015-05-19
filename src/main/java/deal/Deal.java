@@ -33,4 +33,16 @@ public class Deal {
     }
 
 
+    /**
+     *
+     * @return true if still dealProperties
+     */
+    public boolean purgeOldData() {
+
+        for (Map.Entry<String, DealProperty> entry : dealProperties.entrySet())
+            if (!entry.getValue().purgeOldData()) dealProperties.remove(entry.getKey());
+
+
+        return dealProperties.size() != 0;
+    }
 }

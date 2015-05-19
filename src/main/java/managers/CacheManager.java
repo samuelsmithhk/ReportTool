@@ -71,4 +71,8 @@ public class CacheManager {
         InputManager im = InputManager.getInputManager();
         im.loadNewInputsIfAny();
     }
+
+    public void purgeOldData() {
+        cache.purgeOldData();
+    }
 }

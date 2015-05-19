@@ -136,7 +136,8 @@ public class InputFileManager {
 
         File[] files = dir.listFiles(new FilenameFilter() {
 
-            DateTime cacheTimestamp = cm.getDirectoriesLastUpdated(directory);
+            DateTime cacheTimestamp = cm.getDirectoriesLastUpdated(directory),
+                    fiveWeeksAgo = new DateTime().minusWeeks(5);
 
             @Override
             public boolean accept(File dir, String name) {
@@ -149,8 +150,9 @@ public class InputFileManager {
 
                     DateTime fileTimestamp = new DateTime(attr.creationTime().toMillis());
 
-                    logger.info("Checking if {} is a new input file", name);
+                    logger.info("Checking if {} is a new input file that is younger than 5 weeks", name);
 
+                    if (fileTimestamp.isBefore(fiveWeeksAgo)) return false;
                     if (cacheTimestamp == null) return (name.endsWith(".xlsx") || name.endsWith(".xls"));
                     logger.info("cacheTimestamp: {}", cacheTimestamp);
                     logger.info("fileTimestamp: {}", fileTimestamp);

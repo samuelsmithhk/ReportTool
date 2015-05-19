@@ -280,6 +280,13 @@ public class Cache {
         return sourceSystemsLastUpdated.get(sourceSystem);
     }
 
+    public void purgeOldData() {
+        for (Map.Entry<String, Deal> entry : deals.entrySet())
+            if (!entry.getValue().purgeOldData()) deals.remove(entry.getKey());
+
+        deals.size();
+    }
+
     public class CacheException extends Exception {
         public CacheException(String e) {
             super(e);

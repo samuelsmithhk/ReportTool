@@ -58,6 +58,10 @@ public class QueryManager {
     public synchronized void executeQuery(Query q) throws Exception {
         InputManager im = InputManager.getInputManager();
         im.loadNewInputsIfAny();
+
+        CacheManager cm = CacheManager.getCacheManager();
+        cm.purgeOldData();
+
         QueryResult qr = QueryExecutor.executeQuery(q);
         ExportManager em = ExportManager.getExportManager();
         em.exportQuery(qr);

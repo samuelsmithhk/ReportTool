@@ -133,6 +133,18 @@ public class DealProperty {
         return String.valueOf(values);
     }
 
+    /**
+     *
+     * @return Whether dealproperty still contains values
+     */
+    public boolean purgeOldData() {
+        DateTime fiveWeeksAgo = new DateTime().minusWeeks(5);
+
+        for (DateTime dt : values.keySet()) if (dt.isBefore(fiveWeeksAgo)) values.remove(dt);
+
+        return values.size() != 0;
+    }
+
 
     public static class DealPropertyBuilder {
 
