@@ -117,7 +117,7 @@ public class ScheduleController {
 
     @RequestMapping(value = "saveJob", method = RequestMethod.POST)
     public void saveJob(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        logger.info("{} is trying to save a job", request.getRemoteUser());
+        logger.info("{} is trying to save a job", request.getRemoteAddr());
 
         try {
             JobInstance.Job job = gson.fromJson(request.getParameter("toBeSaved"), JobInstance.Job.class);

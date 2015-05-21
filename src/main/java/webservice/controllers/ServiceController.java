@@ -93,7 +93,6 @@ public class ServiceController {
             sem.isReady(true);
             sem.setStatus("Ready");
 
-            sm.shutdownSchedule();
             logger.info("Loading and starting new schedule");
             sm.startSchedule();
             logger.info("Successfully reloaded schedule");

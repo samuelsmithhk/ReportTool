@@ -77,8 +77,8 @@ public abstract class AbstractTimeRule implements ITimeRule {
     public Queue<DateTime> purgeOldInstances(Queue<DateTime> queue) {
         DateTime now = new DateTime();
 
-        for (int count = 0; count < queue.size(); count++) {
-            if (queue.element().isBefore(now)) queue.remove();
+        while (queue.peek() != null) {
+            if (queue.peek().isBefore(now)) queue.remove();
             else break;
         }
 

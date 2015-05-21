@@ -38,6 +38,8 @@ public class InputManager {
                 cm.processDealUpdate(input.sourceSystem, input.directory, input.timestamp, input.dealMap);
             }
 
+            cm.purgeOldData();
+
             if (newInputs.size() > 0) cm.saveCache();
         }
     }

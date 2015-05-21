@@ -14,7 +14,7 @@ public class Schedule implements Runnable {
 
     private static final Logger logger = LoggerFactory.getLogger(Schedule.class);
 
-    private Queue<JobInstance> jobs;
+    private volatile Queue<JobInstance> jobs;
 
     private boolean shouldBreak, hasBroken;
 
@@ -27,6 +27,8 @@ public class Schedule implements Runnable {
     @Override
     public void run() {
         while (!Thread.currentThread().isInterrupted()) {
+
+            logger.info("heartbeat");
 
             if (shouldBreak) {
                 logger.info("Should break set to true, terminating loop");
@@ -49,13 +51,13 @@ public class Schedule implements Runnable {
                     job.execute();
                 }
 
-                Thread.sleep(60000);
+                Thread.sleep(6000);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             } catch (Exception e) {
                 logger.error("Error executing query: {}", e.getMessage(), e);
                 try {
-                    Thread.sleep(60000);
+                    Thread.sleep(6000);
                 } catch (InterruptedException e1) {
                     Thread.currentThread().interrupt();
                 }

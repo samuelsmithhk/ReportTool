@@ -59,8 +59,6 @@ public class QueryManager {
         InputManager im = InputManager.getInputManager();
         im.loadNewInputsIfAny();
 
-        CacheManager cm = CacheManager.getCacheManager();
-        cm.purgeOldData();
 
         QueryResult qr = QueryExecutor.executeQuery(q);
         ExportManager em = ExportManager.getExportManager();

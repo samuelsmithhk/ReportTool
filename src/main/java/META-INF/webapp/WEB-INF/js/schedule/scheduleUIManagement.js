@@ -56,7 +56,7 @@ function createJobView(dateText, response) {
 function clearJobEditorWindow() {
     $("#jobNameTextBox").val("");
     $("#subjectTextBox").val("");
-    $("#messageTextBox").val("");
+    $("#messageTextArea").val("");
     $("#emailToTextBox").val("");
     $("#onceDateTextBox").val("");
     $("#onceTimeTextBox").val("");
@@ -99,7 +99,7 @@ function createJobEditorWindow(jobAndTimes) {
 
     $("#jobNameTextBox").val(job.jobName);
     $("#subjectTextBox").val(job.subject);
-    $("#messageTextBox").val(job.message);
+    $("#messageTextArea").val(job.message);
     $("#emailToTextBox").val(job.emailTo);
 
     var schedule = job.scheduler;

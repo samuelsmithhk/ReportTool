@@ -31,8 +31,7 @@ public class ScheduleManager {
         return sm;
     }
 
-    private Schedule loadSchedule(Schedule currentSchedule) {
-        if (sfm.hasUpdate() || currentSchedule == null) {
+    private Schedule loadSchedule() {
             jobs = sfm.loadJobs();
 
             Queue<JobInstance> masterQueue = new PriorityQueue<>();
@@ -43,18 +42,17 @@ public class ScheduleManager {
             }
 
             return new Schedule(masterQueue);
-        }
-
-        return currentSchedule;
     }
 
-    public void startSchedule() {
-        schedule = loadSchedule(null);
+    public void startSchedule() throws InterruptedException {
+        if (schedule != null) shutdownSchedule();
+
+        schedule = loadSchedule();
         new Thread(schedule).start();
     }
 
     public List<JobInstance> getJobsForDate(LocalDate date) {
-        if (sfm.hasUpdate()) loadSchedule(schedule);
+        if (sfm.hasUpdate()) loadSchedule();
         return schedule.getJobInstancesForDate(date);
     }
 
@@ -63,11 +61,11 @@ public class ScheduleManager {
         return null;
     }
 
-    public void removeJobInstance(String jobName, String instance) throws FileNotFoundException {
+    public void removeJobInstance(String jobName, String instance) throws FileNotFoundException, InterruptedException {
         JobInstance.Job j = getJob(jobName);
         j.addExclusion(instance);
         sfm.saveJob(j);
-        schedule = loadSchedule(schedule);
+        startSchedule();
     }
 
     public JobInstance.Job getJob(String jobName) {
@@ -75,19 +73,19 @@ public class ScheduleManager {
         return null;
     }
 
-    public synchronized void removeJob(String jobName) {
+    public synchronized void removeJob(String jobName) throws InterruptedException {
         sfm.removeJob(jobName);
-        schedule = loadSchedule(schedule);
+        startSchedule();
     }
 
-    public synchronized void saveJob(JobInstance.Job job) throws FileNotFoundException {
+    public synchronized void saveJob(JobInstance.Job job) throws FileNotFoundException, InterruptedException {
         sfm.saveJob(job);
-        schedule = loadSchedule(schedule);
+        startSchedule();
     }
 
     public synchronized void shutdownSchedule() throws InterruptedException {
         schedule.shouldBreakOnNextLoop();
 
-    while (!(schedule.hasBroken())) Thread.sleep(15000);
+    while (!(schedule.hasBroken())) Thread.sleep(1500);
     }
 }
