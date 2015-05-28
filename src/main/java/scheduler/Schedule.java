@@ -28,8 +28,6 @@ public class Schedule implements Runnable {
     public void run() {
         while (!Thread.currentThread().isInterrupted()) {
 
-            logger.info("heartbeat");
-
             if (shouldBreak) {
                 logger.info("Should break set to true, terminating loop");
                 hasBroken = true;

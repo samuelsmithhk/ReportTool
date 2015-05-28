@@ -8,6 +8,7 @@ import org.joda.time.LocalDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -140,7 +141,11 @@ public class DealProperty {
     public boolean purgeOldData() {
         DateTime fiveWeeksAgo = new DateTime().minusWeeks(5);
 
-        for (DateTime dt : values.keySet()) if (dt.isBefore(fiveWeeksAgo)) values.remove(dt);
+        for (Iterator<DateTime> dt = values.keySet().iterator(); dt.hasNext();) {
+            DateTime element = dt.next();
+            if (element.isBefore(fiveWeeksAgo))
+                dt.remove();
+        }
 
         return values.size() != 0;
     }

@@ -2,6 +2,7 @@ package deal;
 
 import org.joda.time.DateTime;
 
+import java.util.Iterator;
 import java.util.Map;
 
 public class Deal {
@@ -41,6 +42,12 @@ public class Deal {
 
         for (Map.Entry<String, DealProperty> entry : dealProperties.entrySet())
             if (!entry.getValue().purgeOldData()) dealProperties.remove(entry.getKey());
+
+        for (Iterator<Map.Entry<String, DealProperty>> dp = dealProperties.entrySet().iterator(); dp.hasNext();) {
+            Map.Entry<String, DealProperty> element = dp.next();
+            if (!element.getValue().purgeOldData())
+                dp.remove();
+        }
 
 
         return dealProperties.size() != 0;

@@ -12,6 +12,7 @@ import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -285,7 +286,12 @@ public class Cache {
         for (Map.Entry<String, Deal> entry : deals.entrySet())
             if (!entry.getValue().purgeOldData()) deals.remove(entry.getKey());
 
-        deals.size();
+        for (Iterator<Map.Entry<String, Deal>> d = deals.entrySet().iterator(); d.hasNext();) {
+            Map.Entry<String, Deal> element = d.next();
+            if (!element.getValue().purgeOldData())
+                d.remove();
+        }
+
     }
 
     public class CacheException extends Exception {
