@@ -3,6 +3,8 @@ function validateAndSaveJob() {
     var selectedQueries = $("#querySelectBox").val();
 
     var emailTo = $("#emailToTextBox").val();
+    var cc = $("#ccTextBox").val();
+    var bcc = $("#bccTextBox").val();
     var subject = $("#subjectTextBox").val();
     var message = $("#messageTextArea").val();
 
@@ -179,6 +181,8 @@ function validateAndSaveJob() {
     job.queries = selectedQueries;
     job.selectedQueries = selectedQueries;
     job.emailTo = emailTo.split(",");
+    job.cc = cc;
+    job.bcc = bcc;
     job.subject = subject;
     job.message = message;
     job.scheduler = scheduler;

@@ -36,8 +36,8 @@ public class JobInstance implements Comparable<JobInstance> {
         logger.info("Executing {}", this);
         QueryManager qm = QueryManager.getQueryManager();
         for (Query q : jobToExecute.queries) qm.executeQuery(q);
-        Email.getEmail().sendEmail(jobToExecute.queries, jobToExecute.emailTo, jobToExecute.subject,
-                jobToExecute.message);
+        Email.getEmail().sendEmail(jobToExecute.queries, jobToExecute.emailTo, jobToExecute.cc, jobToExecute.bcc,
+                jobToExecute.subject, jobToExecute.message);
         logger.info("Emails sent, job complete");
     }
 
@@ -131,7 +131,7 @@ public class JobInstance implements Comparable<JobInstance> {
     public static class Job {
 
         private final String jobName, subject, message;
-        private final List<String> emailTo;
+        private final List<String> emailTo, cc, bcc;
         private final List<Query> queries;
         private final ITimeRule timeRule;
 
@@ -141,6 +141,8 @@ public class JobInstance implements Comparable<JobInstance> {
             this.subject = jb.subject;
             this.message = jb.message;
             this.emailTo = jb.emailTo;
+            this.cc = jb.cc;
+            this.bcc = jb.bcc;
             this.queries = jb.queries;
             this.timeRule = jb.timeRule;
         }
@@ -171,13 +173,14 @@ public class JobInstance implements Comparable<JobInstance> {
 
         public static class JobBuilder {
             private String jobName, subject, message;
-            private List<String> emailTo;
+            private List<String> emailTo, cc, bcc;
             private List<Query> queries;
             private ITimeRule timeRule;
 
             public JobBuilder(String jobName) {
                 this.jobName = jobName;
-
+                cc = Lists.newArrayList();
+                bcc = Lists.newArrayList();
             }
 
             public JobBuilder withSubject(String subject) {
@@ -192,6 +195,16 @@ public class JobInstance implements Comparable<JobInstance> {
 
             public JobBuilder withEmailTo(List<String> emailTo) {
                 this.emailTo = emailTo;
+                return this;
+            }
+
+            public JobBuilder withCC(List<String> cc) {
+                this.cc = cc;
+                return this;
+            }
+
+            public JobBuilder withBCC(List<String> bcc) {
+                this.bcc = bcc;
                 return this;
             }
 
@@ -232,6 +245,24 @@ public class JobInstance implements Comparable<JobInstance> {
                 List<String> emailTo = Lists.newArrayList();
                 for (JsonElement address : emailToArray) emailTo.add(address.getAsString());
                 jb.withEmailTo(emailTo);
+
+                JsonElement ccArrayElement = o.get("cc");
+
+                if (ccArrayElement != null) {
+                    JsonArray ccArray = ccArrayElement.getAsJsonArray();
+                    List<String> cc = Lists.newArrayList();
+                    for (JsonElement ccAddress : ccArray) cc.add(ccAddress.getAsString());
+                    jb.withCC(cc);
+                }
+
+                JsonElement bccArrayElement = o.get("bcc");
+
+                if (bccArrayElement != null) {
+                    JsonArray bccArray = bccArrayElement.getAsJsonArray();
+                    List<String> bcc = Lists.newArrayList();
+                    for (JsonElement bccAddress : bccArray) bcc.add(bccAddress.getAsString());
+                    jb.withBCC(bcc);
+                }
 
                 try {
                     QueryManager qm = QueryManager.getQueryManager();
@@ -326,7 +357,15 @@ public class JobInstance implements Comparable<JobInstance> {
                 sb.append(job.jobName).append("\",\"emailTo\":[");
 
                 for (String s : job.emailTo) sb.append("\"").append(s).append("\",");
-                sb.deleteCharAt(sb.lastIndexOf(",")).append("],\"queries\":[");
+                sb.deleteCharAt(sb.lastIndexOf(",")).append("],\"cc\":[");
+
+                for (String s : job.cc) sb.append("\"").append(s).append("\",");
+                if (job.cc.size() != 0) sb.deleteCharAt(sb.lastIndexOf(","));
+                sb.append("],\"bcc\":[");
+
+                for (String s : job.bcc) sb.append("\"").append(s).append("\",");
+                if (job.bcc.size() != 0) sb.deleteCharAt(sb.lastIndexOf(","));
+                sb.append("],\"queries\":[");
 
                 for (Query q : job.queries) sb.append("\"").append(q.name).append("\",");
                 sb.deleteCharAt(sb.lastIndexOf(",")).append("],\"subject\":\"").append(job.subject)

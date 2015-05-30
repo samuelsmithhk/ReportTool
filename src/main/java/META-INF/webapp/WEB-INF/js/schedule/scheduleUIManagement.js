@@ -58,6 +58,8 @@ function clearJobEditorWindow() {
     $("#subjectTextBox").val("");
     $("#messageTextArea").val("");
     $("#emailToTextBox").val("");
+    $("#ccTextBox").val("");
+    $("#bccTextBox").val("");
     $("#onceDateTextBox").val("");
     $("#onceTimeTextBox").val("");
     $("#weeklyEveryTextBox").val("");
@@ -101,6 +103,8 @@ function createJobEditorWindow(jobAndTimes) {
     $("#subjectTextBox").val(job.subject);
     $("#messageTextArea").val(job.message);
     $("#emailToTextBox").val(job.emailTo);
+    $("#ccTextBox").val(job.cc);
+    $("#bccTextBox").val(job.bcc);
 
     var schedule = job.scheduler;
 

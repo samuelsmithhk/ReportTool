@@ -40,9 +40,6 @@ public class Deal {
      */
     public boolean purgeOldData() {
 
-        for (Map.Entry<String, DealProperty> entry : dealProperties.entrySet())
-            if (!entry.getValue().purgeOldData()) dealProperties.remove(entry.getKey());
-
         for (Iterator<Map.Entry<String, DealProperty>> dp = dealProperties.entrySet().iterator(); dp.hasNext();) {
             Map.Entry<String, DealProperty> element = dp.next();
             if (!element.getValue().purgeOldData())

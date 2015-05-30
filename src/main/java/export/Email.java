@@ -37,7 +37,8 @@ public class Email {
         email = new Email(host, port, ssl, from, username, password);
     }
 
-    public void sendEmail(List<Query> queries, List<String> addresses, String subject, String contents) throws Exception {
+    public void sendEmail(List<Query> queries, List<String> addresses, List<String> cc, List<String> bcc,
+                          String subject, String contents) throws Exception {
         MultiPartEmail email = new MultiPartEmail();
         ExportManager em = ExportManager.getExportManager();
 
@@ -57,6 +58,8 @@ public class Email {
         }
 
         for (String address : addresses) email.addTo(address);
+        for (String ccAddress : cc) email.addCc(ccAddress);
+        for (String bccAddress : bcc) email.addBcc(bccAddress);
 
         email.setHostName(host);
         email.setSmtpPort(port);
