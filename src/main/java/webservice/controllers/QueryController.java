@@ -17,6 +17,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.List;
 
 @Controller
@@ -101,8 +102,8 @@ public class QueryController {
                 List<String> addresses = Lists.newArrayList();
                 addresses.add(emailAddress);
 
-                Email.getEmail().sendEmail(queries, addresses, "Report for " + q.name,
-                        "This is an automated message, do not respond");
+                Email.getEmail().sendEmail(queries, addresses, new ArrayList<String>(), new ArrayList<String>(),
+                        "Report for " + q.name, "This is an automated message, do not respond");
 
                 logger.info("Email sent");
             }
