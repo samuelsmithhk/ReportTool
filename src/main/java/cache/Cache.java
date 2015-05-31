@@ -283,8 +283,6 @@ public class Cache {
 
     public void purgeOldData() {
         logger.info("Purging old data from cache");
-        for (Map.Entry<String, Deal> entry : deals.entrySet())
-            if (!entry.getValue().purgeOldData()) deals.remove(entry.getKey());
 
         for (Iterator<Map.Entry<String, Deal>> d = deals.entrySet().iterator(); d.hasNext();) {
             Map.Entry<String, Deal> element = d.next();
