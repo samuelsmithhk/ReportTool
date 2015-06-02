@@ -181,8 +181,8 @@ function validateAndSaveJob() {
     job.queries = selectedQueries;
     job.selectedQueries = selectedQueries;
     job.emailTo = emailTo.split(",");
-    job.cc = cc;
-    job.bcc = bcc;
+    job.cc = cc.split(",");
+    job.bcc = bcc.split(",");
     job.subject = subject;
     job.message = message;
     job.scheduler = scheduler;
