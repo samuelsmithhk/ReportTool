@@ -58,8 +58,8 @@ public class Email {
         }
 
         for (String address : addresses) email.addTo(address);
-        for (String ccAddress : cc) email.addCc(ccAddress);
-        for (String bccAddress : bcc) email.addBcc(bccAddress);
+        for (String ccAddress : cc) if (!ccAddress.trim().equals("")) email.addCc(ccAddress);
+        for (String bccAddress : bcc) if (!bccAddress.trim().equals("")) email.addBcc(bccAddress);
 
         email.setHostName(host);
         email.setSmtpPort(port);
