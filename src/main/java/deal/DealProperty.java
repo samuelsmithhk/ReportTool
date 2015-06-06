@@ -163,16 +163,6 @@ public class DealProperty {
             return this;
         }
 
-        public DealPropertyBuilder withValues(Map<DateTime, Value> values) {
-            DealPropertyBuilder retDPB = new DealPropertyBuilder();
-
-            for (Map.Entry<DateTime, Value> value : values.entrySet()) {
-                retDPB = retDPB.withValue(value.getKey(), value.getValue());
-            }
-
-            return retDPB;
-        }
-
         public DealProperty build() {
             return new DealProperty(this);
         }

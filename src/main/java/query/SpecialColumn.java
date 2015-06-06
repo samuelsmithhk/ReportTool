@@ -4,10 +4,10 @@ import deal.DealProperty;
 
 public interface SpecialColumn {
 
-    public DealProperty.Value evaluate(Query query, String dealName)
+    DealProperty.Value evaluate(Query query, String dealName)
             throws Exception;
 
-    public String getHeader();
+    String getHeader();
 
     class SpecialColumnException extends Exception {
         public SpecialColumnException(String e) {

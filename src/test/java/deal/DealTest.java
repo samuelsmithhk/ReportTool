@@ -25,7 +25,7 @@ public class DealTest {
 
         deal.updateDeal(time, update);
 
-        String expected = " Deal properties : {Test={0001-01-01T01:01:00.000+07:36:42=Hello (type: STRING)}}";
+        String expected = " Deal properties : {Test={0001-01-01T01:01:00.000+07:36:42=Hello (type: ST)}}";
         String actual = deal.toString();
 
         Assert.assertTrue(expected.equals(actual));

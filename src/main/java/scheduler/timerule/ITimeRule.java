@@ -7,9 +7,9 @@ import java.util.Queue;
 
 public interface ITimeRule {
 
-    public String getType();
+    String getType();
 
-    public Queue<DateTime> getDateTimes();
+    Queue<DateTime> getDateTimes();
 
     void addExclusion(String instance);
 

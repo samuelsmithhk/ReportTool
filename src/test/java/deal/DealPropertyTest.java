@@ -68,20 +68,4 @@ public class DealPropertyTest {
 
         Assert.assertTrue((expected1 == actual1) && (expected2 == actual2));
     }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void shouldThrowErrorForAddingValueWithSameTimestamp() {
-        DateTime time1 = new DateTime(2014, 10, 10, 10, 10);
-
-        DealProperty.Value expected1 = new DealProperty.Value(23, DealProperty.Value.ValueType.NU, "TEST"),
-                expected2 = new DealProperty.Value(24, DealProperty.Value.ValueType.NU, "TEST");
-
-        DealProperty.DealPropertyBuilder dpb = new DealProperty.DealPropertyBuilder();
-        DealProperty dp = dpb
-                .withValue(time1, expected1)
-                .build();
-
-        dp.addValue(time1, expected2);
-
-    }
 }

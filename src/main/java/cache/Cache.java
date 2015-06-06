@@ -7,8 +7,6 @@ import deal.Deal;
 import deal.DealProperty;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,172 +21,15 @@ public class Cache {
     private final Map<String, Deal> deals;
     private Map<String, DateTime> directoriesLastUpdated;
     private Map<String, LocalDate> sourceSystemsLastUpdated;
-    private Cache() {
-        logger.info("Creating empty cache");
+
+    public Cache() {
+        logger.info("Creating new cache");
         this.deals = Maps.newHashMap();
         this.columnIndex = Sets.newTreeSet();
         this.directoriesLastUpdated = Maps.newHashMap();
         this.sourceSystemsLastUpdated = Maps.newHashMap();
     }
-    private Cache(Map<String, Deal> deals, Set<String> columnIndex, Map<String, DateTime> directoriesLastUpdated,
-                  Map<String, LocalDate> sourceSystemsLastUpdated) {
-        logger.info("Creating loaded cache with deals");
-        this.deals = deals;
-        this.columnIndex = columnIndex;
-        this.directoriesLastUpdated = directoriesLastUpdated;
-        this.sourceSystemsLastUpdated = sourceSystemsLastUpdated;
-    }
 
-    public static Cache createEmptyCache() {
-        return new Cache();
-    }
-
-    public static Cache createLoadedCache(String cacheContents) {
-        JsonParser parser = new JsonParser();
-        JsonObject o = parser.parse(cacheContents).getAsJsonObject();
-
-        JsonArray directoriesLastUpdatedJSON = o.getAsJsonArray("dLU");
-        JsonArray sourceSystemsLastUpdatedJSON = o.getAsJsonArray("ssLU");
-        JsonArray cacheColumnsJSON = o.getAsJsonArray("columnIndex");
-        JsonObject cacheContentsJSON = o.getAsJsonObject("deals");
-
-        Map<String, DateTime> directoriesLastUpdated = deserializeDirectoriesTimestamps(directoriesLastUpdatedJSON);
-        Map<String, LocalDate> sourceSystemLastUpdated = deserializeSourceSystemTimestamps(sourceSystemsLastUpdatedJSON);
-        Set<String> cacheColumns = deserializeCacheColumns(cacheColumnsJSON);
-        Map<String, Deal> cacheDeals = deserializeCacheContents(cacheContentsJSON);
-
-        return new Cache(cacheDeals, cacheColumns, directoriesLastUpdated, sourceSystemLastUpdated);
-    }
-
-    public static String serializeCache(Map<String, Deal> deals, Set<String> columnIndex,
-                                        Map<String, DateTime> directoriesLastUpdated,
-                                        Map<String, LocalDate> sourceSystemsLastUpdated) {
-
-        Gson gson = new Gson();
-        String dealsJSON = "{\"deals\":" + gson.toJson(deals) + ",";
-        String colsJSON = "\"columnIndex\":" + gson.toJson(columnIndex) + ",";
-
-        StringBuilder sb = new StringBuilder("\"dLU\":[");
-        for (Map.Entry<String, DateTime> entry : directoriesLastUpdated.entrySet())
-            sb.append("{\"directory\":\"").append(entry.getKey()).append("\",\"ts\":\"")
-                    .append(entry.getValue()).append("\"},");
-
-        sb.deleteCharAt(sb.lastIndexOf(",")).append("],\"ssLU\":[");
-
-        for (Map.Entry<String, LocalDate> entry : sourceSystemsLastUpdated.entrySet())
-            sb.append("{\"ss\":\"").append(entry.getKey()).append("\",\"ts\":\"")
-                    .append(entry.getValue().toString("yyyyMMdd")).append("\"},");
-
-        sb.deleteCharAt(sb.lastIndexOf(",")).append("]}");
-
-        return dealsJSON + colsJSON + sb.toString();
-
-    }
-
-    public static Map<String, Deal> deserializeCacheContents(JsonObject o) {
-        //{"Project PE - AA2":{"dealProperties":{"Deal Code Name":
-        // {"values":{"2014-10-10T10:10:00.000+08:00":
-        // {"innerValue":"Deal Code - Project PE - AA2","type":"STRING"}}}}},"Project PE - AA1":
-        // {"dealProperties":{"Deal Code Name":{"values":{"2014-10-10T10:10:00.000+08:00":
-        // {"innerValue":"Deal Code - Project PE - AA1","type":"STRING"}}}}}}
-
-        Map<String, Deal> retMap = Maps.newHashMap();
-
-        for (Map.Entry<String, JsonElement> entry : o.entrySet()) {
-            String opportunity = entry.getKey();
-            JsonObject dealPropertiesJSON = entry.getValue().getAsJsonObject().get("dealProperties").getAsJsonObject();
-
-            Deal parsedDeal = null;
-            Map<String, DealProperty> dealMap = Maps.newHashMap();
-
-            for (Map.Entry<String, JsonElement> packEntry : dealPropertiesJSON.entrySet()) {
-                String dpName = packEntry.getKey();
-
-                JsonObject dpValues = (JsonObject) packEntry.getValue();
-
-                Map<DateTime, DealProperty.Value> propertyMap = Maps.newHashMap();
-
-                for (Map.Entry<String, JsonElement> dealProperty : dpValues.entrySet()) {
-
-                    JsonObject value = dealProperty.getValue().getAsJsonObject();
-
-                    String timestampStr, sourceSystem;
-                    Object innerValue;
-                    DealProperty.Value.ValueType type;
-
-                    for (Map.Entry<String, JsonElement> val : value.entrySet()) {
-                        timestampStr = val.getKey();
-                        JsonObject v = val.getValue().getAsJsonObject();
-
-                        DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZZ");
-                        DateTime timestamp = formatter.parseDateTime(timestampStr);
-
-                        type = parseType(v.get("type").getAsString());
-                        innerValue = parseInnerValue(type, v.get("innerValue"));
-
-                        sourceSystem = v.get("ss").getAsString();
-
-
-                        DealProperty.Value parsedValue = new DealProperty.Value(innerValue, type, sourceSystem);
-                        propertyMap.put(timestamp, parsedValue);
-                    }
-
-                    DealProperty.DealPropertyBuilder dpb = new DealProperty.DealPropertyBuilder();
-                    DealProperty parsedDP = dpb.withValues(propertyMap).build();
-
-                    dealMap.put(dpName, parsedDP);
-                }
-
-                parsedDeal = new Deal(dealMap);
-            }
-
-            if (parsedDeal != null) retMap.put(opportunity, parsedDeal);
-
-        }
-
-        return retMap;
-    }
-
-    public static Set<String> deserializeCacheColumns(JsonArray columns) {
-        Set<String> retSet = Sets.newTreeSet();
-        for (JsonElement col : columns) retSet.add(col.getAsString());
-        return retSet;
-    }
-
-    public static Map<String, DateTime> deserializeDirectoriesTimestamps(JsonArray directories) {
-        Map<String, DateTime> retMap = Maps.newHashMap();
-
-        DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZZ");
-
-        for (JsonElement lu : directories) {
-            JsonObject luO = lu.getAsJsonObject();
-            String d = luO.get("directory").getAsString();
-            String timestampStr = luO.get("ts").getAsString();
-
-            DateTime timestamp = formatter.parseDateTime(timestampStr);
-
-            retMap.put(d, timestamp);
-        }
-
-        return retMap;
-    }
-
-    private static Map<String, LocalDate> deserializeSourceSystemTimestamps(JsonArray sourceSystems) {
-        Map<String, LocalDate> retMap = Maps.newHashMap();
-
-        DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyyMMdd");
-
-        for (JsonElement ss : sourceSystems) {
-            JsonObject ssO = ss.getAsJsonObject();
-            String ssString = ssO.get("ss").getAsString();
-            String timestampStr = ssO.get("ts").getAsString();
-            LocalDate timestamp = formatter.parseLocalDate(timestampStr);
-
-            retMap.put(ssString, timestamp);
-        }
-
-        return retMap;
-    }
 
     public static Object parseInnerValue(DealProperty.Value.ValueType type, JsonElement innerValue) {
         switch (type) {

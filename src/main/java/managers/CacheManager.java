@@ -2,7 +2,6 @@ package managers;
 
 import cache.Cache;
 import deal.Deal;
-import files.CacheFileManager;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 
@@ -12,20 +11,17 @@ import java.util.Map;
 
 public class CacheManager {
     private static CacheManager cm;
-    private final CacheFileManager cfm;
     private Cache cache;
 
-    private CacheManager(CacheFileManager cfm) {
-        this.cfm = cfm;
-        this.cache = cfm.getCache();
-    }
+    private CacheManager(){}
 
-    public static void initCacheManager(CacheFileManager cfm) {
-        if (cm == null) cm = new CacheManager(cfm);
+    public static void initCacheManager()
+    {
+        if (cm == null) cm = new CacheManager();
     }
 
     public static CacheManager getCacheManager() throws Exception {
-        if (cm == null) throw new Exception("QueryManager needs to be instantiated with instance of QueryFileManager");
+        if (cm == null) throw new Exception("CacheMananger needs to be instantiated");
         return cm;
     }
 
@@ -40,10 +36,6 @@ public class CacheManager {
     public void processDealUpdate(String sourceSystem, String directory, DateTime timestamp,
                                   Map<String, Deal> dealMap) {
         cache.processDealUpdate(sourceSystem, directory, timestamp, dealMap);
-    }
-
-    public void saveCache() {
-        cfm.saveCache(cache);
     }
 
     public DateTime getDirectoriesLastUpdated(String directory) {
@@ -67,7 +59,7 @@ public class CacheManager {
     }
 
     public void createNewCache() throws Exception {
-        cache = cfm.forceEmptyCache();
+        cache = new Cache();
         InputManager im = InputManager.getInputManager();
         im.loadNewInputsIfAny();
     }

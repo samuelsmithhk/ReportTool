@@ -39,8 +39,6 @@ public class InputManager {
             }
 
             cm.purgeOldData();
-
-            if (newInputs.size() > 0) cm.saveCache();
         }
     }
 

@@ -76,7 +76,7 @@ public class CalculatedColumn implements SpecialColumn {
 
 
     private interface Operator {
-        public DealProperty.Value evaluate(Query query, Deal deal, String firstHalf, String secondHalf)
+        DealProperty.Value evaluate(Query query, Deal deal, String firstHalf, String secondHalf)
                 throws Cache.CacheException, SpecialColumnException;
     }
 

@@ -170,10 +170,6 @@ public class Query {
                 return this;
             }
 
-            public QuerySheetBuilder withoutSSPriority() {
-                this.ssPriority = null;
-                return this;
-            }
 
             public QuerySheet build() {
                 return new QuerySheet(this);

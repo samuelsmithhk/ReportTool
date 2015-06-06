@@ -60,15 +60,15 @@ public class ReportToolRunner {
         Map<String, String> properties = loadProperties();
 
         sm.setStatus("Init cache");
-        CacheFileManager cfm = new CacheFileManager(properties.get("cacheDirectory"),
-                Integer.valueOf(properties.get("numberOfHistoricFiles")));
-        CacheManager.initCacheManager(cfm);
+        CacheManager.initCacheManager();
 
         sm.setStatus("Loading parser config");
         ParserManager.initParserConfigManager(loadParserConfigs());
 
         sm.setStatus("Init input manager");
         InputManager.initInputManager(new InputFileManager());
+
+        CacheManager.getCacheManager().createNewCache();
 
         sm.setStatus("Init template manager");
         TemplateManager.initTemplateManager
